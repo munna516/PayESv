@@ -16,8 +16,12 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={plusJakartaSan.className} suppressHydrationWarning>
-      <body className="min-h-screen flex flex-col">
+    <html
+      lang="en"
+      className={plusJakartaSan.className}
+      suppressHydrationWarning
+    >
+      <body className="min-h-screen flex flex-col dark:bg-slate-900">
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
@@ -26,7 +30,7 @@ export default function RootLayout({ children }) {
           <nav>
             <Navbar />
           </nav>
-          <main className="flex-grow scroll-smooth px-4 lg:px-3 max-w-[1400px] mx-auto">
+          <main className="flex-grow scroll-smooth px-4 lg:px-3 max-w-[1400px] mx-auto ">
             {children}
           </main>
           <footer>
