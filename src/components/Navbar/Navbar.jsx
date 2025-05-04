@@ -36,7 +36,7 @@ export default function Navbar() {
   ];
 
   return (
-    <div className="bg-white/50  dark:bg-gray-800 dark:text-white backdrop-blur-lg  border-b-2 px-4 py-4 fixed top-0 left-0 z-50 w-full">
+    <div className="bg-white/50  dark:bg-gray-800 dark:text-white backdrop-blur-lg  border-b-2 dark:border-b-0 px-4 py-4 fixed top-0 left-0 z-50 w-full">
       <div className="max-w-[1400px] mx-auto flex items-center justify-between">
         <div className="flex items-center gap-6">
           <Link
@@ -95,7 +95,7 @@ export default function Navbar() {
         <div className="flex items-center gap-4 md:hidden">
           {mounted && (
             <Button
-            variant={`${theme == "dark" ? "dark_btn" : "primary"}`}
+              variant={`${theme == "dark" ? "dark_btn" : "primary"}`}
               size="icon"
               className="flex md:hidden"
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
@@ -114,7 +114,10 @@ export default function Navbar() {
                 ☰
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-60 bg-white dark:bg-gray-800">
+            <SheetContent
+              side="right"
+              className="w-60 bg-white dark:bg-gray-800"
+            >
               <SheetHeader>
                 <SheetTitle className="text-center text-green-500 font-bold">
                   PayESV
@@ -158,10 +161,18 @@ export default function Navbar() {
 
                 <div className="flex items-center gap-4">
                   <Link href={"/"}>
-                    <Button variant={`${theme == "dark" ? "dark_btn" : "primary"}`}>Login</Button>
+                    <Button
+                      variant={`${theme == "dark" ? "dark_btn" : "primary"}`}
+                    >
+                      Login
+                    </Button>
                   </Link>
                   <Link href={"/"}>
-                    <Button variant={`${theme == "dark" ? "dark_btn" : "primary"}`}>Register</Button>
+                    <Button
+                      variant={`${theme == "dark" ? "dark_btn" : "primary"}`}
+                    >
+                      Register
+                    </Button>
                   </Link>
                 </div>
               </ul>
