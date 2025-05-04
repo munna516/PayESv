@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Moon } from "lucide-react";
+import { Moon, Sun } from "lucide-react";
 import { Button } from "../ui/button";
 import {
   NavigationMenu,
@@ -17,8 +17,14 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "../ui/sheet";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 
+// Then use <ThemeToggle /> instead of your current implementation
 export default function Navbar() {
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const navItems = [
     { name: "HOME", href: "/" },
     { name: "ABOUT US", href: "/" },
@@ -30,12 +36,12 @@ export default function Navbar() {
   ];
 
   return (
-    <div className="bg-white/50 backdrop-blur-lg border-b-2 px-4 py-4 fixed top-0 left-0 z-50 w-full">
+    <div className="bg-white/50  dark:bg-gray-800 dark:text-white backdrop-blur-lg  border-b-2 px-4 py-4 fixed top-0 left-0 z-50 w-full">
       <div className="max-w-[1400px] mx-auto flex items-center justify-between">
         <div className="flex items-center gap-6">
           <Link
             href="/"
-            className="text-2xl md:text-3xl lg:text-4xl font-bold text-green-600"
+            className="text-2xl md:text-3xl lg:text-4xl font-bold text-green-600 dark:text-green-400"
           >
             PayESv
           </Link>
@@ -60,15 +66,26 @@ export default function Navbar() {
         </div>
 
         <div className="flex items-center gap-4">
+          {mounted && (
+            <Button
+              variant={`${theme == "dark" ? "dark_btn" : "primary"}`}
+              size="icon"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="hidden md:flex"
+            >
+              {theme === "dark" ? (
+                <Sun className="h-4 w-4" />
+              ) : (
+                <Moon className="h-4 w-4" />
+              )}
+            </Button>
+          )}
+
           <Button
-            variant="circle"
-            size="icon"
-            // onClick={() => setTheme("dark")}
+            variant={`${theme == "dark" ? "dark_btn" : "primary"}`}
+            size="lg"
             className="hidden md:flex"
           >
-            <Moon className="h-4 w-4" />
-          </Button>
-          <Button variant="green" size="lg" className="hidden md:flex">
             Login
           </Button>
         </div>
@@ -76,21 +93,28 @@ export default function Navbar() {
         {/* Mobile Menu Button */}
 
         <div className="flex items-center gap-4 md:hidden">
-          <Button
-            variant="circle"
-            size="icon"
-            // onClick={() => setTheme("dark")}
-            className="flex md:hidden"
-          >
-            <Moon className="h-4 w-4" />
-          </Button>
+          {mounted && (
+            <Button
+            variant={`${theme == "dark" ? "dark_btn" : "primary"}`}
+              size="icon"
+              className="flex md:hidden"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            >
+              {theme === "dark" ? (
+                <Sun className="h-4 w-4" />
+              ) : (
+                <Moon className="h-4 w-4" />
+              )}
+            </Button>
+          )}
+
           <Sheet>
             <SheetTrigger asChild>
-              <Button className="md:hidden  text-green-500 bg-white border border-green-500 hover:bg-green-500 hover:text-white transition-colors duration-300 ease-in-out  p-3">
+              <Button variant={`${theme == "dark" ? "dark_btn" : "primary"}`}>
                 ☰
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-60 bg-white">
+            <SheetContent side="right" className="w-60 bg-white dark:bg-gray-800">
               <SheetHeader>
                 <SheetTitle className="text-center text-green-500 font-bold">
                   PayESV
@@ -134,10 +158,10 @@ export default function Navbar() {
 
                 <div className="flex items-center gap-4">
                   <Link href={"/"}>
-                    <Button variant="green">Login</Button>
+                    <Button variant={`${theme == "dark" ? "dark_btn" : "primary"}`}>Login</Button>
                   </Link>
                   <Link href={"/"}>
-                    <Button variant="green">Register</Button>
+                    <Button variant={`${theme == "dark" ? "dark_btn" : "primary"}`}>Register</Button>
                   </Link>
                 </div>
               </ul>
