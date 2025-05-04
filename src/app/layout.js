@@ -2,6 +2,7 @@ import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar/Navbar";
 import Footer from "@/components/Footer/Footer";
+import { ThemeProvider } from "next-themes";
 const plusJakartaSan = Plus_Jakarta_Sans({
   subsets: ["latin"],
   display: "swap",
@@ -15,17 +16,23 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" data-theme="dark" className={plusJakartaSan.className}>
+    <html lang="en" className={plusJakartaSan.className} suppressHydrationWarning>
       <body className="min-h-screen flex flex-col">
-        <nav>
-          <Navbar />
-        </nav>
-        <main className="flex-grow scroll-smooth px-4 lg:px-3 max-w-[1400px] mx-auto">
-          {children}
-        </main>
-        <footer>
-          <Footer />
-        </footer>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem={false}
+        >
+          <nav>
+            <Navbar />
+          </nav>
+          <main className="flex-grow scroll-smooth px-4 lg:px-3 max-w-[1400px] mx-auto">
+            {children}
+          </main>
+          <footer>
+            <Footer />
+          </footer>
+        </ThemeProvider>
       </body>
     </html>
   );
