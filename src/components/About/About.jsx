@@ -7,10 +7,10 @@ import { motion } from "framer-motion";
 
 export default function About() {
   return (
-    <section className="grid lg:grid-cols-2 items-center gap-7 lg:gap-10 mt-10 md:mt-0">
+    <section className="grid lg:grid-cols-2 items-center gap-7 lg:gap-10 mt-10 ">
       <motion.div
-        animate={{ y: [0, 45, 0] }}
-        transition={{ duration: 5, repeat: Infinity,  }}
+        animate={{ y: [0, 50, 0] }}
+        transition={{ duration: 5, repeat: Infinity }}
         className="w-full order-2 lg:order-1"
       >
         <Image
@@ -18,7 +18,7 @@ export default function About() {
           alt="About Es Variation"
           width={500}
           height={400}
-          className="w-full  order-2 lg:order-1"
+          className="w-full  order-2 lg:order-1 rounded-xl"
         />
       </motion.div>
 
@@ -49,7 +49,7 @@ export default function About() {
           or technical concerns, ensuring your experience with PayESv is smooth
           and worry-free.
         </p>
-        <Button variant="primary">Learn More</Button>
+        <Button variant="primary">Get Demo</Button>
       </div>
     </section>
   );

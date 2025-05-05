@@ -70,7 +70,7 @@ const services = [
 export default function Features() {
   return (
     <>
-      <h1 className="text-2xl md:text-3xl lg:text-4xl dark:text-white font-bold mb-3 text-center mt-10 lg:mt-14">
+      <h1 className="text-2xl md:text-3xl lg:text-4xl dark:text-white font-bold mb-3 text-center mt-12 lg:mt-14">
         Core Features of PayESv
       </h1>
       <p className=" text-muted-foreground  mb-5 lg:mb-8 text-center lg:w-1/2 mx-auto">
