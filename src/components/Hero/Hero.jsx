@@ -31,7 +31,7 @@ export default function Hero() {
             />
           </span>
         </h1>
-        <p className="text-gray-700 dark:text-gray-500  mb-6 ">
+        <p className="text-muted-foreground  mb-6 ">
           Payesv is a secure, fast and scalable payment gateway designed to
           simplify online transactions for businesses of all sizes. With easy
           integration, low fees and full compliance, Payesv helps you accept
