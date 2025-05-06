@@ -26,11 +26,11 @@ export default function Navbar() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   const navItems = [
-    { name: "HOME", href: "/" },
-    { name: "ABOUT US", href: "/" },
+    { name: "HOME", href: "#home" },
+    { name: "ABOUT US", href: "#about" },
     {
       name: "FEATURES",
-      href: "/",
+      href: "#features",
     },
 
     { name: "PRICING", href: "/" },
@@ -45,7 +45,7 @@ export default function Navbar() {
   ];
 
   return (
-    <div className="bg-white/50  dark:bg-gray-800 dark:text-white backdrop-blur-lg  border-b-2 dark:border-b-0 px-4 py-4 fixed top-0 left-0 z-50 w-full">
+    <div className="bg-white/50  dark:bg-gray-800 dark:text-white backdrop-blur-lg  border-b-2 dark:border-b-0 px-4 py-4 fixed top-0 left-0 z-50 w-full scroll-mt-24">
       <div className="max-w-[1400px] mx-auto flex items-center justify-between">
         <div className="flex items-center gap-6">
           <Link
@@ -136,7 +136,7 @@ export default function Navbar() {
               <ul className="space-y-4 p-4">
                 <li>
                   <Link
-                    href="/"
+                    href="#home"
                     className="block text-green-400  hover:underline"
                   >
                     Home
@@ -145,10 +145,18 @@ export default function Navbar() {
 
                 <li>
                   <Link
-                    href="/"
+                    href="#about"
                     className="block text-green-400 hover:underline"
                   >
                     About Us
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="#features"
+                    className="block text-green-400 hover:underline"
+                  >
+                    Features
                   </Link>
                 </li>
                 <li>
@@ -157,6 +165,14 @@ export default function Navbar() {
                     className="block text-green-400 hover:underline"
                   >
                     Pricing
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/"
+                    className="block text-green-400 hover:underline"
+                  >
+                    Contact
                   </Link>
                 </li>
                 <li>
