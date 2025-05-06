@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 
 export default function About() {
   return (
-    <section className="grid lg:grid-cols-2 items-center gap-7 lg:gap-10 mt-10 ">
+    <section id="about" className="grid lg:grid-cols-2 items-center gap-7 lg:gap-10 mt-10 scroll-mt-24">
       <motion.div
         animate={{ y: [0, 50, 0] }}
         transition={{ duration: 5, repeat: Infinity }}

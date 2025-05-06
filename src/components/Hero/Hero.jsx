@@ -7,7 +7,7 @@ import { Typewriter } from "react-simple-typewriter";
 export default function Hero() {
   const { theme, setTheme } = useTheme();
   return (
-    <section className="flex flex-col md:flex-row items-center justify-between mt-24 md:mt-24 lg:mt-10">
+    <section id="home" className="flex flex-col md:flex-row items-center justify-between mt-24 md:mt-24 lg:mt-10">
       {/* Left Side: Text Content */}
       <div className="md:w-1/2 mb-10 md:mb-0">
         <h1 className="text-2xl md:text-3xl lg:text-4xl dark:text-white font-bold mb-4">
