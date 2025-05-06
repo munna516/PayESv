@@ -10,8 +10,10 @@ import {
   SelectValue,
 } from "../ui/select";
 import { Button } from "../ui/button";
+import { useTheme } from "next-themes";
 
-export default function PersonalPriceCard() {
+export default function PersonalPriceCard({ yearly }) {
+  const { theme, setTheme } = useTheme();
   const [quantity, setQuantity] = useState("");
   const basePrice = 1;
   const calculateTotal = () => {
@@ -21,20 +23,22 @@ export default function PersonalPriceCard() {
 
   return (
     <div>
-      <Card className="bg-green-50 dark:bg-slate-700 w-80 shadow-md rounded-2xl">
-        <CardContent className="p-6 space-y-4">
-          <h2 className="text-center text-2xl font-bold text-green-500">
-            PayESv
+      <Card className="bg-green-50 dark:bg-slate-700 w-[400px] h-full shadow-md rounded-2xl">
+        <CardContent className="p-6 flex flex-col gap-6">
+          <h2 className="text-center text-2xl font-bold text-green-500 dark:text-white">
+            Personal Acoount Automation
           </h2>
-          <div className="flex items-center justify-evenly text-center text-3xl font-bold">
+          <div className="flex flex-grow items-center justify-evenly text-center text-3xl font-bold">
             <div>
               {currency === "bdt" ? "৳" : "$"}{" "}
               {calculateTotal
                 ? currency === "bdt"
-                  ? calculateTotal() * 120
-                  : calculateTotal()
+                  ? calculateTotal() * 120 * (yearly ? 10 : 1)
+                  : calculateTotal() * (yearly ? 10 : 1)
                 : basePrice}
-              <span className="text-sm font-normal ml-1">/month</span>
+              <span className="text-sm font-normal ml-1">
+                {yearly ? "/year" : "/month"}
+              </span>
             </div>
             <Select
               defaultValue="usd"
@@ -52,8 +56,8 @@ export default function PersonalPriceCard() {
           </div>
 
           <ul className="text-base text-muted-foreground space-y-2">
-            <li>✔ Unlimited transection </li>
-            <li>✔ Payment link Management</li>
+            <li>✔ Unlimited Transactions</li>
+            <li>✔ Payment Link Management</li>
             <li>✔ Unlimited Transactions</li>
             <li>✔ Free Updates</li>
             <li>✔ Free Support</li>
@@ -81,9 +85,11 @@ export default function PersonalPriceCard() {
             </Select>
           </div>
 
-          <Button variant="primary" className="w-full mt-5">
-            Buy Now
-          </Button>
+          <div >
+            <Button   variant={`${theme == "dark" ? "dark_btn" : "primary"}`} className="w-full">
+              Buy Now
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>

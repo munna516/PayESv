@@ -1,14 +1,14 @@
-import React from "react";
-import { Card, CardContent } from "../ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { Label } from "../ui/label";
-import { Button } from "../ui/button";
+"use client";
+import { useState } from "react";
+import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group";
 import PersonalPriceCard from "./PersonalPriceCard";
+import ReadyPriceCard from "./ReadyPriceCard";
 
 export default function Pricing() {
+  const [option, setOption] = useState("yearly");
   return (
-    <section className=" mt-14 md:mt-20">
-      <div className="text-center mb-12">
+    <section id="pricing" className="mt-14 scroll-mt-24">
+      <div className="text-center mb-8">
         <h2 className="text-2xl md:text-3xl lg:text-4xl dark:text-white font-bold mb-4">
           Check Our Pricing
         </h2>
@@ -20,7 +20,46 @@ export default function Pricing() {
         </p>
       </div>
 
-     <PersonalPriceCard />
+      <div className="flex flex-col items-center space-y-4 ">
+        <ToggleGroup
+          type="single"
+          value={option}
+          onValueChange={(val) => setOption(val || option)}
+          className={`rounded-full p-1 gap-3 border-2  mb-3`}
+        >
+          <ToggleGroupItem
+            value="monthly"
+            className={`px-6 py-3 rounded-full ${
+              option == "monthly" ? "bg-green-500 text-white font-bold" : ""
+            }`}
+          >
+            Monthly
+          </ToggleGroupItem>
+          <ToggleGroupItem
+            value="yearly"
+            className={`px-6 py-3 rounded-full ${
+              option == "yearly" ? "bg-green-500 text-white font-bold" : ""
+            }`}
+          >
+            Yearly
+          </ToggleGroupItem>
+        </ToggleGroup>
+
+        <div className="md:flex items-stretch justify-center gap-8 space-y-6 md:space-y-0">
+          {option === "monthly" && (
+            <>
+              <PersonalPriceCard yearly={0} />
+              <ReadyPriceCard />
+            </>
+          )}
+          {option === "yearly" && (
+            <>
+              <PersonalPriceCard yearly={1} />
+              <ReadyPriceCard />
+            </>
+          )}
+        </div>
+      </div>
     </section>
   );
 }

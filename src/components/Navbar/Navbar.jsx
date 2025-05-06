@@ -33,7 +33,7 @@ export default function Navbar() {
       href: "#features",
     },
 
-    { name: "PRICING", href: "/" },
+    { name: "PRICING", href: "#pricing" },
     {
       name: "CONTACT",
       href: "/",
@@ -161,7 +161,7 @@ export default function Navbar() {
                 </li>
                 <li>
                   <Link
-                    href="/"
+                    href="#pricing"
                     className="block text-green-400 hover:underline"
                   >
                     Pricing
