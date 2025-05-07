@@ -23,9 +23,9 @@ export default function PersonalPriceCard({ yearly }) {
 
   return (
     <div>
-      <Card className="bg-green-50 dark:bg-slate-700 w-[400px] h-full shadow-md rounded-2xl">
+      <Card className="bg-green-50 dark:bg-slate-700 w-[370px] md:w-[400px] h-full shadow-md rounded-2xl">
         <CardContent className="p-6 flex flex-col gap-6">
-          <h2 className="text-center text-2xl font-bold text-green-500 dark:text-white">
+          <h2 className="text-center text-xl md:text-2xl font-bold text-green-500 dark:text-white">
             Personal Acoount Automation
           </h2>
           <div className="flex flex-grow items-center justify-evenly text-center text-3xl font-bold">
