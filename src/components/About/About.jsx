@@ -4,8 +4,10 @@ import { Button } from "../ui/button";
 import Image from "next/image";
 import aboutImg from "@/../public/assets/images/aboutImg.jpg";
 import { motion } from "framer-motion";
+import { useTheme } from "next-themes";
 
 export default function About() {
+  const {theme,setTheme} = useTheme()
   return (
     <section id="about" className="grid lg:grid-cols-2 items-center gap-7 lg:gap-10 mt-10 scroll-mt-24">
       <motion.div
@@ -49,7 +51,7 @@ export default function About() {
           or technical concerns, ensuring your experience with PayESv is smooth
           and worry-free.
         </p>
-        <Button variant="primary">Get Demo</Button>
+        <Button variant={`${theme == "dark" ? "dark_btn" : "primary"}`}>Get Demo</Button>
       </div>
     </section>
   );
