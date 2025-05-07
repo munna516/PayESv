@@ -19,6 +19,7 @@ import {
 } from "../ui/sheet";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 
 // Then use <ThemeToggle /> instead of your current implementation
 export default function Navbar() {
@@ -26,21 +27,21 @@ export default function Navbar() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   const navItems = [
-    { name: "HOME", href: "#home" },
-    { name: "ABOUT US", href: "#about" },
+    { name: "HOME", href: "/#home" },
+    { name: "ABOUT US", href: "/#about" },
     {
       name: "FEATURES",
-      href: "#features",
+      href: "/#features",
     },
 
-    { name: "PRICING", href: "#pricing" },
+    { name: "PRICING", href: "/#pricing" },
     {
       name: "CONTACT",
-      href: "/",
+      href: "/contact",
     },
     {
       name: "RESOURCES",
-      href: "/",
+      href: "#",
     },
   ];
 
@@ -136,7 +137,7 @@ export default function Navbar() {
               <ul className="space-y-4 p-4">
                 <li>
                   <Link
-                    href="#home"
+                    href="/#home"
                     className="block text-green-400  hover:underline"
                   >
                     Home
@@ -145,7 +146,7 @@ export default function Navbar() {
 
                 <li>
                   <Link
-                    href="#about"
+                    href="/#about"
                     className="block text-green-400 hover:underline"
                   >
                     About Us
@@ -153,7 +154,7 @@ export default function Navbar() {
                 </li>
                 <li>
                   <Link
-                    href="#features"
+                    href="/#features"
                     className="block text-green-400 hover:underline"
                   >
                     Features
@@ -161,7 +162,7 @@ export default function Navbar() {
                 </li>
                 <li>
                   <Link
-                    href="#pricing"
+                    href="/#pricing"
                     className="block text-green-400 hover:underline"
                   >
                     Pricing
@@ -169,7 +170,7 @@ export default function Navbar() {
                 </li>
                 <li>
                   <Link
-                    href="/"
+                    href="/contact"
                     className="block text-green-400 hover:underline"
                   >
                     Contact
