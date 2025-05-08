@@ -1,11 +1,10 @@
 "use client";
 import HeroImage from "./HeroImage";
 import { Button } from "../ui/button";
-import { useTheme } from "next-themes";
 import { Typewriter } from "react-simple-typewriter";
 
 export default function Hero() {
-  const { theme, setTheme } = useTheme();
+
   return (
     <section id="home" className="flex flex-col md:flex-row items-center justify-between mt-24 md:mt-24 lg:mt-10">
       {/* Left Side: Text Content */}
@@ -40,7 +39,7 @@ export default function Hero() {
           with Payesv.
         </p>
         <Button
-          variant={`${theme == "dark" ? "dark_btn" : "primary"}`}
+         variant="primary"
           size="xl"
         >
           Start For Free demo
