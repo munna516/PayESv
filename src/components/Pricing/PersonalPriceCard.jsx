@@ -10,10 +10,9 @@ import {
   SelectValue,
 } from "../ui/select";
 import { Button } from "../ui/button";
-import { useTheme } from "next-themes";
+
 
 export default function PersonalPriceCard({ yearly }) {
-  const { theme, setTheme } = useTheme();
   const [quantity, setQuantity] = useState("");
   const basePrice = 1;
   const calculateTotal = () => {
@@ -86,7 +85,7 @@ export default function PersonalPriceCard({ yearly }) {
           </div>
 
           <div >
-            <Button   variant={`${theme == "dark" ? "dark_btn" : "primary"}`} className="w-full">
+            <Button    variant="primary" className="w-full">
               Buy Now
             </Button>
           </div>

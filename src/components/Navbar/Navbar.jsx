@@ -78,7 +78,7 @@ export default function Navbar() {
         <div className="flex items-center gap-4">
           {mounted && (
             <Button
-              variant={`${theme == "dark" ? "dark_btn" : "primary"}`}
+              variant="primary"
               size="icon"
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
               className="hidden md:flex"
@@ -91,13 +91,11 @@ export default function Navbar() {
             </Button>
           )}
 
-          <Button
-            variant={`${theme == "dark" ? "dark_btn" : "primary"}`}
-            size="lg"
-            className="hidden md:flex"
-          >
-            Login
-          </Button>
+          <Link href={"/login"}>
+            <Button variant="primary" size="lg" className="hidden md:flex">
+              Login
+            </Button>
+          </Link>
         </div>
 
         {/* Mobile Menu Button */}
@@ -105,7 +103,7 @@ export default function Navbar() {
         <div className="flex items-center gap-4 md:hidden">
           {mounted && (
             <Button
-              variant={`${theme == "dark" ? "dark_btn" : "primary"}`}
+              variant="primary"
               size="icon"
               className="flex md:hidden"
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
@@ -120,7 +118,7 @@ export default function Navbar() {
 
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant={`${theme == "dark" ? "dark_btn" : "primary"}`}>
+              <Button  variant="primary">
                 ☰
               </Button>
             </SheetTrigger>
@@ -186,19 +184,11 @@ export default function Navbar() {
                 </li>
 
                 <div className="flex items-center gap-4">
-                  <Link href={"/"}>
-                    <Button
-                      variant={`${theme == "dark" ? "dark_btn" : "primary"}`}
-                    >
-                      Login
-                    </Button>
+                  <Link href={"/login"}>
+                    <Button variant="primary">Login</Button>
                   </Link>
-                  <Link href={"/"}>
-                    <Button
-                      variant={`${theme == "dark" ? "dark_btn" : "primary"}`}
-                    >
-                      Register
-                    </Button>
+                  <Link href={"/register"}>
+                    <Button variant="primary">Register</Button>
                   </Link>
                 </div>
               </ul>
