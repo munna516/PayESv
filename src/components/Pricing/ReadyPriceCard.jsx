@@ -10,10 +10,8 @@ import {
   SelectValue,
 } from "../ui/select";
 import { Button } from "../ui/button";
-import { useTheme } from "next-themes";
 
 export default function ReadyPriceCard() {
-  const { theme, setTheme } = useTheme();
   const calculateTotal = () => {
     return 20;
   };
@@ -62,10 +60,7 @@ export default function ReadyPriceCard() {
             <li>✔ And many more</li>
           </ul>
 
-          <Button
-            variant={`${theme == "dark" ? "dark_btn" : "primary"}`}
-            className="w-full "
-          >
+          <Button variant="primary" className="w-full ">
             Buy Now
           </Button>
         </CardContent>
