@@ -4,43 +4,82 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
+import { TbFidgetSpinner } from "react-icons/tb";
 
 export default function RegistrationForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
   const handleSubmit = async (e) => {
-    setError("");
     e.preventDefault();
-    const form = e.target;
-    const name = form.fullName.value;
-    const email = form.email.value;
-    const websiteUrl = form.websiteUrl.value;
-    const phone = form.phone.value;
-    const streetAddress = form.streetAddress.value;
-    const city = form.city.value;
-    const postalCode = form.postalCode.value;
-    const country = form.country.value;
-    const password = form.password.value;
-    const confirmPassword = form.confirmPassword.value;
-    if (password !== confirmPassword) {
-      setError("Password and confirm password do not match");
-      return;
+
+    try {
+      const form = e.target;
+      const name = form.fullName.value;
+      const email = form.email.value;
+      const websiteUrl = form.websiteUrl.value;
+      const phone = form.phone.value;
+      const streetAddress = form.streetAddress.value;
+      const city = form.city.value;
+      const postalCode = form.postalCode.value;
+      const country = form.country.value;
+      const password = form.password.value;
+      const confirmPassword = form.confirmPassword.value;
+      if (password.length < 6) {
+        setError("password should be 6 characters");
+        return;
+      }
+      const regularExp = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{6,}$/;
+      if (!regularExp.test(password)) {
+        setError("must have one uppercase, lowercase & digit");
+        return;
+      }
+      if (password !== confirmPassword) {
+        setError("Password and confirm password do not match");
+        setLoading(false);
+        return;
+      }
+
+      const userData = {
+        name,
+        email,
+        websiteUrl,
+        phone,
+        streetAddress,
+        city,
+        postalCode,
+        country,
+        password,
+      };
+      setError("");
+      setLoading(true);
+
+      const response = await fetch("/api/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Registration failed");
+      }
+
+      toast.success("Registration successful!");
+      router.push("/login");
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setLoading(false);
     }
-    const userData = {
-      name,
-      email,
-      websiteUrl,
-      phone,
-      streetAddress,
-      city,
-      postalCode,
-      country,
-      password,
-      confirmPassword,
-    };
-    console.log(userData)
   };
 
   return (
@@ -212,8 +251,17 @@ export default function RegistrationForm() {
       </div>
       {error && <p className="text-red-500">{error}</p>}
 
-      <Button type="submit" className="w-full" variant="primary">
-        Sign Up
+      <Button
+        type="submit"
+        className="w-full"
+        variant="primary"
+        disabled={loading}
+      >
+        {loading ? (
+          <TbFidgetSpinner className="animate-spin m-auto" />
+        ) : (
+          "Sign Up"
+        )}
       </Button>
     </form>
   );
