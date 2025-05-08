@@ -40,22 +40,7 @@ export default function RegistrationForm() {
       password,
       confirmPassword,
     };
-    // try {
-    //   setLoading(true);
-    //   const res = await fetch("/api/register", {
-    //     method: "POST",
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //     },
-    //     body: JSON.stringify(userData),
-    //   });
-    //   const data = await res.json();
-    //   console.log(data);
-    // } catch (error) {
-    //   setError(error.message);
-    // } finally {
-    //   setLoading(false);
-    // }
+    console.log(userData)
   };
 
   return (
