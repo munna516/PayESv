@@ -1,9 +1,5 @@
 "use client";
 import Link from "next/link";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { FaGoogle, FaFacebook, FaEye, FaEyeSlash } from "react-icons/fa";
 import { useState } from "react";
 import Google from "@/components/auth/Social/Google";
 import Facebook from "@/components/auth/Social/Facebook";
@@ -11,10 +7,6 @@ import LoginForm from "./components/LoginForm";
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
-
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
 
   return (
     <div className="flex items-center justify-center min-h-screen  mt-16 py-10 px-4  sm:px-6 lg:px-8">
