@@ -4,9 +4,6 @@ import Navbar from "@/components/Navbar/Navbar";
 import Footer from "@/components/Footer/Footer";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "react-hot-toast";
-import NextAuthProvider from "@/provider/NextAuthProvider";
-import { getServerSession } from "next-auth";
-import { authOptions } from "./api/auth/[...nextauth]/route";
 
 const plusJakartaSan = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -20,8 +17,6 @@ export const metadata = {
 };
 
 export default async function RootLayout({ children }) {
-  const session = await getServerSession(authOptions);
-
   return (
     <html
       lang="en"
@@ -29,24 +24,22 @@ export default async function RootLayout({ children }) {
       suppressHydrationWarning
     >
       <body className="min-h-screen flex flex-col dark:bg-slate-900 ">
-        <NextAuthProvider session={session}>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="light"
-            enableSystem={false}
-          >
-            <nav>
-              <Navbar />
-            </nav>
-            <main className="flex-grow  px-4 lg:px-3 max-w-[1400px] mx-auto ">
-              {children}
-            </main>
-            <footer>
-              <Footer />
-            </footer>
-            <Toaster />
-          </ThemeProvider>
-        </NextAuthProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem={false}
+        >
+          <nav>
+            <Navbar />
+          </nav>
+          <main className="flex-grow  px-4 lg:px-3 max-w-[1400px] mx-auto ">
+            {children}
+          </main>
+          <footer>
+            <Footer />
+          </footer>
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );
