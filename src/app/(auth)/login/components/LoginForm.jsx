@@ -7,6 +7,7 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { signIn } from "next-auth/react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import { TbFidgetSpinner } from "react-icons/tb";
 
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -17,7 +18,7 @@ export default function LoginForm() {
     const form = e.target;
     const email = form.email.value;
     const password = form.password.value;
-    console.log(email, password);
+
     try {
       setLoading(true);
       const res = await signIn("credentials", {
@@ -33,7 +34,7 @@ export default function LoginForm() {
         toast.success("Login successful");
       }
     } catch (error) {
-      console.log(error);
+      toast.error("Login failed");
     } finally {
       setLoading(false);
     }
@@ -98,7 +99,11 @@ export default function LoginForm() {
 
       <div>
         <Button type="submit" className="w-full" variant="primary">
-          Sign in
+          {loading ? (
+            <TbFidgetSpinner className="animate-spin m-auto" />
+          ) : (
+            "Login"
+          )}
         </Button>
       </div>
     </form>

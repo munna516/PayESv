@@ -45,8 +45,6 @@ export default function ContactForm() {
       setError("Message must be at least 20 characters long");
       return;
     }
-
-    console.log(name, email, phone, subject, message);
     setloading(true);
     try {
       const res = await fetch("/api/contact", {
