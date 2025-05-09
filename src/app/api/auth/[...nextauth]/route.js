@@ -1,5 +1,7 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
+import FacebookProvider from "next-auth/providers/facebook";
 
 export const authOptions = {
   providers: [
@@ -35,6 +37,14 @@ export const authOptions = {
         }
       },
     }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    }),
+    FacebookProvider({
+      clientId: process.env.FACEBOOK_CLIENT_ID,
+      clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
+    }),
   ],
   session: {
     strategy: "jwt",
@@ -53,9 +63,72 @@ export const authOptions = {
       if (token) {
         session.role = token.role;
         session.profile_picture = token.profile_picture;
-        session.provider = token.porvider;
+        session.provider = token.provider;
       }
       return session;
+    },
+    async signIn({ user, account, profile }) {
+      try {
+        // Handle different providers
+        if (account.provider === "google") {
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_NEXTAUTH_URL}/api/googlelogin`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                email: user.email,
+                name: user.name,
+                profile_picture: user.image,
+                provider: account.provider,
+              }),
+            }
+          );
+
+          if (response.ok) {
+            const userData = await response.json();
+            user.role = userData.role || "user";
+            user.provider = account.provider;
+            return true;
+          }
+          return false;
+        }
+
+        if (account.provider === "facebook") {
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_NEXTAUTH_URL}/api/facebooklogin`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                email: user.email,
+                name: user.name,
+                profile_picture: user.image,
+                provider: account.provider,
+              }),
+            }
+          );
+
+          if (response.ok) {
+            const userData = await response.json();
+            // Add role and other properties to the user object
+            user.role = userData.role || "user";
+            user.provider = account.provider;
+            return true;
+          }
+          return false;
+        }
+
+        // For credentials provider, the user object already contains role from your login API
+        if (account.provider === "credentials") {
+          return true;
+        }
+
+        return false;
+      } catch (error) {
+        console.error("Error in signIn callback:", error);
+        return false; // Deny sign in if there's an error
+      }
     },
   },
   secret: process.env.NEXTAUTH_SECRET,
