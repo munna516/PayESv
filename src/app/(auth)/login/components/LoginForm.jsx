@@ -4,15 +4,43 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { signIn } from "next-auth/react";
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
-
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const email = form.email.value;
+    const password = form.password.value;
+    console.log(email, password);
+    try {
+      setLoading(true);
+      const res = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+      if (res.status === 401) {
+        toast.error("Invalid credentials");
+      }
+      if (res.status === 200) {
+        router.push("/dashboard");
+        toast.success("Login successful");
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
   };
+
   return (
-    <form className="mt-8 space-y-6">
+    <form onSubmit={handleLogin} className="mt-8 space-y-6">
       <div className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="email" className="block text-sm font-medium">
@@ -56,7 +84,7 @@ export default function LoginForm() {
             <button
               type="button"
               className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-200"
-              onClick={togglePasswordVisibility}
+              onClick={() => setShowPassword(!showPassword)}
             >
               {showPassword ? (
                 <FaEyeSlash className="h-5 w-5" />
