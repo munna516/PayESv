@@ -59,11 +59,15 @@ export const POST = async (request) => {
         city, 
         postal_code, 
         country, 
-        password_hash
+        password_hash,
+        role,
+        provider
       ) 
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
-      RETURNING id, name, email, created_at
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) 
+      RETURNING id, name, email, role, provider, created_at
     `;
+    const role = "user";
+    const provider = "local";
 
     const values = [
       name,
@@ -75,6 +79,8 @@ export const POST = async (request) => {
       postalCode,
       country,
       hashedPassword,
+      role,
+      provider,
     ];
 
     const result = await query(insertUserQuery, values);
@@ -87,6 +93,8 @@ export const POST = async (request) => {
           id: newUser.id,
           name: newUser.name,
           email: newUser.email,
+          role: newUser.role,
+          provider: newUser.provider,
           createdAt: newUser.created_at,
         },
       },
