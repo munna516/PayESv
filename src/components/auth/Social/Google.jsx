@@ -19,10 +19,10 @@ export default function Google() {
       const provider = session?.provider;
       if (provider === "local") {
         toast.success("Login Successful!");
-        router.push("/dashboard");
+        router.push(`/${session?.role}/dashboard`);
       } else if (provider === "google") {
         toast.success("Google Login Successful!");
-        router.push("/dashboard");
+        router.push(`/${session?.role}/dashboard`);
       }
     } else if (status === "unauthenticated") {
     }

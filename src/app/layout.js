@@ -7,6 +7,7 @@ import { Toaster } from "react-hot-toast";
 import NextAuthProvider from "@/provider/NextAuthProvider";
 import { authOptions } from "./api/auth/[...nextauth]/route";
 import { getServerSession } from "next-auth";
+import Main from "@/components/Main/Main";
 
 const plusJakartaSan = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -37,9 +38,7 @@ export default async function RootLayout({ children }) {
             <nav>
               <Navbar />
             </nav>
-            <main className="flex-grow  px-4 lg:px-3 max-w-[1400px] mx-auto ">
-              {children}
-            </main>
+            <Main>{children}</Main>
             <footer>
               <Footer />
             </footer>
