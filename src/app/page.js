@@ -9,7 +9,7 @@ import WhyChooseUs from "@/components/WhyChooseUs/WhyChooseUs";
 
 export default function Home() {
   return (
-    <div className="">
+    <div className="px-4 lg:px-3">
       <Hero />
       <About />
       <Features />

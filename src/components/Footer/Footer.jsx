@@ -1,5 +1,11 @@
+"use client";
+import { usePathname } from "next/navigation";
+
 const Footer = () => {
-  return (
+  const pathname = usePathname();
+  return pathname.includes("/user") || pathname.includes("/admin") ? (
+    ""
+  ) : (
     <footer className="bg-green-500 dark:bg-gray-800 text-white py-12 px-4 sm:px-6 mt-10">
       <div className="max-w-[1400px] mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
@@ -51,7 +57,6 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">Resources</h3>
             <ul className="space-y-2">
-              
               <li>
                 <a href="#" className="text-white  text-base">
                   News
