@@ -19,10 +19,13 @@ import {
 } from "../ui/sheet";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { usePathname } from "next/navigation";
 
 // Then use <ThemeToggle /> instead of your current implementation
 export default function Navbar() {
+  const pathname = usePathname();
+  const { data: session } = useSession();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
@@ -45,7 +48,9 @@ export default function Navbar() {
     },
   ];
 
-  return (
+  return pathname.includes("/user") || pathname.includes("/admin") ? (
+    ""
+  ) : (
     <div className="bg-white/50  dark:bg-gray-800 dark:text-white backdrop-blur-lg  border-b-2 dark:border-b-0 px-4 py-4 fixed top-0 left-0 z-50 w-full scroll-mt-24">
       <div className="max-w-[1400px] mx-auto flex items-center justify-between">
         <div className="flex items-center gap-6">
@@ -91,11 +96,19 @@ export default function Navbar() {
             </Button>
           )}
 
-          <Link href={"/login"}>
-            <Button variant="primary" size="lg" className="hidden md:flex">
-              Login
-            </Button>
-          </Link>
+          {session ? (
+            <Link href={`/${session?.role}/dashboard`}>
+              <Button variant="primary" className="hidden md:flex">
+                Dashboard
+              </Button>
+            </Link>
+          ) : (
+            <Link href={"/login"}>
+              <Button variant="primary" size="lg" className="hidden md:flex">
+                Login
+              </Button>
+            </Link>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -118,9 +131,7 @@ export default function Navbar() {
 
           <Sheet>
             <SheetTrigger asChild>
-              <Button  variant="primary">
-                ☰
-              </Button>
+              <Button variant="primary">☰</Button>
             </SheetTrigger>
             <SheetContent
               side="right"
@@ -184,12 +195,20 @@ export default function Navbar() {
                 </li>
 
                 <div className="flex items-center gap-4">
-                  <Link href={"/login"}>
-                    <Button variant="primary">Login</Button>
-                  </Link>
-                  <Link href={"/register"}>
-                    <Button variant="primary">Register</Button>
-                  </Link>
+                  {session ? (
+                    <Link href={`/${session?.role}/dashboard`}>
+                      <Button variant="primary">Dashboard</Button>
+                    </Link>
+                  ) : (
+                    <>
+                      <Link href={"/login"}>
+                        <Button variant="primary">Login</Button>
+                      </Link>
+                      <Link href={"/register"}>
+                        <Button variant="primary">Register</Button>
+                      </Link>
+                    </>
+                  )}
                 </div>
               </ul>
             </SheetContent>
