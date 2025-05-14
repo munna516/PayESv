@@ -176,7 +176,7 @@ export default function Dashboard() {
                 {transactions.map((transaction) => (
                   <TableRow key={transaction.id}>
                     <TableCell className="">{transaction.date}</TableCell>
-                    <TableCell className="">{transaction.time}</TableCell>
+                    <TableCell className="">${transaction.amount}</TableCell>
 
                     <TableCell className="">{transaction.time}</TableCell>
                     <TableCell className="hidden md:table-cell">

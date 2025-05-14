@@ -35,28 +35,28 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 const navMain = [
-  { label: "Dashboard", icon: LayoutDashboard, href: "#" },
-  { label: "Transactions", icon: CreditCard, href: "#" },
+  { label: "Dashboard", icon: LayoutDashboard, href: "/user/dashboard" },
+  { label: "Transactions", icon: CreditCard, href: "/user/transactions" },
   {
     label: "Withdraw",
     icon: ArrowUpRight,
-    href: "#",
+    href: "/user/withdraw",
   },
-  { label: "Bank Transactions", icon: Banknote, href: "#" },
-  { label: "Invoices", icon: FileText, href: "#" },
-  { label: "Add Invoice", icon: PlusSquare, href: "#" },
-  { label: "Stored Data", icon: Database, href: "#" },
-  { label: "Add Data", icon: Plus, href: "#" },
-  { label: "Brand", icon: Building, href: "#" },
-  { label: "Device", icon: Smartphone, href: "#" },
-  { label: "Wallet", icon: Wallet, href: "#" },
+  { label: "Bank Transactions", icon: Banknote, href: "/user/bank-transactions" },
+  { label: "Invoices", icon: FileText, href: "/user/invoice" },
+  { label: "Add Invoice", icon: PlusSquare, href: "/user/add-invoice" },
+  { label: "Stored Data", icon: Database, href: "/user/stored-data" },
+  { label: "Add Data", icon: Plus, href: "/user/add-data" },
+  { label: "Brand", icon: Building, href: "/user/brand" },
+  { label: "Device", icon: Smartphone, href: "/user/device" },
+  { label: "Wallet", icon: Wallet, href: "/user/wallet" },
 ];
 
 const navOthers = [
-  { label: "Affiliates", icon: Users, href: "#" },
-  { label: "Plans", icon: Gift, href: "#" },
-  { label: "Android App", icon: Smartphone, href: "#" },
-  { label: "Developer Tools", icon: Package, href: "#" },
+  { label: "Affiliates", icon: Users, href: "/user/affiliates" },
+  { label: "Plans", icon: Gift, href: "/user/plans" },
+  { label: "Android App", icon: Smartphone, href: "/user/android-app" },
+  { label: "Developer Tools", icon: Package, href: "/user/developer-tools" },
   { label: "Home", icon: Home, href: "/" },
 ];
 
