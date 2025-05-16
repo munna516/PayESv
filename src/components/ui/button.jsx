@@ -22,8 +22,8 @@ const buttonVariants = cva(
         primary:
           "bg-green-500 text-white font-bold shadow-sm hover:bg-green-600 dark:bg-slate-700 dark:border-2 dark:border-white dark:hover:bg-green-600 dark:hover:border-green-400",
         secondary:
-          "text-green-500 border-2 border-green-500 hover:bg-green-500 hover:text-white",
-      
+          "text-green-500 border-2 font-bold border-green-500 hover:bg-green-500 hover:text-white",
+        dark: "bg-green-500 text-white font-bold shadow-sm hover:bg-green-600 dark:bg-green-600  dark:hover:bg-green-600 dark:hover:border-green-400",
       },
       size: {
         default: "h-9 px-4 py-2",

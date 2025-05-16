@@ -24,7 +24,7 @@ export default function TopNavbar({
             onClick={() => setMobileSidebar(!mobileSidebar)}
           />
         </div>
-        <div className="flex items-center gap-4 space-x-4">
+        <div className="flex items-center gap-4 space-x-4 cursor-pointer">
           <div
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             className=""
