@@ -11,7 +11,7 @@ export default function Plans() {
     <div className="mb-20">
       <div className="text-center mb-8">
         <h2 className="text-2xl md:text-3xl lg:text-4xl dark:text-white font-bold mb-4">
-          Check Our Pricing
+          Check Our Pricings
         </h2>
         <p className="text-muted-foreground  mb-6 md:w-1/2 w-full mx-auto">
           Honest pricing, no hidden fees. Payesv offers transparent and
