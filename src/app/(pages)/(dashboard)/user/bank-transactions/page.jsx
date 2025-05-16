@@ -80,7 +80,7 @@ export default function BankTransactions() {
         <div className="rounded-md">
           <Table>
             <TableHeader>
-              <TableRow>
+              <TableRow className="bg-slate-200 dark:bg-slate-700">
                 <TableHead>Date</TableHead>
                 <TableHead>Amount</TableHead>
                 <TableHead> Time</TableHead>

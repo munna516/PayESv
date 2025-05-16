@@ -23,7 +23,6 @@ import {
   Wallet,
   Users,
   Gift,
-  Globe,
   Package,
   Home,
   Menu,
@@ -31,7 +30,6 @@ import {
 } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 const navMain = [
@@ -46,7 +44,6 @@ const navMain = [
   { label: "Invoices", icon: FileText, href: "/user/invoice" },
   { label: "Add Invoice", icon: PlusSquare, href: "/user/add-invoice" },
   { label: "Stored Data", icon: Database, href: "/user/stored-data" },
-  { label: "Add Data", icon: Plus, href: "/user/add-data" },
   { label: "Brand", icon: Building, href: "/user/brand" },
   { label: "Device", icon: Smartphone, href: "/user/device" },
   { label: "Wallet", icon: Wallet, href: "/user/wallet" },
