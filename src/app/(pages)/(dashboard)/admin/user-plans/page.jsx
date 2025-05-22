@@ -98,7 +98,7 @@ export default function UserPlans() {
   const handleSubmit = (e) => {
     e.preventDefault();
     // Handle form submission here
-    console.log(formData);
+  
     setIsDialogOpen(false);
   };
 

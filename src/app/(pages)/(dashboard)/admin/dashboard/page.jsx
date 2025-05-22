@@ -25,11 +25,12 @@ import {
   Ticket,
   FileText,
 } from "lucide-react";
+import { useSession } from "next-auth/react";
 
-export default function Dashboard() {
+function AdminDashboard() {
+  const { data: session } = useSession();
   const [timePeriod, setTimePeriod] = useState("today");
 
-  // Mock data - replace with actual data from your backend
   const stats = {
     totalUsers: 1250,
     successfulTransactions: 850,
@@ -247,3 +248,5 @@ export default function Dashboard() {
     </div>
   );
 }
+
+export default AdminDashboard;
