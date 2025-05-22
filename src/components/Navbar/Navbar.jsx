@@ -44,7 +44,7 @@ export default function Navbar() {
     },
     {
       name: "RESOURCES",
-      href: "#",
+      href: "/resources",
     },
   ];
 
@@ -187,7 +187,7 @@ export default function Navbar() {
                 </li>
                 <li>
                   <Link
-                    href="/"
+                    href="/resources"
                     className="block text-green-400 hover:underline"
                   >
                     Resources
