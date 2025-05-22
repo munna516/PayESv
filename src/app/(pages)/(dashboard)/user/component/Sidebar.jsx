@@ -40,7 +40,11 @@ const navMain = [
     icon: ArrowUpRight,
     href: "/user/withdraw",
   },
-  { label: "Bank Transactions", icon: Banknote, href: "/user/bank-transactions" },
+  {
+    label: "Bank Transactions",
+    icon: Banknote,
+    href: "/user/bank-transactions",
+  },
   { label: "Invoices", icon: FileText, href: "/user/invoice" },
   { label: "Add Invoice", icon: PlusSquare, href: "/user/add-invoice" },
   { label: "Stored Data", icon: Database, href: "/user/stored-data" },
@@ -53,7 +57,7 @@ const navOthers = [
   { label: "Affiliates", icon: Users, href: "/user/affiliates" },
   { label: "Plans", icon: Gift, href: "/user/plans" },
   { label: "Android App", icon: Smartphone, href: "/user/android-app" },
-  { label: "Developer Tools", icon: Package, href: "/user/developer-tools" },
+  { label: "Developer Tools", icon: Package, href: "/resources" },
   { label: "Home", icon: Home, href: "/" },
 ];
 
@@ -86,11 +90,17 @@ export default function Sidebar({
         {(isSidebarOpen || mobileSidebar) && (
           <div className="font-semibold">{session?.user?.name}</div>
         )}
-        <div className="text-sm text-green-500 mt-2 font-bold uppercase ">{session?.role}</div>
+        <div className="text-sm text-green-500 mt-2 font-bold uppercase ">
+          {session?.role}
+        </div>
         {(isSidebarOpen || mobileSidebar) && (
           <div className="flex items-center justify-between  mt-5 w-[70%]">
-            <UserCircle className="w-5 h-5 text-green-600 cursor-pointer" />
-            <Ticket className="w-5 h-5 text-purple-500 hover:text-green-700 cursor-pointer" />
+            <Link href="/user/profile">
+              <UserCircle className="w-5 h-5 text-green-600 cursor-pointer" />
+            </Link>
+            <Link href="/user/tickets">
+              <Ticket className="w-5 h-5 text-purple-500 hover:text-green-700 cursor-pointer" />
+            </Link>
             <LogOut
               onClick={() => handleSignOut()}
               className="w-5 h-5 text-red-500 hover:text-red-700 cursor-pointer"
