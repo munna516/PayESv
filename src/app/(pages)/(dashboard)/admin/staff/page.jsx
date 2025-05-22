@@ -118,7 +118,7 @@ export default function Staff() {
   const handleSubmit = (e) => {
     e.preventDefault();
     // Handle form submission here
-    console.log(formData);
+   
     setIsDialogOpen(false);
   };
 
