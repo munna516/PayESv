@@ -21,6 +21,7 @@ import {
   Home,
   Menu,
   UserRound,
+  Code,
 } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
@@ -80,6 +81,11 @@ const navOthers = [
     label: "Tickets",
     icon: Ticket,
     href: "/admin/tickets",
+  },
+  {
+    label: "Developer Tools",
+    icon: Code,
+    href: "/resources",
   },
   {
     label: "Home",
