@@ -27,11 +27,13 @@ import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { FaQuestion, FaTag } from "react-icons/fa";
+import dummyProfile from "../../../../../../public/assets/images/dummyProfile.png";
+import Image from "next/image";
 
 const navMain = [
   { label: "Dashboard", icon: LayoutDashboard, href: "/admin/dashboard" },
   { label: "Transactions", icon: CreditCard, href: "/admin/transactions" },
- 
+
   {
     label: "Users",
     icon: Users,
@@ -104,21 +106,23 @@ export default function AdminSidebar({
     signOut({ callbackUrl: "/" });
     toast.success("Signed out successfully");
   };
+  
   const SidebarContent = (
     <div className="flex flex-col ">
       {/* Logo */}
       <div className="flex justify-center  items-center mt-5 mb-3">
-        {/* <img src="/logo.png" alt="PayESV Logo" className="h-12 w-12 mb-2" /> */}
         <span className="text-xl font-extrabold tracking-wide text-green-600 dark:text-green-500 lg:flex hidden">
           PAY ESV
         </span>
       </div>
       {/* Profile */}
       <div className="flex flex-col items-center py-4">
-        <img
-          src="https://randomuser.me/api/portraits/men/32.jpg"
+        <Image
+          src={session?.user?.image || dummyProfile}
           alt="Profile"
-          className="w-12 h-12 lg:w-16 lg:h-16 rounded-full border-4 border-green-100 shadow mb-2"
+          width={100}
+          height={100}
+          className="h-12 w-12 lg:w-14 lg:h-14 rounded-full border-4 border-green-100 shadow mb-2"
         />
         {(isSidebarOpen || mobileSidebar) && (
           <div className="font-semibold">{session?.user?.name}</div>

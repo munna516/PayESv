@@ -1,10 +1,11 @@
 "use client";
-import dummyProfile from "../../../../../../public/assets/images/dummyProfile.png";
+
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import dummyProfile from "../../../../../../public/assets/images/dummyProfile.png";
 import {
   Dialog,
   DialogContent,
@@ -30,7 +31,7 @@ import toast from "react-hot-toast";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 
-export default function Profile() {
+export default function AdminProfile() {
   const { data: session } = useSession();
   const [isEditing, setIsEditing] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
@@ -190,9 +191,7 @@ export default function Profile() {
                     <div className="flex items-center gap-3">
                       <Phone className="h-5 w-5 text-green-500" />
                       <div>
-                        <p className="text-sm text-muted-foreground">
-                          {session?.user?.phone}
-                        </p>
+                        <p className="text-sm text-muted-foreground">Phone</p>
                         {isEditing ? (
                           <Input
                             value={editedProfile.phone}
@@ -205,7 +204,9 @@ export default function Profile() {
                             className="mt-1"
                           />
                         ) : (
-                          <p className="font-medium">{session?.user?.phone}</p>
+                          <p className="font-medium">
+                            {session?.user?.phone || "N/A"}
+                          </p>
                         )}
                       </div>
                     </div>
