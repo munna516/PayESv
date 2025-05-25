@@ -1,5 +1,5 @@
 "use client";
-
+import dummyProfile from "../../../../../../public/assets/images/dummyProfile.png";
 import {
   Sheet,
   SheetContent,
@@ -29,6 +29,7 @@ import {
   ArrowUpRight,
 } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
+import Image from "next/image";
 import Link from "next/link";
 import toast from "react-hot-toast";
 
@@ -82,10 +83,12 @@ export default function Sidebar({
       </div>
       {/* Profile */}
       <div className="flex flex-col items-center py-4">
-        <img
-          src="https://randomuser.me/api/portraits/men/32.jpg"
+      <Image
+          src={session?.user?.image || dummyProfile}
           alt="Profile"
-          className="w-12 h-12 lg:w-16 lg:h-16 rounded-full border-4 border-green-100 shadow mb-2"
+          width={100}
+          height={100}
+          className="h-12 w-12 lg:w-14 lg:h-14 rounded-full border-4 border-green-100 shadow mb-2"
         />
         {(isSidebarOpen || mobileSidebar) && (
           <div className="font-semibold">{session?.user?.name}</div>
