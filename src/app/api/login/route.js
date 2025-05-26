@@ -1,5 +1,6 @@
 import { query } from "@/lib/db";
 import bcrypt from "bcrypt";
+import { NextResponse } from "next/server";
 
 export const POST = async (request) => {
   try {
@@ -11,11 +12,12 @@ export const POST = async (request) => {
     ]);
 
     if (userExists.rowCount === 0) {
-      return Response.json(
+      return NextResponse.json(
         { error: "User with this email does not exist" },
         { status: 404 }
       );
     }
+    
     const user = userExists.rows[0];
     // Check if password is correct
     const passwordMatch = await bcrypt.compare(password, user.password_hash);

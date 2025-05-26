@@ -17,26 +17,47 @@ export const POST = async (request) => {
       password,
     } = body;
 
-    // Check if required fields are present
-    if (
-      !name ||
-      !email ||
-      !streetAddress ||
-      !city ||
-      !postalCode ||
-      !country ||
-      !password
-    ) {
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
+    // Check if users table exists and create if not
+    const checkTableQuery = `
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name = 'users'
       );
+    `;
+
+    const tableExists = await query(checkTableQuery);
+
+    if (!tableExists.rows[0].exists) {
+      // Create users table if it doesn't exist
+      await query(`
+        CREATE TABLE users (
+          id SERIAL PRIMARY KEY,
+          name VARCHAR(255) NOT NULL,
+          email VARCHAR(255) UNIQUE NOT NULL,
+          website_url VARCHAR(255),
+          profile_picture VARCHAR(255),
+          phone VARCHAR(50),
+          street_address VARCHAR(255),
+          city VARCHAR(100),
+          postal_code VARCHAR(20),
+          country VARCHAR(100),
+          password_hash VARCHAR(255),
+          role VARCHAR(50) NOT NULL DEFAULT 'user',
+          provider VARCHAR(50) NOT NULL DEFAULT 'local',
+          plan VARCHAR(50) NOT NULL DEFAULT '0',
+          status VARCHAR(50) NOT NULL DEFAULT 'active',
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+          updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+        );
+      `);
     }
 
     // Check if user already exists
     const userExists = await query("SELECT * FROM users WHERE email = $1", [
       email,
     ]);
+
     if (userExists.rowCount > 0) {
       return NextResponse.json(
         { error: "User with this email already exists" },
@@ -56,18 +77,24 @@ export const POST = async (request) => {
         website_url, 
         phone, 
         street_address, 
+        profile_picture,
         city, 
         postal_code, 
         country, 
         password_hash,
         role,
-        provider
+        provider,
+        plan,
+        status
       ) 
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) 
-      RETURNING id, name, email, role, provider, created_at
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) 
+      RETURNING id, name, email, role, provider, phone, plan, status
     `;
     const role = "user";
     const provider = "local";
+    const plan = "0";
+    const status = "active";
+    const profile_picture = null;
 
     const values = [
       name,
@@ -75,12 +102,15 @@ export const POST = async (request) => {
       websiteUrl || null,
       phone || null,
       streetAddress,
+      profile_picture,
       city,
       postalCode,
       country,
       hashedPassword,
       role,
       provider,
+      plan,
+      status,
     ];
 
     const result = await query(insertUserQuery, values);
@@ -89,14 +119,7 @@ export const POST = async (request) => {
     return NextResponse.json(
       {
         message: "User registered successfully",
-        user: {
-          id: newUser.id,
-          name: newUser.name,
-          email: newUser.email,
-          role: newUser.role,
-          provider: newUser.provider,
-          createdAt: newUser.created_at,
-        },
+        user: newUser,
       },
       { status: 201 }
     );
