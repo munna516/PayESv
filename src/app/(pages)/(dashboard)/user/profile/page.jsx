@@ -29,6 +29,7 @@ import {
 import toast from "react-hot-toast";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
+import { format } from "date-fns";
 
 export default function Profile() {
   const { data: session } = useSession();
@@ -43,6 +44,7 @@ export default function Profile() {
     location: "",
     company: "",
   });
+  console.log(session);
 
   const handleEditClick = () => {
     if (!isEditing) {
@@ -161,17 +163,18 @@ export default function Profile() {
                     </div>
                     <span
                       className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium mt-2 ${
-                        session?.user?.status === "Active"
+                        session?.status === "active"
                           ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
                           : "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300"
                       }`}
                     >
-                      {session?.user?.status === "Active" ? (
+                      {session?.status === "active" ? (
                         <CheckCircle2 className="h-3 w-3" />
                       ) : (
                         <XCircle className="h-3 w-3" />
                       )}
-                      {session?.user?.status}
+                      {session?.status?.charAt(0).toUpperCase() +
+                        session?.status?.slice(1)}
                     </span>
                   </div>
                 </div>
@@ -205,7 +208,9 @@ export default function Profile() {
                             className="mt-1"
                           />
                         ) : (
-                          <p className="font-medium">{session?.user?.phone}</p>
+                          <p className="font-medium">
+                            {session?.phone || "N/A"}
+                          </p>
                         )}
                       </div>
                     </div>
@@ -217,7 +222,9 @@ export default function Profile() {
                           Join Date
                         </p>
                         <p className="font-medium">
-                          {session?.user?.joinDate || "N/A"}
+                          {session?.created_at
+                            ? format(new Date(session.created_at), "d-M-yyyy")
+                            : "N/A"}
                         </p>
                       </div>
                     </div>
@@ -243,7 +250,7 @@ export default function Profile() {
                           />
                         ) : (
                           <p className="font-medium">
-                            {session?.user?.location || "N/A"}
+                            {session?.street_address || "N/A"}
                           </p>
                         )}
                       </div>
@@ -266,7 +273,7 @@ export default function Profile() {
                           />
                         ) : (
                           <p className="font-medium">
-                            {session?.user?.company || "N/A"}
+                            {session?.company || "N/A"}
                           </p>
                         )}
                       </div>

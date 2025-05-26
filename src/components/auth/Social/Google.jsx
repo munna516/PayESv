@@ -9,7 +9,6 @@ import toast from "react-hot-toast";
 export default function Google() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  console.log(session);
   const handleGoogleSignIn = () => {
     signIn("google");
   };
@@ -29,7 +28,7 @@ export default function Google() {
   }, [status, session, router]);
 
   if (status === "loading") return <div>Loading...</div>;
-  console.log(session);
+ 
   return (
     <span onClick={handleGoogleSignIn}>
       <Button

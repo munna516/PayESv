@@ -31,6 +31,7 @@ import {
 import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import toast from "react-hot-toast";
 
 const navMain = [
@@ -68,10 +69,17 @@ export default function Sidebar({
   setMobileSidebar,
 }) {
   const { data: session } = useSession();
+  const pathname = usePathname();
+
   const handleSignOut = () => {
     signOut({ callbackUrl: "/" });
     toast.success("Signed out successfully");
   };
+
+  const isActive = (href) => {
+    return pathname === href;
+  };
+
   const SidebarContent = (
     <div className="flex flex-col ">
       {/* Logo */}
@@ -83,7 +91,7 @@ export default function Sidebar({
       </div>
       {/* Profile */}
       <div className="flex flex-col items-center py-4">
-      <Image
+        <Image
           src={session?.user?.image || dummyProfile}
           alt="Profile"
           width={100}
@@ -119,9 +127,17 @@ export default function Sidebar({
             <Link
               key={item.label}
               href={item.href}
-              className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-700 dark:text-white hover:bg-green-100 hover:text-green-700   dark:hover:text-black transition"
+              className={`flex items-center gap-3 px-3 py-2 rounded-md transition ${
+                isActive(item.href)
+                  ? " text-green-600 bg-green-100 dark:bg-white dark:text-green-600"
+                  : "text-gray-700 dark:text-white  hover:text-green-500 dark:hover:text-green-500"
+              }`}
             >
-              <item.icon className="w-5 h-5 lg:w-7 lg:h-7 font-semibold " />
+              <item.icon
+                className={`w-5 h-5 lg:w-7 lg:h-7 font-semibold ${
+                  isActive(item.href) ? "" : ""
+                }`}
+              />
               {(isSidebarOpen || mobileSidebar) && (
                 <span className="text-sm lg:text-base font-semibold">
                   {item.label}
@@ -139,9 +155,19 @@ export default function Sidebar({
             <Link
               key={item.label}
               href={item.href}
-              className="flex items-center gap-3 px-3 py-2 rounded-md text-gray-700 dark:text-white hover:bg-green-100 hover:text-green-700   dark:hover:text-black transition"
+              className={`flex items-center gap-3 px-3 py-2 rounded-md transition ${
+                isActive(item.href)
+                  ? "text-green-600 bg-green-100 dark:bg-white dark:text-green-600"
+                  : "text-gray-700 dark:text-white  hover:text-green-500 dark:hover:text-green-500"
+              }`}
             >
-              <item.icon className="w-5 h-5 lg:w-7 lg:h-7 font-semibold" />
+              <item.icon
+                className={`w-5 h-5 lg:w-7 lg:h-7 font-semibold ${
+                  isActive(item.href)
+                    ? "text-green-600 dark:text-green-500"
+                    : ""
+                }`}
+              />
               {(isSidebarOpen || mobileSidebar) && (
                 <span className="text-sm lg:text-base font-semibold">
                   {item.label}

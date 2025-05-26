@@ -26,6 +26,7 @@ export const authOptions = {
               body: JSON.stringify({ email, password }),
             }
           );
+
           if (res.status === 401 || res.status === 404) {
             return null;
           }
@@ -55,6 +56,14 @@ export const authOptions = {
         token.role = user.role;
         token.profile_picture = user.profile_picture;
         token.provider = user.provider;
+        token.plan = user.plan;
+        token.status = user.status;
+        token.phone = user.phone;
+        token.street_address = user.street_address;
+        token.city = user.city;
+        token.postal_code = user.postal_code;
+        token.country = user.country;
+        token.created_at = user.created_at;
       }
       return token;
     },
@@ -64,6 +73,14 @@ export const authOptions = {
         session.role = token.role;
         session.profile_picture = token.profile_picture;
         session.provider = token.provider;
+        session.plan = token.plan;
+        session.status = token.status;
+        session.phone = token.phone;
+        session.street_address = token.street_address;
+        session.city = token.city;
+        session.postal_code = token.postal_code;
+        session.country = token.country;
+        session.created_at = token.created_at;
       }
       return session;
     },
@@ -84,11 +101,18 @@ export const authOptions = {
               }),
             }
           );
-
           if (response.ok) {
             const userData = await response.json();
-            user.role = userData.role || "user";
+            user.role = userData.user.role;
             user.provider = account.provider;
+            user.status = userData.user.status;
+            user.plan = userData.user.plan;
+            user.phone = userData.user.phone;
+            user.street_address = userData.user.street_address;
+            user.city = userData.user.city;
+            user.postal_code = userData.user.postal_code;
+            user.country = userData.user.country;
+            user.created_at = userData.user.created_at;
             return true;
           }
           return false;
@@ -111,9 +135,7 @@ export const authOptions = {
 
           if (response.ok) {
             const userData = await response.json();
-            // Add role and other properties to the user object
-            user.role = userData.role || "user";
-            user.provider = account.provider;
+
             return true;
           }
           return false;

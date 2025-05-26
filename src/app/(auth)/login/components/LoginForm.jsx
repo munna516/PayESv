@@ -26,6 +26,7 @@ export default function LoginForm() {
         password,
         redirect: false,
       });
+
       if (res.status === 401) {
         toast.error("Invalid credentials");
       }
