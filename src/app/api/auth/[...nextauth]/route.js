@@ -53,6 +53,7 @@ export const authOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
+        token.id = user.id;
         token.role = user.role;
         token.profile_picture = user.profile_picture;
         token.provider = user.provider;
@@ -71,6 +72,7 @@ export const authOptions = {
     async session({ session, token }) {
       if (token) {
         session.role = token.role;
+        session.id = token.id;
         session.profile_picture = token.profile_picture;
         session.provider = token.provider;
         session.plan = token.plan;
@@ -103,6 +105,7 @@ export const authOptions = {
           );
           if (response.ok) {
             const userData = await response.json();
+            user.id = userData.user.id;
             user.role = userData.user.role;
             user.provider = account.provider;
             user.status = userData.user.status;

@@ -48,7 +48,7 @@ export default function Navbar() {
     },
   ];
 
-  return pathname.includes("/user") || pathname.includes("/admin") ? (
+  return pathname.includes("/user") || pathname.includes("/admin") || pathname.includes("/checkout") ? (
     ""
   ) : (
     <div className="bg-white/50  dark:bg-gray-800 dark:text-white backdrop-blur-lg  border-b-2 dark:border-b-0 px-4 py-4 fixed top-0 left-0 z-50 w-full scroll-mt-24">
