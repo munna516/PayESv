@@ -10,7 +10,7 @@ import {
   SelectValue,
 } from "../ui/select";
 import { Button } from "../ui/button";
-
+import Link from "next/link";
 
 export default function PersonalPriceCard({ yearly }) {
   const [quantity, setQuantity] = useState("");
@@ -84,10 +84,12 @@ export default function PersonalPriceCard({ yearly }) {
             </Select>
           </div>
 
-          <div >
-            <Button    variant="primary" className="w-full">
-              Buy Now
-            </Button>
+          <div>
+            <Link href="/checkout">
+              <Button variant="primary" className="w-full">
+                Buy Now
+              </Button>
+            </Link>
           </div>
         </CardContent>
       </Card>

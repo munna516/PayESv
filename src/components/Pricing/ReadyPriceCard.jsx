@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from "../ui/select";
 import { Button } from "../ui/button";
+import Link from "next/link";
 
 export default function ReadyPriceCard() {
   const calculateTotal = () => {
@@ -60,9 +61,11 @@ export default function ReadyPriceCard() {
             <li>✔ And many more</li>
           </ul>
 
-          <Button variant="primary" className="w-full ">
-            Buy Now
-          </Button>
+          <Link href="/checkout">
+            <Button variant="primary" className="w-full ">
+              Buy Now
+            </Button>
+          </Link>
         </CardContent>
       </Card>
     </div>
