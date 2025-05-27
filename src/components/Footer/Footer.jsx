@@ -3,7 +3,7 @@ import { usePathname } from "next/navigation";
 
 const Footer = () => {
   const pathname = usePathname();
-  return pathname.includes("/user") || pathname.includes("/admin") ? (
+  return pathname.includes("/user") || pathname.includes("/admin") || pathname.includes("/checkout") ? (
     ""
   ) : (
     <footer className="bg-green-500 dark:bg-gray-800 text-white py-12 px-4 sm:px-6 mt-10">
