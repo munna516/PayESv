@@ -96,7 +96,7 @@ export default function Dashboard() {
           <Card className="bg-gradient-to-br  from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-4 sm:p-6">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-5">
               <CardTitle className="text-sm sm:text-base font-medium">
-                Total Balance
+                Successful Transactions
               </CardTitle>
               <Wallet className="h-4 w-4 text-green-600 dark:text-green-400" />
             </CardHeader>
@@ -105,7 +105,7 @@ export default function Dashboard() {
                 ${stats.balance.toFixed(2)}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                Available for withdrawal
+                Total successful transactions
               </p>
             </CardContent>
           </Card>
