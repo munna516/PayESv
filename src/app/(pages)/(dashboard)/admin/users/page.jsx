@@ -28,6 +28,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, Pencil, Trash2, UserPlus } from "lucide-react";
 import { Label } from "@/components/ui/label";
+import { useQuery } from "@tanstack/react-query";
+import Loading from "@/components/Loading/Loading";
+
 
 export default function Users() {
   const [userStatus, setUserStatus] = useState("all");
@@ -35,36 +38,10 @@ export default function Users() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
 
-  // Mock data - replace with actual data from your backend
-  const users = [
-    {
-      id: 1,
-      firstName: "John",
-      lastName: "Doe",
-      email: "john.doe@example.com",
-      phone: "+880 1234567890",
-      balance: 5000.0,
-      status: "active",
-    },
-    {
-      id: 2,
-      firstName: "Jane",
-      lastName: "Smith",
-      email: "jane.smith@example.com",
-      phone: "+880 9876543210",
-      balance: 7500.0,
-      status: "active",
-    },
-    {
-      id: 3,
-      firstName: "Mike",
-      lastName: "Johnson",
-      email: "mike.johnson@example.com",
-      phone: "+880 4567891230",
-      balance: 3000.0,
-      status: "deactive",
-    },
-  ];
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["users"],
+    queryFn: () => fetch("/api/admin/users").then((res) => res.json()),
+  });
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -75,6 +52,11 @@ export default function Users() {
     status: "active",
   });
 
+  if (isLoading) return <Loading />;
+
+  
+
+  const users = data?.rows;
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -138,7 +120,11 @@ export default function Users() {
           </CardTitle>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="primary" onClick={handleAddUser} className="gap-2">
+              <Button
+                variant="primary"
+                onClick={handleAddUser}
+                className="gap-2"
+              >
                 <UserPlus className="h-4 w-4" />
                 Add New
               </Button>
@@ -301,7 +287,7 @@ export default function Users() {
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell>৳{user.balance.toFixed(2)}</TableCell>
+                    <TableCell>{user?.balance?.toFixed(2) || 0}</TableCell>
                     <TableCell>
                       <span
                         className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
