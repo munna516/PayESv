@@ -129,9 +129,7 @@ export default function Users() {
     const matchesSearch =
       searchQuery === "" ||
       user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      `${user.firstName} ${user.lastName}`
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase());
+      `${user.name}`.toLowerCase().includes(searchQuery.toLowerCase());
 
     return matchesStatus && matchesSearch;
   });
