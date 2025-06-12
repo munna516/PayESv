@@ -30,7 +30,8 @@ import { Search, Pencil, Trash2, UserPlus } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { useQuery } from "@tanstack/react-query";
 import Loading from "@/components/Loading/Loading";
-
+import toast from "react-hot-toast";
+import Swal from "sweetalert2";
 
 export default function Users() {
   const [userStatus, setUserStatus] = useState("all");
@@ -38,7 +39,7 @@ export default function Users() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
 
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ["users"],
     queryFn: () => fetch("/api/admin/users").then((res) => res.json()),
   });
@@ -54,8 +55,6 @@ export default function Users() {
 
   if (isLoading) return <Loading />;
 
-  
-
   const users = data?.rows;
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -66,13 +65,14 @@ export default function Users() {
   };
 
   const handleEditUser = (user) => {
+    const nameParts = user.name.trim().split(" ");
     setEditingUser(user);
     setFormData({
-      firstName: user.firstName,
-      lastName: user.lastName,
+      lastName: nameParts.pop(),
+      firstName: nameParts.join(" "),
       email: user.email,
       phone: user.phone,
-      password: "", // Don't show password when editing
+      password: "",
       status: user.status,
     });
     setIsDialogOpen(true);
@@ -91,10 +91,35 @@ export default function Users() {
     setIsDialogOpen(true);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission here
-    console.log(formData);
+    if (editingUser) {
+      const response = await fetch(`/api/admin/users`, {
+        method: "PUT",
+        body: JSON.stringify(formData),
+      });
+      const data = await response.json();
+      if (data?.error) {
+        toast.error(data?.error);
+        return;
+      } else if (data?.rowCount > 0) {
+        toast.success("User updated successfully");
+      }
+      refetch();
+    } else {
+      const response = await fetch("/api/admin/users", {
+        method: "POST",
+        body: JSON.stringify(formData),
+      });
+      const data = await response.json();
+      if (data?.error) {
+        toast.error(data?.error);
+        return;
+      } else if (data?.rowCount > 0) {
+        toast.success("User added successfully");
+      }
+      refetch();
+    }
     setIsDialogOpen(false);
   };
 
@@ -110,7 +135,34 @@ export default function Users() {
 
     return matchesStatus && matchesSearch;
   });
+  const handleDeleteUser = async (id) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const response = await fetch(`/api/admin/users`, {
+          method: "DELETE",
+          body: JSON.stringify({ id }),
+        });
+        const data = await response.json();
 
+        if (data?.rowCount > 0) {
+          Swal.fire({
+            title: "Deleted!",
+            text: "Your file has been deleted.",
+            icon: "success",
+          });
+          refetch();
+        }
+      }
+    });
+  };
   return (
     <div className="space-y-6 mb-14">
       <Card className="dark:bg-slate-700">
@@ -168,6 +220,7 @@ export default function Users() {
                       id="email"
                       name="email"
                       type="email"
+                      readOnly={editingUser}
                       value={formData.email}
                       onChange={handleInputChange}
                       required
@@ -222,7 +275,7 @@ export default function Users() {
                   </div>
                 </div>
 
-                <Button type="submit" className="w-full">
+                <Button variant="primary" type="submit" className="w-full">
                   {editingUser ? "Update User" : "Save User"}
                 </Button>
               </form>
@@ -253,7 +306,7 @@ export default function Users() {
             <div className="relative w-full md:w-[300px]">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search users..."
+                placeholder="Search users by email..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-8 dark:text-white"
@@ -267,26 +320,19 @@ export default function Users() {
               <TableHeader>
                 <TableRow className="dark:border-slate-600">
                   <TableHead className="w-[50px]">#</TableHead>
-                  <TableHead>User Profile</TableHead>
+                  <TableHead>User Name</TableHead>
+                  <TableHead>User Email</TableHead>
                   <TableHead>Balance</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredUsers.map((user) => (
+                {filteredUsers.map((user, index) => (
                   <TableRow key={user.id} className="dark:border-slate-600">
-                    <TableCell>{user.id}</TableCell>
-                    <TableCell>
-                      <div>
-                        <div className="font-medium">
-                          {user.firstName} {user.lastName}
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                          {user.email}
-                        </div>
-                      </div>
-                    </TableCell>
+                    <TableCell>{index + 1}</TableCell>
+                    <TableCell>{user.name}</TableCell>
+                    <TableCell>{user.email}</TableCell>
                     <TableCell>{user?.balance?.toFixed(2) || 0}</TableCell>
                     <TableCell>
                       <span
@@ -310,6 +356,7 @@ export default function Users() {
                           <Pencil className="h-4 w-4" />
                         </Button>
                         <Button
+                          onClick={() => handleDeleteUser(user.id)}
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8 text-red-500 hover:text-red-700"
