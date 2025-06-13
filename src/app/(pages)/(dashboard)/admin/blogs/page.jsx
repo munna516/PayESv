@@ -27,53 +27,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
-
-// Mock data - replace with actual data from your API
-const mockBlogs = [
-  {
-    id: 1,
-    thumbnail: "https://example.com/image1.jpg",
-    title: "Getting Started with PayESV",
-    description:
-      "Learn how to get started with PayESV payment processing platform...",
-    date: new Date("2024-03-15"),
-    status: "active",
-  },
-  {
-    id: 2,
-    thumbnail: "https://example.com/image2.jpg",
-    title: "Payment Processing Best Practices",
-    description:
-      "Discover the best practices for processing payments securely...",
-    date: new Date("2024-03-10"),
-    status: "active",
-  },
-  {
-    id: 3,
-    thumbnail: "https://example.com/image3.jpg",
-    title: "Security in Digital Payments",
-    description:
-      "Understanding the importance of security in digital payment systems...",
-    date: new Date("2024-03-05"),
-    status: "deactive",
-  },
-];
+import toast from "react-hot-toast";
+import { useQuery } from "@tanstack/react-query";
+import Loading from "@/components/Loading/Loading";
+import Swal from "sweetalert2";
 
 export default function Blogs() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedBlog, setSelectedBlog] = useState(null);
+  const [selectedBlogId, setSelectedBlogId] = useState(null);
+
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ["blogs"],
+    queryFn: () => fetch("/api/admin/blogs").then((res) => res.json()),
+  });
+
   const [formData, setFormData] = useState({
     thumbnail: "",
     title: "",
@@ -82,7 +54,12 @@ export default function Blogs() {
     status: "active",
   });
 
-  const filteredBlogs = mockBlogs
+  if (isLoading) return <Loading />;
+  const blogs = data?.rows;
+
+  console.log("this is blogs", blogs);
+
+  const filteredBlogs = blogs
     .filter((blog) => {
       const matchesSearch = blog.title
         .toLowerCase()
@@ -105,8 +82,9 @@ export default function Blogs() {
     setIsDialogOpen(true);
   };
 
-  const handleEdit = (blog) => {
+  const handleEdit = (blog, id) => {
     setSelectedBlog(blog);
+    setSelectedBlogId(id);
     setFormData({
       thumbnail: blog.thumbnail,
       title: blog.title,
@@ -117,19 +95,68 @@ export default function Blogs() {
     setIsDialogOpen(true);
   };
 
-  const handleDelete = (id) => {
-    // Implement delete functionality
-    console.log("Deleting blog:", id);
+  const handleDelete = async (id) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "Do you want to delete this blog?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const response = await fetch(`/api/admin/blogs`, {
+          method: "DELETE",
+          body: JSON.stringify({ id }),
+        });
+        const data = await response.json();
+        if (data?.rowCount > 0) {
+          Swal.fire({
+            title: "Deleted!",
+            text: "Your blog has been deleted.",
+            icon: "success",
+          });
+          refetch();
+        }
+      }
+    });
   };
+  console.log("this is formData", formData);
 
-  const handleSave = () => {
-    // Implement save functionality
-    console.log("Saving blog:", formData);
+  const handleSave = async (e) => {
+    e.preventDefault();
+    if (selectedBlog) {
+      const response = await fetch(`/api/admin/blogs`, {
+        method: "PUT",
+        body: JSON.stringify({ ...formData, id: selectedBlogId }),
+      });
+      const data = await response.json();
+      if (data.error) {
+        toast.error(data.error);
+      } else {
+        toast.success("Blog updated successfully");
+      }
+      refetch();
+    } else {
+      const response = await fetch("/api/admin/blogs", {
+        method: "POST",
+        body: JSON.stringify(formData),
+      });
+      const data = await response.json();
+      if (data.error) {
+        toast.error(data.error);
+      } else {
+        toast.success("Blog created successfully");
+      }
+      refetch();
+    }
+
     setIsDialogOpen(false);
   };
 
   return (
-    <div className="">
+    <div className="mb-16">
       <Card className="dark:bg-slate-700">
         <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <CardTitle>Blogs</CardTitle>
@@ -169,70 +196,77 @@ export default function Blogs() {
             </div>
           </div>
 
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[50px]">#</TableHead>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Description</TableHead>
-                  <TableHead>Post Date</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-center">Action</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredBlogs.map((blog, index) => (
-                  <TableRow key={blog.id}>
-                    <TableCell>{index + 1}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        
-                        <p className="font-medium">{blog.title}</p>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <p className="line-clamp-2 text-sm text-muted-foreground">
-                        {blog.description}
-                      </p>
-                    </TableCell>
-                    <TableCell>{format(blog.date, "PPP")}</TableCell>
-                    <TableCell>
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs ${
-                          blog.status === "active"
-                            ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100"
-                            : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100"
-                        }`}
-                      >
-                        {blog.status}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex justify-center gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleEdit(blog)}
-                          className="h-8 w-8"
-                        >
-                          <Pencil className="h-4 w-4 dark:text-white" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDelete(blog.id)}
-                          className="h-8 w-8 text-destructive hover:text-destructive"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
+          {blogs.length > 0 ? (
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[50px]">#</TableHead>
+                    <TableHead>Title</TableHead>
+                    <TableHead>Description</TableHead>
+                    <TableHead>Post Date</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-center">Action</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                </TableHeader>
+                <TableBody>
+                  {filteredBlogs.map((blog, index) => (
+                    <TableRow key={blog.id}>
+                      <TableCell>{index + 1}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <p className="font-medium">
+                            {blog.title.slice(0, 30)} ....
+                          </p>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <p className="line-clamp-2 text-sm text-muted-foreground">
+                          {blog.description.slice(0, 80)} ...
+                        </p>
+                      </TableCell>
+                      <TableCell>
+                        {format(new Date(blog.date), "dd-MM-yyyy")}
+                      </TableCell>
+                      <TableCell>
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs ${
+                            blog.status === "active"
+                              ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100"
+                              : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100"
+                          }`}
+                        >
+                          {blog.status}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex justify-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleEdit(blog, blog.id)}
+                            className="h-8 w-8"
+                          >
+                            <Pencil className="h-4 w-4 dark:text-white" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDelete(blog.id)}
+                            className="h-8 w-8 text-destructive hover:text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          ) : (
+            <h1>No blogs found</h1>
+          )}
         </CardContent>
       </Card>
 
@@ -249,6 +283,7 @@ export default function Blogs() {
               <Input
                 id="thumbnail"
                 value={formData.thumbnail}
+                required={true}
                 onChange={(e) =>
                   setFormData({ ...formData, thumbnail: e.target.value })
                 }
@@ -260,6 +295,7 @@ export default function Blogs() {
               <Input
                 id="title"
                 value={formData.title}
+                required
                 onChange={(e) =>
                   setFormData({ ...formData, title: e.target.value })
                 }
@@ -270,6 +306,7 @@ export default function Blogs() {
               <Textarea
                 id="description"
                 value={formData.description}
+                required
                 onChange={(e) =>
                   setFormData({ ...formData, description: e.target.value })
                 }
@@ -277,37 +314,8 @@ export default function Blogs() {
                 placeholder="Enter blog description..."
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="grid gap-2">
-                <Label>Date</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "justify-start text-left font-normal",
-                        !formData.date && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {formData.date ? (
-                        format(formData.date, "PPP")
-                      ) : (
-                        <span>Pick a date</span>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                    <Calendar
-                      mode="single"
-                      selected={formData.date}
-                      onSelect={(date) => setFormData({ ...formData, date })}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-              <div className="grid gap-2">
+            <div className="grid grid-cols-1 gap-4">
+              <div className="grid gap-2 w-full">
                 <Label htmlFor="status">Status</Label>
                 <Select
                   value={formData.status}
