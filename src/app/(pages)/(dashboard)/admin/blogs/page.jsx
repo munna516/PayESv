@@ -118,11 +118,12 @@ export default function Blogs() {
             icon: "success",
           });
           refetch();
+        } else {
+          toast.error("Failed to delete blog");
         }
       }
     });
   };
-  console.log("this is formData", formData);
 
   const handleSave = async (e) => {
     e.preventDefault();
