@@ -11,70 +11,33 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Search, Trash2, Mail, MailOpen } from "lucide-react";
+import { Search, Trash2 } from "lucide-react";
 import { format } from "date-fns";
-
-// Mock data - replace with actual data from your API
-const mockTickets = [
-  {
-    id: 1,
-    user: "user1@example.com",
-    subject: "Payment Issue",
-    status: "pending",
-    createdAt: new Date("2024-03-15T10:30:00"),
-  },
-  {
-    id: 2,
-    user: "user2@example.com",
-    subject: "Account Verification",
-    status: "read",
-    createdAt: new Date("2024-03-14T15:45:00"),
-  },
-  {
-    id: 3,
-    user: "user3@example.com",
-    subject: "Refund Request",
-    status: "pending",
-    createdAt: new Date("2024-03-14T09:20:00"),
-  },
-  {
-    id: 4,
-    user: "user4@example.com",
-    subject: "Technical Support",
-    status: "read",
-    createdAt: new Date("2024-03-13T14:15:00"),
-  },
-  {
-    id: 5,
-    user: "user5@example.com",
-    subject: "Product Inquiry",
-    status: "pending",
-    createdAt: new Date("2024-03-13T11:00:00"),
-  },
-];
+import Loading from "@/components/Loading/Loading";
+import { useQuery } from "@tanstack/react-query";
+import Link from "next/link";
 
 export default function Tickets() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
 
-  const filteredTickets = mockTickets.filter((ticket) => {
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ["tickets"],
+    queryFn: () => fetch("/api/admin/tickets").then((res) => res.json()),
+  });
+
+  if (isLoading) return <Loading />;
+
+  const tickets = data?.rows;
+
+  const filteredTickets = tickets.filter((ticket) => {
     const matchesSearch =
-      ticket.user.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      ticket.subject.toLowerCase().includes(searchQuery.toLowerCase());
+      ticket.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      ticket.category.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus =
       statusFilter === "all" || ticket.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
-
-  const handleMarkAsRead = (id) => {
-    // Implement mark as read functionality
-    console.log("Marking ticket as read:", id);
-  };
-
-  const handleMarkAsUnread = (id) => {
-    // Implement mark as unread functionality
-    console.log("Marking ticket as unread:", id);
-  };
 
   const handleDelete = (id) => {
     // Implement delete functionality
@@ -114,77 +77,72 @@ export default function Tickets() {
             </div>
           </div>
 
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[50px]">#</TableHead>
-                  <TableHead>User</TableHead>
-                  <TableHead>Subject</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Created Time</TableHead>
-                  <TableHead className="text-center">Action</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredTickets.map((ticket, index) => (
-                  <TableRow key={ticket.id}>
-                    <TableCell>{index + 1}</TableCell>
-                    <TableCell className="font-medium">{ticket.user}</TableCell>
-                    <TableCell>{ticket.subject}</TableCell>
-                    <TableCell>
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs ${
-                          ticket.status === "read"
-                            ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100"
-                            : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100"
-                        }`}
-                      >
-                        {ticket.status}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      {format(ticket.createdAt, "MMM dd, yyyy HH:mm")}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex justify-center gap-2">
-                        {ticket.status === "pending" ? (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleMarkAsRead(ticket.id)}
-                            className="h-8 w-8"
-                            title="Mark as read"
-                          >
-                            <MailOpen className="h-4 w-4 dark:text-white" />
-                          </Button>
-                        ) : (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleMarkAsUnread(ticket.id)}
-                            className="h-8 w-8"
-                            title="Mark as unread"
-                          >
-                            <Mail className="h-4 w-4 dark:text-white" />
-                          </Button>
-                        )}
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDelete(ticket.id)}
-                          className="h-8 w-8 text-destructive hover:text-destructive"
-                          title="Delete"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
+          {filteredTickets?.length > 0 ? (
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[50px]">#</TableHead>
+                    <TableHead>User</TableHead>
+                    <TableHead>Subject</TableHead>
+                    <TableHead>Created Time</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-center">Action</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                </TableHeader>
+                <TableBody>
+                  {filteredTickets.map((ticket, index) => (
+                    <TableRow key={ticket.id}>
+                      <TableCell>{index + 1}</TableCell>
+                      <TableCell className="font-medium">
+                        {ticket.email}
+                      </TableCell>
+                      <TableCell className="text-blue-500 cursor-pointer font-medium">
+                        <Link href={`/admin/tickets/${ticket.id}`}>
+                          {ticket.category || "-"}
+                        </Link>
+                      </TableCell>
+                      <TableCell>
+                        {format(new Date(ticket?.createdat), "dd-MM-yyyy")}
+                      </TableCell>
+                      <TableCell>
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs ${
+                            ticket.status === "Pending"
+                              ? "bg-yellow-200 text-gray-600 dark:bg-yellow-500 dark:text-white"
+                              : ticket.status === "In Progress"
+                              ? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300"
+                              : ticket.status === "Resolved"
+                              ? "bg-green-200 text-green-600 dark:bg-green-900 dark:text-green-300"
+                              : "bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300"
+                          }`}
+                        >
+                          {ticket.status}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex justify-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDelete(ticket.id)}
+                            className="h-8 w-8 text-destructive hover:text-destructive"
+                            title="Delete"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          ) : (
+            <p className="text-center text-sm text-muted-foreground my-10">
+              No tickets found
+            </p>
+          )}
         </CardContent>
       </Card>
     </div>
