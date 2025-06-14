@@ -21,8 +21,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Ticket, AlertCircle, Clock, CheckCircle2 } from "lucide-react";
+import { Plus, Ticket } from "lucide-react";
 import toast from "react-hot-toast";
+import Loading from "@/components/Loading/Loading";
+import { useSession } from "next-auth/react";
+import { useQuery } from "@tanstack/react-query";
+import { format } from "date-fns";
 
 export default function Tickets() {
   const [category, setCategory] = useState("");
@@ -32,36 +36,15 @@ export default function Tickets() {
   const [description, setDescription] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Mock data - replace with actual data from your backend
-  const tickets = [
-    {
-      id: 1,
-      subject: "Payment Issue",
-      category: "Payment",
-      status: "Open",
-      createdAt: "2024-03-20",
-      lastUpdated: "2024-03-20",
-      priority: "High",
-    },
-    {
-      id: 2,
-      subject: "Gateway Integration",
-      category: "Gateway setup",
-      status: "In Progress",
-      createdAt: "2024-03-19",
-      lastUpdated: "2024-03-20",
-      priority: "Medium",
-    },
-    {
-      id: 3,
-      subject: "General Inquiry",
-      category: "Others",
-      status: "Resolved",
-      createdAt: "2024-03-18",
-      lastUpdated: "2024-03-19",
-      priority: "Low",
-    },
-  ];
+  const { data: session } = useSession();
+
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ["tickets"],
+    queryFn: () =>
+      fetch(
+        `/api/user/tickets?email=${encodeURIComponent(session?.user?.email)}`
+      ).then((res) => res.json()),
+  });
 
   const paymentMethods = [
     "Bkash",
@@ -89,7 +72,10 @@ export default function Tickets() {
     "My Cash",
   ];
 
-  const handleSubmit = () => {
+  if (isLoading) return <Loading />;
+  const tickets = data?.rows;
+
+  const handleSubmit = async () => {
     if (!category) {
       toast.error("Please select a category");
       return;
@@ -111,27 +97,40 @@ export default function Tickets() {
     }
 
     setIsSubmitting(true);
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubmitting(false);
+    const response = await fetch("/api/user/tickets", {
+      method: "POST",
+      body: JSON.stringify({
+        email: session?.user?.email,
+        category,
+        paymentMethod,
+        transactionId,
+        websiteLink,
+        description,
+      }),
+    });
+    const data = await response.json();
+    if (data.error) {
+      toast.error(data.error);
+    } else {
       toast.success("Ticket submitted successfully!");
-      // Reset form
       setCategory("");
       setPaymentMethod("");
       setTransactionId("");
       setWebsiteLink("");
       setDescription("");
-    }, 1500);
+      refetch();
+    }
+    setIsSubmitting(false);
   };
 
   const getStatusColor = (status) => {
     switch (status) {
-      case "Open":
-        return "bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300";
+      case "Pending":
+        return "bg-yellow-200 text-gray-600 dark:bg-yellow-500 dark:text-white";
       case "In Progress":
         return "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300";
       case "Resolved":
-        return "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300";
+        return "bg-green-200 text-green-600 dark:bg-green-900 dark:text-green-300";
       default:
         return "bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300";
     }
@@ -139,7 +138,7 @@ export default function Tickets() {
 
   return (
     <div className="space-y-6 mb-20">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1  gap-6">
         {/* New Ticket Form */}
         <Card className="dark:bg-slate-700">
           <CardHeader>
@@ -242,54 +241,57 @@ export default function Tickets() {
               <CardTitle className="text-xl font-bold">Your Tickets</CardTitle>
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="rounded-md border dark:border-slate-600">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Subject</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Created</TableHead>
-                    <TableHead>Priority</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {tickets.map((ticket) => (
-                    <TableRow key={ticket.id}>
-                      <TableCell className="font-medium">
-                        {ticket.subject}
-                      </TableCell>
-                      <TableCell>{ticket.category}</TableCell>
-                      <TableCell>
-                        <span
-                          className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                            ticket.status
-                          )}`}
-                        >
-                          {ticket.status}
-                        </span>
-                      </TableCell>
-                      <TableCell>{ticket.createdAt}</TableCell>
-                      <TableCell>
-                        <span
-                          className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            ticket.priority === "High"
-                              ? "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300"
-                              : ticket.priority === "Medium"
-                              ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300"
-                              : "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
-                          }`}
-                        >
-                          {ticket.priority}
-                        </span>
-                      </TableCell>
+          {tickets?.length > 0 ? (
+            <CardContent>
+              <div className="rounded-md border dark:border-slate-600">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>#</TableHead>
+                      <TableHead>Category</TableHead>
+                      <TableHead>Payment Method</TableHead>
+                      <TableHead>Transaction ID</TableHead>
+                      <TableHead>Website Link</TableHead>
+                      <TableHead>Description</TableHead>
+                      <TableHead>Created</TableHead>
+                      <TableHead>Status</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
+                  </TableHeader>
+                  <TableBody>
+                    {tickets.map((ticket, index) => (
+                      <TableRow key={ticket.id}>
+                        <TableCell>{index + 1}</TableCell>
+                        <TableCell className="font-medium">
+                          {ticket?.category}
+                        </TableCell>
+                        <TableCell>{ticket?.paymentmethod || "-"}</TableCell>
+                        <TableCell>{ticket?.transactionid || "-"}</TableCell>
+                        <TableCell>{ticket?.websitelink || "-"}</TableCell>
+                        <TableCell>{ticket?.description || "-"}</TableCell>
+                        <TableCell>
+                          {format(new Date(ticket?.createdat), "dd-MM-yyyy") ||
+                            "-"}
+                        </TableCell>
+                        <TableCell>
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                              ticket.status
+                            )}`}
+                          >
+                            {ticket.status}
+                          </span>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          ) : (
+            <p className="text-center text-sm text-muted-foreground my-10">
+              No tickets found
+            </p>
+          )}
         </Card>
       </div>
     </div>
