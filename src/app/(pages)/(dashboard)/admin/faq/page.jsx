@@ -28,48 +28,33 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-
-// Mock data - replace with actual data from your API
-const mockFAQs = [
-  {
-    id: 1,
-    question: "What is PayESV?",
-    answer:
-      "PayESV is a payment processing platform that helps businesses accept payments online.",
-    sort: 1,
-    status: "active",
-  },
-  {
-    id: 2,
-    question: "How do I get started?",
-    answer:
-      "You can get started by signing up for an account and following our setup guide.",
-    sort: 2,
-    status: "active",
-  },
-  {
-    id: 3,
-    question: "What payment methods are supported?",
-    answer:
-      "We support various payment methods including credit cards, debit cards, and digital wallets.",
-    sort: 3,
-    status: "deactive",
-  },
-];
+import toast from "react-hot-toast";
+import { useQuery } from "@tanstack/react-query";
+import Loading from "@/components/Loading/Loading";
+import Swal from "sweetalert2";
 
 export default function FAQ() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedFAQ, setSelectedFAQ] = useState(null);
+  const [selectedFAQId, setSelectedFAQId] = useState(null);
+
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ["faqs"],
+    queryFn: () => fetch("/api/admin/faqs").then((res) => res.json()),
+  });
+
   const [formData, setFormData] = useState({
     question: "",
     answer: "",
     sort: "",
     status: "active",
   });
+  if (isLoading) return <Loading />;
+  const faqs = data?.rows || [];
 
-  const filteredFAQs = mockFAQs
+  const filteredFAQs = faqs
     .filter((faq) => {
       const matchesSearch =
         faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -91,8 +76,9 @@ export default function FAQ() {
     setIsDialogOpen(true);
   };
 
-  const handleEdit = (faq) => {
+  const handleEdit = (faq, id) => {
     setSelectedFAQ(faq);
+    setSelectedFAQId(id);
     setFormData({
       question: faq.question,
       answer: faq.answer,
@@ -102,14 +88,63 @@ export default function FAQ() {
     setIsDialogOpen(true);
   };
 
-  const handleDelete = (id) => {
-    // Implement delete functionality
-    console.log("Deleting FAQ:", id);
+  const handleDelete = async (id) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "Do you want to delete this FAQ?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const response = await fetch(`/api/admin/faqs`, {
+          method: "DELETE",
+          body: JSON.stringify({ id }),
+        });
+        const data = await response.json();
+        if (data?.rowCount > 0) {
+          Swal.fire({
+            title: "Deleted!",
+            text: "Your FAQ has been deleted.",
+            icon: "success",
+          });
+          refetch();
+        } else {
+          toast.error("Failed to delete FAQ");
+        }
+      }
+    });
   };
 
-  const handleSave = () => {
-    // Implement save functionality
-    console.log("Saving FAQ:", formData);
+  const handleSave = async (e) => {
+    e.preventDefault();
+    if (selectedFAQ) {
+      const response = await fetch(`/api/admin/faqs`, {
+        method: "PUT",
+        body: JSON.stringify({ ...formData, id: selectedFAQId }),
+      });
+      const data = await response.json();
+      if (data.error) {
+        toast.error(data.error);
+      } else {
+        toast.success("FAQ updated successfully");
+        refetch();
+      }
+    } else {
+      const response = await fetch(`/api/admin/faqs`, {
+        method: "POST",
+        body: JSON.stringify(formData),
+      });
+      const data = await response.json();
+      if (data.error) {
+        toast.error(data.error);
+      } else {
+        toast.success("FAQ added successfully");
+        refetch();
+      }
+    }
     setIsDialogOpen(false);
   };
 
@@ -154,68 +189,74 @@ export default function FAQ() {
             </div>
           </div>
 
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[50px]">#</TableHead>
-                  <TableHead>Details</TableHead>
-                  <TableHead className="w-[100px]">Sort</TableHead>
-                  <TableHead className="w-[100px]">Status</TableHead>
-                  <TableHead className="w-[100px] text-center">
-                    Action
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredFAQs.map((faq, index) => (
-                  <TableRow key={faq.id}>
-                    <TableCell>{index + 1}</TableCell>
-                    <TableCell>
-                      <div className="space-y-1">
-                        <p className="font-medium">{faq.question}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {faq.answer}
-                        </p>
-                      </div>
-                    </TableCell>
-                    <TableCell>{faq.sort}</TableCell>
-                    <TableCell>
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs ${
-                          faq.status === "active"
-                            ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100"
-                            : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100"
-                        }`}
-                      >
-                        {faq.status}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex justify-center gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleEdit(faq)}
-                          className="h-8 w-8"
-                        >
-                          <Pencil className="h-4 w-4 dark:text-white" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDelete(faq.id)}
-                          className="h-8 w-8 text-destructive hover:text-destructive"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
+          {filteredFAQs.length > 0 ? (
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[50px]">#</TableHead>
+                    <TableHead>Details</TableHead>
+                    <TableHead className="w-[100px]">Sort</TableHead>
+                    <TableHead className="w-[100px]">Status</TableHead>
+                    <TableHead className="w-[100px] text-center">
+                      Action
+                    </TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                </TableHeader>
+                <TableBody>
+                  {filteredFAQs.map((faq, index) => (
+                    <TableRow key={faq.id}>
+                      <TableCell>{index + 1}</TableCell>
+                      <TableCell>
+                        <div className="space-y-1">
+                          <p className="font-medium">{faq.question}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {faq.answer}
+                          </p>
+                        </div>
+                      </TableCell>
+                      <TableCell>{faq.sort}</TableCell>
+                      <TableCell>
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs ${
+                            faq.status === "active"
+                              ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100"
+                              : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100"
+                          }`}
+                        >
+                          {faq.status}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex justify-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleEdit(faq, faq.id)}
+                            className="h-8 w-8"
+                          >
+                            <Pencil className="h-4 w-4 dark:text-white" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDelete(faq.id)}
+                            className="h-8 w-8 text-destructive hover:text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          ) : (
+            <p className="text-center text-sm text-muted-foreground mt-10 font-bold">
+              No data found
+            </p>
+          )}
         </CardContent>
       </Card>
 
