@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { Button } from "../ui/button";
 
 export default function GetTouch() {
@@ -12,7 +13,9 @@ export default function GetTouch() {
         Start working with PayESV that can provide you with secure and efficient
         payment tools to streamline your financial operations.
       </p>
-      <Button  variant="primary">Contact Us</Button>
+      <Link href="/contact">
+        <Button variant="primary">Contact Us</Button>
+      </Link>
     </div>
   );
 }

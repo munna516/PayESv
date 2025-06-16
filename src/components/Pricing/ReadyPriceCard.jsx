@@ -11,13 +11,26 @@ import {
 } from "../ui/select";
 import { Button } from "../ui/button";
 import Link from "next/link";
+import toast from "react-hot-toast";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function ReadyPriceCard() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const calculateTotal = () => {
     return 20;
   };
-  const [currency, setCurrency] = useState("usd");
-
+  const [currency, setCurrency] = useState("bdt");
+  const handleBuyNow = () => {
+    // if (status === "authenticated") {
+    //   router.push("/pay");
+    // } else {
+    //   toast.error("Please login first!");
+    //   router.push(`/login?callbackUrl=${encodeURIComponent("/pay")}`);
+    // }
+    console.log("Buy Now", currency, calculateTotal() * 120);
+  };
   return (
     <div>
       <Card className="bg-green-50 dark:bg-slate-700 w-[370px] md:w-[400px] h-full shadow-md rounded-2xl">
@@ -32,11 +45,11 @@ export default function ReadyPriceCard() {
                 ? currency === "bdt"
                   ? calculateTotal() * 120
                   : calculateTotal()
-                : basePrice}
+                : 20}
               <span className="text-sm font-normal ml-1"></span>
             </div>
             <Select
-              defaultValue="usd"
+              defaultValue="bdt"
               onValueChange={(value) => setCurrency(value)}
               className="inline-block ml-2"
             >
@@ -44,7 +57,7 @@ export default function ReadyPriceCard() {
                 <SelectValue placeholder="Currency" />
               </SelectTrigger>
               <SelectContent position="popper" className="dark:bg-slate-700">
-                <SelectItem value="usd">USD</SelectItem>
+                {/* <SelectItem value="usd">USD</SelectItem> */}
                 <SelectItem value="bdt">BDT</SelectItem>
               </SelectContent>
             </Select>
@@ -61,11 +74,11 @@ export default function ReadyPriceCard() {
             <li>✔ And many more</li>
           </ul>
 
-          <Link href="/checkout">
+          <div onClick={handleBuyNow}>
             <Button variant="primary" className="w-full ">
               Buy Now
             </Button>
-          </Link>
+          </div>
         </CardContent>
       </Card>
     </div>

@@ -29,7 +29,6 @@ import { Button } from "@/components/ui/button";
 import { Search, Pencil, Trash2, UserPlus } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { useQuery } from "@tanstack/react-query";
-import Loading from "@/components/Loading/Loading";
 import toast from "react-hot-toast";
 import Swal from "sweetalert2";
 
@@ -56,7 +55,6 @@ export default function Staff() {
     role: "support operator",
   });
 
-  if (isLoading) return <Loading />;
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -159,7 +157,7 @@ export default function Staff() {
   };
 
   // Filter staff based on selected filters
-  const filteredStaff = staffs.filter((staff) => {
+  const filteredStaff = staffs?.filter((staff) => {
     const matchesStatus = staffStatus === "all" || staff.status === staffStatus;
     const matchesSearch =
       searchQuery === "" ||
@@ -357,7 +355,7 @@ export default function Staff() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredStaff.map((staff, index) => (
+                {filteredStaff?.map((staff, index) => (
                   <TableRow key={staff.id} className="dark:border-slate-600">
                     <TableCell>{index + 1}</TableCell>
                     <TableCell>

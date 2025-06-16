@@ -11,14 +11,42 @@ import {
 } from "../ui/select";
 import { Button } from "../ui/button";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
+import Loading from "../Loading/Loading";
 
 export default function PersonalPriceCard({ yearly }) {
-  const [quantity, setQuantity] = useState("");
+
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const [quantity, setQuantity] = useState("1");
   const basePrice = 1;
   const calculateTotal = () => {
     return quantity ? basePrice * Number(quantity) : basePrice;
   };
-  const [currency, setCurrency] = useState("usd");
+  const [currency, setCurrency] = useState("bdt");
+  
+  const handleBuyNow = async () => {
+    if (status === "authenticated") {
+      const response = await fetch("/api/payment/create", {
+        method: "POST",
+        body: JSON.stringify({
+          email: session?.user?.email,
+          amount: calculateTotal() * 120 * (yearly ? 10 : 1),
+          currency,
+          plan: "1",
+        }),
+      });
+      const data = await response.json();
+      console.log(data.id);
+      router.push(`/pay/${data.id}`);
+
+    } else {
+      toast.error("Please login first!");
+      router.push(`/login?callbackUrl=${encodeURIComponent("/pay")}`);
+    }
+  };
 
   return (
     <div>
@@ -40,7 +68,7 @@ export default function PersonalPriceCard({ yearly }) {
               </span>
             </div>
             <Select
-              defaultValue="usd"
+              defaultValue="bdt"
               onValueChange={(value) => setCurrency(value)}
               className="inline-block ml-2"
             >
@@ -48,7 +76,7 @@ export default function PersonalPriceCard({ yearly }) {
                 <SelectValue placeholder="Currency" />
               </SelectTrigger>
               <SelectContent position="popper" className="dark:bg-slate-700">
-                <SelectItem value="usd">USD</SelectItem>
+                {/* <SelectItem value="usd">USD</SelectItem> */}
                 <SelectItem value="bdt">BDT</SelectItem>
               </SelectContent>
             </Select>
@@ -85,11 +113,9 @@ export default function PersonalPriceCard({ yearly }) {
           </div>
 
           <div>
-            <Link href="/checkout">
-              <Button variant="primary" className="w-full">
-                Buy Now
-              </Button>
-            </Link>
+            <Button variant="primary" className="w-full" onClick={handleBuyNow}>
+              Buy Now
+            </Button>
           </div>
         </CardContent>
       </Card>
