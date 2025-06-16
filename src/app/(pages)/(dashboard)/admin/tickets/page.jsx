@@ -13,7 +13,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Search, Trash2 } from "lucide-react";
 import { format } from "date-fns";
-import Loading from "@/components/Loading/Loading";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import Swal from "sweetalert2";
@@ -28,11 +27,10 @@ export default function Tickets() {
     queryFn: () => fetch("/api/admin/tickets").then((res) => res.json()),
   });
 
-  if (isLoading) return <Loading />;
 
   const tickets = data?.rows;
 
-  const filteredTickets = tickets.filter((ticket) => {
+  const filteredTickets = tickets?.filter((ticket) => {
     const matchesSearch =
       ticket.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
       ticket.category.toLowerCase().includes(searchQuery.toLowerCase());
@@ -145,7 +143,7 @@ export default function Tickets() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredTickets.map((ticket, index) => (
+                  {filteredTickets?.map((ticket, index) => (
                     <TableRow key={ticket.id}>
                       <TableCell>{index + 1}</TableCell>
                       <TableCell className="font-medium">

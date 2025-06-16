@@ -21,14 +21,15 @@ export default function ReadyPriceCard() {
   const calculateTotal = () => {
     return 20;
   };
-  const [currency, setCurrency] = useState("usd");
+  const [currency, setCurrency] = useState("bdt");
   const handleBuyNow = () => {
-    if (status === "authenticated") {
-      router.push("/pay");
-    } else {
-      toast.error("Please login first!");
-      router.push(`/login?callbackUrl=${encodeURIComponent("/pay")}`);
-    }
+    // if (status === "authenticated") {
+    //   router.push("/pay");
+    // } else {
+    //   toast.error("Please login first!");
+    //   router.push(`/login?callbackUrl=${encodeURIComponent("/pay")}`);
+    // }
+    console.log("Buy Now", currency, calculateTotal() * 120);
   };
   return (
     <div>
@@ -44,11 +45,11 @@ export default function ReadyPriceCard() {
                 ? currency === "bdt"
                   ? calculateTotal() * 120
                   : calculateTotal()
-                : basePrice}
+                : 20}
               <span className="text-sm font-normal ml-1"></span>
             </div>
             <Select
-              defaultValue="usd"
+              defaultValue="bdt"
               onValueChange={(value) => setCurrency(value)}
               className="inline-block ml-2"
             >
@@ -56,7 +57,7 @@ export default function ReadyPriceCard() {
                 <SelectValue placeholder="Currency" />
               </SelectTrigger>
               <SelectContent position="popper" className="dark:bg-slate-700">
-                <SelectItem value="usd">USD</SelectItem>
+                {/* <SelectItem value="usd">USD</SelectItem> */}
                 <SelectItem value="bdt">BDT</SelectItem>
               </SelectContent>
             </Select>

@@ -29,7 +29,6 @@ import { Button } from "@/components/ui/button";
 import { Search, Pencil, Trash2, UserPlus } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { useQuery } from "@tanstack/react-query";
-import Loading from "@/components/Loading/Loading";
 import toast from "react-hot-toast";
 import Swal from "sweetalert2";
 
@@ -52,8 +51,6 @@ export default function Users() {
     password: "",
     status: "active",
   });
-
-  if (isLoading) return <Loading />;
 
   const users = data?.rows;
   const handleInputChange = (e) => {
@@ -124,7 +121,7 @@ export default function Users() {
   };
 
   // Filter users based on selected filters
-  const filteredUsers = users.filter((user) => {
+  const filteredUsers = users?.filter((user) => {
     const matchesStatus = userStatus === "all" || user.status === userStatus;
     const matchesSearch =
       searchQuery === "" ||
@@ -326,7 +323,7 @@ export default function Users() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredUsers.map((user, index) => (
+                {filteredUsers?.map((user, index) => (
                   <TableRow key={user.id} className="dark:border-slate-600">
                     <TableCell>{index + 1}</TableCell>
                     <TableCell>{user.name}</TableCell>
