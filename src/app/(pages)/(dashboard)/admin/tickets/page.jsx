@@ -16,6 +16,8 @@ import { format } from "date-fns";
 import Loading from "@/components/Loading/Loading";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
+import Swal from "sweetalert2";
+import toast from "react-hot-toast";
 
 export default function Tickets() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -39,9 +41,49 @@ export default function Tickets() {
     return matchesSearch && matchesStatus;
   });
 
-  const handleDelete = (id) => {
-    // Implement delete functionality
-    console.log("Deleting ticket:", id);
+  const handleDelete = async (id) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "Do you want to delete this ticket?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const res = await fetch(`/api/admin/tickets`, {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ id }),
+        });
+        const data = await res.json();
+        if (data.error) {
+          toast.error(data.error);
+        } else {
+          toast.success("Ticket deleted successfully");
+          refetch();
+        }
+      }
+    });
+  };
+
+  const handleClick = async (id) => {
+    const res = await fetch(`/api/admin/tickets`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ id }),
+    });
+    const data = await res.json();
+    if (data.error) {
+      toast.error(data.error);
+    } else {
+      refetch();
+    }
   };
 
   return (
@@ -60,10 +102,22 @@ export default function Tickets() {
                 All
               </Button>
               <Button
-                variant={statusFilter === "pending" ? "primary" : "outline"}
-                onClick={() => setStatusFilter("pending")}
+                variant={statusFilter === "Pending" ? "primary" : "outline"}
+                onClick={() => setStatusFilter("Pending")}
               >
                 Pending
+              </Button>
+              <Button
+                variant={statusFilter === "In Progress" ? "primary" : "outline"}
+                onClick={() => setStatusFilter("In Progress")}
+              >
+                In Progress
+              </Button>
+              <Button
+                variant={statusFilter === "Resolved" ? "primary" : "outline"}
+                onClick={() => setStatusFilter("Resolved")}
+              >
+                Resolved
               </Button>
             </div>
             <div className="relative w-full sm:w-[300px]">
@@ -98,7 +152,10 @@ export default function Tickets() {
                         {ticket.email}
                       </TableCell>
                       <TableCell className="text-blue-500 cursor-pointer font-medium">
-                        <Link href={`/admin/tickets/${ticket.id}`}>
+                        <Link
+                          onClick={() => handleClick(ticket.id)}
+                          href={`/admin/tickets/${ticket.id}`}
+                        >
                           {ticket.category || "-"}
                         </Link>
                       </TableCell>
