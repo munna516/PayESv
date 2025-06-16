@@ -11,14 +11,28 @@ import {
 } from "../ui/select";
 import { Button } from "../ui/button";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 export default function PersonalPriceCard({ yearly }) {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [quantity, setQuantity] = useState("");
   const basePrice = 1;
   const calculateTotal = () => {
     return quantity ? basePrice * Number(quantity) : basePrice;
   };
   const [currency, setCurrency] = useState("usd");
+
+  const handleBuyNow = () => {
+    if (status === "authenticated") {
+      router.push("/pay");
+    } else {
+      toast.error("Please login first!");
+      router.push(`/login?callbackUrl=${encodeURIComponent("/pay")}`);
+    }
+  };
 
   return (
     <div>
@@ -85,11 +99,9 @@ export default function PersonalPriceCard({ yearly }) {
           </div>
 
           <div>
-            <Link href="/checkout">
-              <Button variant="primary" className="w-full">
-                Buy Now
-              </Button>
-            </Link>
+            <Button variant="primary" className="w-full" onClick={handleBuyNow}>
+              Buy Now
+            </Button>
           </div>
         </CardContent>
       </Card>

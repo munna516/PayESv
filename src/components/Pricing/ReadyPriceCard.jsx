@@ -11,13 +11,25 @@ import {
 } from "../ui/select";
 import { Button } from "../ui/button";
 import Link from "next/link";
+import toast from "react-hot-toast";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function ReadyPriceCard() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const calculateTotal = () => {
     return 20;
   };
   const [currency, setCurrency] = useState("usd");
-
+  const handleBuyNow = () => {
+    if (status === "authenticated") {
+      router.push("/pay");
+    } else {
+      toast.error("Please login first!");
+      router.push(`/login?callbackUrl=${encodeURIComponent("/pay")}`);
+    }
+  };
   return (
     <div>
       <Card className="bg-green-50 dark:bg-slate-700 w-[370px] md:w-[400px] h-full shadow-md rounded-2xl">
@@ -61,11 +73,11 @@ export default function ReadyPriceCard() {
             <li>✔ And many more</li>
           </ul>
 
-          <Link href="/checkout">
+          <div onClick={handleBuyNow}>
             <Button variant="primary" className="w-full ">
               Buy Now
             </Button>
-          </Link>
+          </div>
         </CardContent>
       </Card>
     </div>
