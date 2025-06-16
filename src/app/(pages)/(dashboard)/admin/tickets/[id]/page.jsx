@@ -1,6 +1,5 @@
 "use client";
 
-import Loading from "@/components/Loading/Loading";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,6 +12,7 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import toast from "react-hot-toast";
+import Loading from "@/components/Loading/Loading";
 
 export default function TicketDetails() {
   const { id } = useParams();
@@ -20,7 +20,6 @@ export default function TicketDetails() {
     queryKey: ["ticket", id],
     queryFn: () => fetch(`/api/admin/tickets/${id}`).then((res) => res.json()),
   });
-
   if (isLoading) return <Loading />;
 
   const ticket = data?.rows[0];
@@ -56,13 +55,13 @@ export default function TicketDetails() {
             <div className="space-y-2">
               <Label className="text-sm font-medium">Category</Label>
               <div className="p-2 bg-slate-100 dark:bg-slate-600 rounded-md">
-                {ticket.category}
+                {ticket?.category}
               </div>
             </div>
             <div className="space-y-2">
               <Label className="text-sm font-medium">Payment Method</Label>
               <div className="p-2 bg-slate-100 dark:bg-slate-600 rounded-md">
-                {ticket.paymentmethod || "N/A"}
+                {ticket?.paymentmethod || "N/A"}
               </div>
             </div>
           </div>
@@ -72,13 +71,13 @@ export default function TicketDetails() {
             <div className="space-y-2">
               <Label className="text-sm font-medium">Transaction ID</Label>
               <div className="p-2 bg-slate-100 dark:bg-slate-600 rounded-md">
-                {ticket.transactionid || "N/A"}
+                {ticket?.transactionid || "N/A"}
               </div>
             </div>
             <div className="space-y-2">
               <Label className="text-sm font-medium">Website Link</Label>
               <div className="p-2 bg-slate-100 dark:bg-slate-600 rounded-md">
-                {ticket.websitelink || "N/A"}
+                {ticket?.websitelink || "N/A"}
               </div>
             </div>
           </div>
@@ -87,7 +86,7 @@ export default function TicketDetails() {
           <div className="space-y-2">
             <Label className="text-sm font-medium">Description</Label>
             <div className="p-4 bg-slate-100 dark:bg-slate-600 rounded-md min-h-[100px]">
-              {ticket.description}
+              {ticket?.description}
             </div>
           </div>
 
@@ -95,7 +94,7 @@ export default function TicketDetails() {
           <div className="space-y-2">
             <Label className="text-sm font-medium">Status</Label>
             <Select
-              defaultValue={ticket.status}
+              defaultValue={ticket?.status}
               onValueChange={(value) => handleStatusChange(value)}
             >
               <SelectTrigger className="w-full">

@@ -30,7 +30,6 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import toast from "react-hot-toast";
 import { useQuery } from "@tanstack/react-query";
-import Loading from "@/components/Loading/Loading";
 import Swal from "sweetalert2";
 
 export default function FAQ() {
@@ -51,11 +50,10 @@ export default function FAQ() {
     sort: "",
     status: "active",
   });
-  if (isLoading) return <Loading />;
   const faqs = data?.rows || [];
 
   const filteredFAQs = faqs
-    .filter((faq) => {
+    ?.filter((faq) => {
       const matchesSearch =
         faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
         faq.answer.toLowerCase().includes(searchQuery.toLowerCase());
@@ -189,7 +187,7 @@ export default function FAQ() {
             </div>
           </div>
 
-          {filteredFAQs.length > 0 ? (
+          {filteredFAQs?.length > 0 ? (
             <div className="rounded-md border">
               <Table>
                 <TableHeader>
@@ -204,7 +202,7 @@ export default function FAQ() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredFAQs.map((faq, index) => (
+                  {filteredFAQs?.map((faq, index) => (
                     <TableRow key={faq.id}>
                       <TableCell>{index + 1}</TableCell>
                       <TableCell>

@@ -31,7 +31,6 @@ import { format } from "date-fns";
 import { Textarea } from "@/components/ui/textarea";
 import toast from "react-hot-toast";
 import { useQuery } from "@tanstack/react-query";
-import Loading from "@/components/Loading/Loading";
 import Swal from "sweetalert2";
 
 export default function Blogs() {
@@ -54,13 +53,12 @@ export default function Blogs() {
     status: "active",
   });
 
-  if (isLoading) return <Loading />;
   const blogs = data?.rows;
 
   console.log("this is blogs", blogs);
 
   const filteredBlogs = blogs
-    .filter((blog) => {
+    ?.filter((blog) => {
       const matchesSearch = blog.title
         .toLowerCase()
         .includes(searchQuery.toLowerCase());
@@ -197,7 +195,7 @@ export default function Blogs() {
             </div>
           </div>
 
-          {blogs.length > 0 ? (
+          {blogs?.length > 0 ? (
             <div className="rounded-md border">
               <Table>
                 <TableHeader>
@@ -211,7 +209,7 @@ export default function Blogs() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredBlogs.map((blog, index) => (
+                  {filteredBlogs?.map((blog, index) => (
                     <TableRow key={blog.id}>
                       <TableCell>{index + 1}</TableCell>
                       <TableCell>

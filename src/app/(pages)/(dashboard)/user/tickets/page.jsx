@@ -23,7 +23,6 @@ import {
 } from "@/components/ui/table";
 import { Plus, Ticket } from "lucide-react";
 import toast from "react-hot-toast";
-import Loading from "@/components/Loading/Loading";
 import { useSession } from "next-auth/react";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
@@ -71,8 +70,6 @@ export default function Tickets() {
     "Sure Cash",
     "My Cash",
   ];
-
-  if (isLoading) return <Loading />;
   const tickets = data?.rows;
 
   const handleSubmit = async () => {
