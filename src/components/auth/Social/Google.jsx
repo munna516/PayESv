@@ -3,32 +3,30 @@ import { Button } from "@/components/ui/button";
 import React, { useEffect } from "react";
 import { FaGoogle } from "react-icons/fa";
 import { signIn, useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
 
 export default function Google() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl =
+    searchParams.get("callbackUrl") ||
+    `/${session?.role === "admin" ? "admin" : "user"}/dashboard`;
+
   const handleGoogleSignIn = () => {
     signIn("google");
   };
 
   useEffect(() => {
     if (status === "authenticated") {
-      const provider = session?.provider;
-      if (provider === "local") {
-        toast.success("Login Successful!");
-        router.push(`/${session?.role}/dashboard`);
-      } else if (provider === "google") {
-        toast.success("Google Login Successful!");
-        router.push(`/${session?.role}/dashboard`);
-      }
-    } else if (status === "unauthenticated") {
+      toast.success("Login Successful!");
+      router.push(callbackUrl);
     }
-  }, [status, session, router]);
+  }, [status, session, router, callbackUrl]);
 
   if (status === "loading") return <div>Loading...</div>;
- 
+
   return (
     <span onClick={handleGoogleSignIn}>
       <Button
