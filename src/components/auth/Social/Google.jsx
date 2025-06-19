@@ -5,14 +5,15 @@ import { FaGoogle } from "react-icons/fa";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
+import Loading from "@/components/Loading/Loading";
 
 export default function Google() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl =
-    searchParams.get("callbackUrl") ||
-    `/${session?.role === "admin" ? "admin" : "user"}/dashboard`;
+  const callbackUrl = searchParams.get("callbackUrl") || "/admin/dashboard";
+
+  console.log(callbackUrl);
 
   const handleGoogleSignIn = () => {
     signIn("google");
@@ -25,7 +26,7 @@ export default function Google() {
     }
   }, [status, session, router, callbackUrl]);
 
-  if (status === "loading") return <div>Loading...</div>;
+  if (status === "loading") return <Loading />;
 
   return (
     <span onClick={handleGoogleSignIn}>

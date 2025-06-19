@@ -8,6 +8,7 @@ import NextAuthProvider from "@/provider/NextAuthProvider";
 import { authOptions } from "./api/auth/[...nextauth]/route";
 import { getServerSession } from "next-auth";
 import Main from "@/components/Main/Main";
+import AuthProvider from "@/provider/AuthProvider";
 
 const plusJakartaSan = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -22,7 +23,7 @@ export const metadata = {
 
 export default async function RootLayout({ children }) {
   const session = await getServerSession(authOptions);
-  
+
   return (
     <html
       lang="en"
@@ -31,20 +32,22 @@ export default async function RootLayout({ children }) {
     >
       <body className="min-h-screen flex flex-col dark:bg-slate-900 ">
         <NextAuthProvider session={session}>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="light"
-            enableSystem={false}
-          >
-            <nav>
-              <Navbar />
-            </nav>
-            <Main>{children}</Main>
-            <footer>
-              <Footer />
-            </footer>
-            <Toaster />
-          </ThemeProvider>
+          <AuthProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="light"
+              enableSystem={false}
+            >
+              <nav>
+                <Navbar />
+              </nav>
+              <Main>{children}</Main>
+              <footer>
+                <Footer />
+              </footer>
+              <Toaster />
+            </ThemeProvider>
+          </AuthProvider>
         </NextAuthProvider>
       </body>
     </html>

@@ -31,6 +31,7 @@ import { Textarea } from "@/components/ui/textarea";
 import toast from "react-hot-toast";
 import { useQuery } from "@tanstack/react-query";
 import Swal from "sweetalert2";
+import Loading from "@/components/Loading/Loading";
 
 export default function FAQ() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -50,6 +51,8 @@ export default function FAQ() {
     sort: "",
     status: "active",
   });
+
+  if (isLoading) return <Loading />
   const faqs = data?.rows || [];
 
   const filteredFAQs = faqs

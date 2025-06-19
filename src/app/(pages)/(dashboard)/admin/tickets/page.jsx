@@ -17,6 +17,7 @@ import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import Swal from "sweetalert2";
 import toast from "react-hot-toast";
+import Loading from "@/components/Loading/Loading";
 
 export default function Tickets() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -27,7 +28,7 @@ export default function Tickets() {
     queryFn: () => fetch("/api/admin/tickets").then((res) => res.json()),
   });
 
-
+  if (isLoading) return <Loading />;
   const tickets = data?.rows;
 
   const filteredTickets = tickets?.filter((ticket) => {
