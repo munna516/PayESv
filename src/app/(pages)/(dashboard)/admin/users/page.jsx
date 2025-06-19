@@ -31,6 +31,7 @@ import { Label } from "@/components/ui/label";
 import { useQuery } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import Swal from "sweetalert2";
+import Loading from "@/components/Loading/Loading";
 
 export default function Users() {
   const [userStatus, setUserStatus] = useState("all");
@@ -51,7 +52,7 @@ export default function Users() {
     password: "",
     status: "active",
   });
-
+  if (isLoading) return <Loading />
   const users = data?.rows;
   const handleInputChange = (e) => {
     const { name, value } = e.target;

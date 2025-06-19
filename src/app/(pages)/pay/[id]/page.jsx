@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,8 @@ import {
 } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
+import { AuthContext } from "@/provider/AuthProvider";
+import { useRouter } from "next/navigation";
 
 // Payment card data with logos
 const paymentCards = [
@@ -99,15 +101,20 @@ const netBanking = [
 ];
 
 export default function Checkout() {
+  const router = useRouter();
+  const { paymentInfo } = useContext(AuthContext);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null);
   const [activeTab, setActiveTab] = useState("card");
   const [affiliateLink, setAffiliateLink] = useState(
     "https://smmxz.com/ref/user123"
   ); // Replace with actual user's affiliate link
-
   const handleCopyLink = () => {
     navigator.clipboard.writeText(affiliateLink);
     // You can add a toast notification here
+  };
+
+  const handlePayNow = () => {
+    router.push(paymentInfo?.bkashURL);
   };
 
   return (
@@ -253,6 +260,7 @@ export default function Checkout() {
               <Button
                 className="w-full bg-green-600 hover:bg-green-700 text-white py-4 "
                 disabled={!selectedPaymentMethod}
+                onClick={handlePayNow}
               >
                 Pay Now
               </Button>

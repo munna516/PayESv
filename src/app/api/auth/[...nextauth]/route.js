@@ -19,7 +19,7 @@ export const authOptions = {
         }
         try {
           const res = await fetch(
-            `${process.env.NEXT_PUBLIC_NEXTAUTH_URL}/api/login`,
+            `${process.env.NEXT_PUBLIC_APP_URL}/api/login`,
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -91,7 +91,7 @@ export const authOptions = {
         // Handle different providers
         if (account.provider === "google") {
           const response = await fetch(
-            `${process.env.NEXT_PUBLIC_NEXTAUTH_URL}/api/googlelogin`,
+            `${process.env.NEXT_PUBLIC_APP_URL}/api/googlelogin`,
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -123,7 +123,7 @@ export const authOptions = {
 
         if (account.provider === "facebook") {
           const response = await fetch(
-            `${process.env.NEXT_PUBLIC_NEXTAUTH_URL}/api/facebooklogin`,
+            `${process.env.NEXT_PUBLIC_APP_URL}/api/facebooklogin`,
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },

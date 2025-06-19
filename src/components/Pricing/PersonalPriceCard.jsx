@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Card, CardContent } from "../ui/card";
 import { Label } from "../ui/label";
 import {
@@ -10,15 +10,14 @@ import {
   SelectValue,
 } from "../ui/select";
 import { Button } from "../ui/button";
-import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import Loading from "../Loading/Loading";
+import { AuthContext } from "@/provider/AuthProvider";
 
 export default function PersonalPriceCard({ yearly }) {
-
   const { data: session, status } = useSession();
+  const { setPaymentInfo } = useContext(AuthContext);
   const router = useRouter();
   const [quantity, setQuantity] = useState("1");
   const basePrice = 1;
@@ -26,7 +25,7 @@ export default function PersonalPriceCard({ yearly }) {
     return quantity ? basePrice * Number(quantity) : basePrice;
   };
   const [currency, setCurrency] = useState("bdt");
-  
+
   const handleBuyNow = async () => {
     if (status === "authenticated") {
       const response = await fetch("/api/payment/create", {
@@ -39,12 +38,11 @@ export default function PersonalPriceCard({ yearly }) {
         }),
       });
       const data = await response.json();
-      console.log(data.id);
-      router.push(`/pay/${data.id}`);
-
+      setPaymentInfo(data?.data);
+      router.push(`/pay/${data?.data?.paymentID}`);
     } else {
       toast.error("Please login first!");
-      router.push(`/login?callbackUrl=${encodeURIComponent("/pay")}`);
+      router.push(`/login?callbackUrl=${encodeURIComponent("/user/plans")}`);
     }
   };
 

@@ -31,6 +31,7 @@ import { Label } from "@/components/ui/label";
 import { useQuery } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import Swal from "sweetalert2";
+import Loading from "@/components/Loading/Loading";
 
 export default function Staff() {
   const [staffStatus, setStaffStatus] = useState("all");
@@ -43,8 +44,6 @@ export default function Staff() {
     queryFn: () => fetch("/api/admin/staff").then((res) => res.json()),
   });
 
-  const staffs = data?.rows;
-
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -55,6 +54,8 @@ export default function Staff() {
     role: "support operator",
   });
 
+  if (isLoading) return <Loading />;
+  const staffs = data?.rows;
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
