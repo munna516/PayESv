@@ -16,7 +16,7 @@ export default function Successful() {
         </p>
         <Link href="/user/dashboard">
           <span className="inline-block bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors duration-200">
-            Go to Home
+            Go to Dashboard
           </span>
         </Link>
       </div>

@@ -16,7 +16,7 @@ export default function Cancle() {
         </p>
         <Link href="/user/dashboard">
           <span className="inline-block bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors duration-200">
-            Go to Home
+            Go to Dashboard
           </span>
         </Link>
       </div>
