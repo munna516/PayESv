@@ -3,7 +3,6 @@
 import { useSearchParams } from "next/navigation";
 import React from "react";
 import Successful from "../Successful/Successful";
-import Failure from "../Failure/Failure";
 import Cancle from "../Cancle/Cancle";
 
 export default function Status() {
@@ -12,7 +11,6 @@ export default function Status() {
   return (
     <div>
       {status === "success" && <Successful />}
-      {status === "failure" && <Failure />}
       {status === "cancel" && <Cancle />}
     </div>
   );

@@ -13,11 +13,9 @@ import { Button } from "../ui/button";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { AuthContext } from "@/provider/AuthProvider";
 
 export default function PersonalPriceCard({ yearly }) {
   const { data: session, status } = useSession();
-  const { setPaymentInfo } = useContext(AuthContext);
   const router = useRouter();
   const [quantity, setQuantity] = useState("1");
   const basePrice = 1;
@@ -32,14 +30,18 @@ export default function PersonalPriceCard({ yearly }) {
         method: "POST",
         body: JSON.stringify({
           email: session?.user?.email,
-          amount: calculateTotal() * 120 * (yearly ? 10 : 1),
+          amount:
+            currency === "bdt"
+              ? calculateTotal() * 120 * (yearly ? 10 : 1)
+              : calculateTotal() * (yearly ? 10 : 1),
           currency,
           plan: "1",
+          yearly,
         }),
       });
       const data = await response.json();
-      setPaymentInfo(data?.data);
-      router.push(`/pay/${data?.data?.paymentID}`);
+      console.log(data);
+      router.push(data?.data?.bkashURL);
     } else {
       toast.error("Please login first!");
       router.push(`/login?callbackUrl=${encodeURIComponent("/user/plans")}`);
@@ -74,7 +76,7 @@ export default function PersonalPriceCard({ yearly }) {
                 <SelectValue placeholder="Currency" />
               </SelectTrigger>
               <SelectContent position="popper" className="dark:bg-slate-700">
-                {/* <SelectItem value="usd">USD</SelectItem> */}
+                <SelectItem value="usd">USD</SelectItem>
                 <SelectItem value="bdt">BDT</SelectItem>
               </SelectContent>
             </Select>
