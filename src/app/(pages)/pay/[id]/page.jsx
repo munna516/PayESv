@@ -20,7 +20,6 @@ import {
 } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
-import { AuthContext } from "@/provider/AuthProvider";
 import { useRouter } from "next/navigation";
 
 // Payment card data with logos
@@ -102,7 +101,7 @@ const netBanking = [
 
 export default function Checkout() {
   const router = useRouter();
-  const { paymentInfo } = useContext(AuthContext);
+
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null);
   const [activeTab, setActiveTab] = useState("card");
   const [affiliateLink, setAffiliateLink] = useState(
