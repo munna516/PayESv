@@ -36,6 +36,7 @@ export async function GET(req) {
       }
     );
     const data = await payment.json();
+    console.log(data);
 
     if (data?.statusCode === "0000") {
       // update payment history status to success
@@ -43,6 +44,25 @@ export async function GET(req) {
         UPDATE payment_history SET status = 'Success', transactionID = $1 WHERE paymentID = $2
       `;
       await query(updatePaymentHistoryQuery, [data?.trxID, paymentId]);
+
+      // Step 2: Retrieve userID and plan from payment_history
+      const getUserPlanQuery = `
+SELECT email, plan 
+FROM payment_history 
+WHERE paymentID = $1
+`;
+      const result = await query(getUserPlanQuery, [paymentId]);
+
+      if (result.rows.length > 0) {
+        const { email, plan } = result.rows[0];
+
+        const updateUserPlanQuery = `
+  UPDATE users 
+  SET plan = $1 
+  WHERE email = $2
+`;
+        await query(updateUserPlanQuery, [plan, email]);
+      }
 
       return NextResponse.redirect(
         `${process.env.NEXT_PUBLIC_APP_URL}/payment/status?status=success`
