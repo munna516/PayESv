@@ -49,13 +49,13 @@ export default function Pricing() {
           {option === "monthly" && (
             <>
               <PersonalPriceCard yearly={0} />
-              <ReadyPriceCard />
+              <ReadyPriceCard yearly={0} />
             </>
           )}
           {option === "yearly" && (
             <>
               <PersonalPriceCard yearly={1} />
-              <ReadyPriceCard />
+              <ReadyPriceCard yearly={1} />
             </>
           )}
         </div>

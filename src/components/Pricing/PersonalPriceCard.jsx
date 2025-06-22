@@ -13,11 +13,15 @@ import { Button } from "../ui/button";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import BinancePayDialog from "./BinancePayDialog";
+import BkashPayDialog from "./BkashPayDialog";
 
 export default function PersonalPriceCard({ yearly }) {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [quantity, setQuantity] = useState("1");
+  const [showBinanceDialog, setShowBinanceDialog] = useState(false);
+  const [showBkashDialog, setShowBkashDialog] = useState(false);
   const basePrice = 1;
   const calculateTotal = () => {
     return quantity ? basePrice * Number(quantity) : basePrice;
@@ -26,22 +30,12 @@ export default function PersonalPriceCard({ yearly }) {
 
   const handleBuyNow = async () => {
     if (status === "authenticated") {
-      const response = await fetch("/api/payment/create", {
-        method: "POST",
-        body: JSON.stringify({
-          email: session?.user?.email,
-          amount:
-            currency === "bdt"
-              ? calculateTotal() * 120 * (yearly ? 10 : 1)
-              : calculateTotal() * (yearly ? 10 : 1),
-          currency,
-          plan: "1",
-          yearly,
-        }),
-      });
-      const data = await response.json();
-      console.log(data);
-      router.push(data?.data?.bkashURL);
+      if (currency === "bdt") {
+        setShowBkashDialog(true);
+      } else {
+        // Open Binance Pay dialog
+        setShowBinanceDialog(true);
+      }
     } else {
       toast.error("Please login first!");
       router.push(`/login?callbackUrl=${encodeURIComponent("/user/plans")}`);
@@ -119,6 +113,27 @@ export default function PersonalPriceCard({ yearly }) {
           </div>
         </CardContent>
       </Card>
+
+      {/* Binance Pay Dialog */}
+      <BinancePayDialog
+        isOpen={showBinanceDialog}
+        onClose={() => setShowBinanceDialog(false)}
+        amount={calculateTotal() * (yearly ? 10 : 1)}
+        currency={currency}
+        plan={1}
+        email={session?.user?.email}
+        yearly={yearly}
+      />
+
+      <BkashPayDialog
+        isOpen={showBkashDialog}
+        onClose={() => setShowBkashDialog(false)}
+        amount={calculateTotal() * 120 * (yearly ? 10 : 1)}
+        currency={currency}
+        yearly={yearly}
+        plan={1}
+        email={session?.user?.email}
+      />
     </div>
   );
 }

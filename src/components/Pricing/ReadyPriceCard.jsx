@@ -1,7 +1,6 @@
 "use client";
 import React, { useState } from "react";
 import { Card, CardContent } from "../ui/card";
-import { Label } from "../ui/label";
 import {
   Select,
   SelectContent,
@@ -10,26 +9,46 @@ import {
   SelectValue,
 } from "../ui/select";
 import { Button } from "../ui/button";
-import Link from "next/link";
 import toast from "react-hot-toast";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import BinancePayDialog from "./BinancePayDialog";
+import BkashPayDialog from "./BkashPayDialog";
 
-export default function ReadyPriceCard() {
+export default function ReadyPriceCard({ yearly }) {
   const { data: session, status } = useSession();
+  const [showBinanceDialog, setShowBinanceDialog] = useState(false);
+  const [showBkashDialog, setShowBkashDialog] = useState(false);
   const router = useRouter();
   const calculateTotal = () => {
     return 20;
   };
   const [currency, setCurrency] = useState("bdt");
-  const handleBuyNow = () => {
-    // if (status === "authenticated") {
-    //   router.push("/pay");
-    // } else {
-    //   toast.error("Please login first!");
-    //   router.push(`/login?callbackUrl=${encodeURIComponent("/pay")}`);
-    // }
-    console.log("Buy Now", currency, calculateTotal() * 120);
+  const handleBuyNow = async () => {
+    if (status === "authenticated") {
+      if (currency === "bdt") {
+        // const response = await fetch("/api/payment/create", {
+        //   method: "POST",
+        //   body: JSON.stringify({
+        //     email: session?.user?.email,
+        //     amount: calculateTotal() * 120 * (yearly ? 10 : 1),
+        //     currency,
+        //     plan: "2",
+        //     yearly: 0,
+        //     quantity: 1,
+        //   }),
+        // });
+        // const data = await response.json();
+        // router.push(data?.data?.bkashURL);
+        setShowBkashDialog(true);
+      } else {
+        // Open Binance Pay dialog
+        setShowBinanceDialog(true);
+      }
+    } else {
+      toast.error("Please login first!");
+      router.push(`/login?callbackUrl=${encodeURIComponent("/user/plans")}`);
+    }
   };
   return (
     <div>
@@ -57,7 +76,7 @@ export default function ReadyPriceCard() {
                 <SelectValue placeholder="Currency" />
               </SelectTrigger>
               <SelectContent position="popper" className="dark:bg-slate-700">
-                {/* <SelectItem value="usd">USD</SelectItem> */}
+                <SelectItem value="usd">USD</SelectItem>
                 <SelectItem value="bdt">BDT</SelectItem>
               </SelectContent>
             </Select>
@@ -81,6 +100,25 @@ export default function ReadyPriceCard() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Binance Pay Dialog */}
+      <BinancePayDialog
+        isOpen={showBinanceDialog}
+        onClose={() => setShowBinanceDialog(false)}
+        amount={calculateTotal() * (yearly ? 10 : 1)}
+        currency={currency}
+      />
+
+      {/* Bkash Pay Dialog */}
+      <BkashPayDialog
+        isOpen={showBkashDialog}
+        onClose={() => setShowBkashDialog(false)}
+        amount={calculateTotal() * 120 * (yearly ? 10 : 1)}
+        currency={currency}
+        plan={2}
+        email={session?.user?.email}
+        yearly={0}
+      />
     </div>
   );
 }
