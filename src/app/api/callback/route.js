@@ -36,7 +36,7 @@ export async function GET(req) {
       }
     );
     const data = await payment.json();
-    console.log(data);
+
 
     if (data?.statusCode === "0000") {
       // update payment history status to success
@@ -54,14 +54,14 @@ WHERE paymentID = $1
       const result = await query(getUserPlanQuery, [paymentId]);
 
       if (result.rows.length > 0) {
-        const { email, plan } = result.rows[0];
+        const { email } = result.rows[0];
 
         const updateUserPlanQuery = `
-  UPDATE users 
-  SET plan = $1 
-  WHERE email = $2
+  UPDATE user_plan 
+  SET status = 'Active' 
+  WHERE email = $1
 `;
-        await query(updateUserPlanQuery, [plan, email]);
+        await query(updateUserPlanQuery, [email]);
       }
 
       return NextResponse.redirect(

@@ -7,14 +7,13 @@ const API_KEY = process.env.BINANCE_API_KEY;
 const API_SECRET = process.env.BINANCE_API_SECRET;
 
 export async function POST(req) {
-  const { orderId, amount, currency, plan, email, yearly } = await req.json(); // Use orderId from screenshot
-
-  console.log(orderId, amount, currency, plan, email, yearly);
+  const { orderId, amount, currency, plan, email, yearly, websiteQuantity } =
+    await req.json();
 
   try {
     // Check PAYMENT HISTORY (not deposits)
     const queryParams = new URLSearchParams({
-      startTime: String(Date.now() - 2 * 60 * 60 * 1000), // Last 2 hours
+      startTime: String(Date.now() - 7 * 24 * 60 * 60 * 1000), // Last 7 days
       endTime: String(Date.now()),
       timestamp: String(Date.now()),
     });
@@ -55,18 +54,38 @@ export async function POST(req) {
       orderId,
       merchantInvoiceNumber,
       matchingPayment.transactionId,
-      "SUCCESS",
+      "Success",
       amount,
       currency,
       plan,
       yearly,
     ]);
 
-    // update user subscription
-    const updatePlan = `
-      UPDATE users SET plan = $1 WHERE email = $2
-    `;
-    const updateUser = await query(updatePlan, [plan, email]);
+    let expires_at;
+    if (plan === 1 && yearly) {
+      expires_at = new Date(
+        new Date().setFullYear(new Date().getFullYear() + 1)
+      );
+    } else if (plan === 1 && !yearly) {
+      expires_at = new Date(new Date().setMonth(new Date().getMonth() + 1));
+    } else if (plan === 2) {
+      expires_at = new Date(
+        new Date().setFullYear(new Date().getFullYear() + 100)
+      );
+    }
+
+    // insert user plan
+    const insertUserPlanQuery = `
+    INSERT INTO user_plan (email, websiteQuantity, plan, yearly, status, expires_at) VALUES ($1, $2, $3, $4, $5, $6)
+  `;
+    const userPlanResult = await query(insertUserPlanQuery, [
+      email,
+      websiteQuantity,
+      plan,
+      yearly,
+      "Active",
+      expires_at,
+    ]);
 
     return NextResponse.json({
       verified: true,

@@ -75,8 +75,8 @@ const getToken = async () => {
 };
 
 export async function POST(req) {
-  const { email, amount, currency, plan, yearly } = await req.json();
-  console.log(email, amount, currency, plan, yearly);
+  const { email, amount, currency, plan, yearly, websiteQuantity } =
+    await req.json();
 
   const id = await getToken();
   const payment = await fetch(`${BKASH_BASE_URL}/tokenized/checkout/create`, {
@@ -146,5 +146,51 @@ export async function POST(req) {
     yearly,
   ]);
 
+  // check user plan table exists or not
+  const checkUserPlanTableQuery = `
+    SELECT EXISTS (
+      SELECT FROM information_schema.tables
+      WHERE table_schema = 'public'
+      AND table_name = 'user_plan'
+    );
+  `;
+  const userPlanTableExists = await query(checkUserPlanTableQuery);
+  if (!userPlanTableExists.rows[0].exists) {
+    const createUserPlanTableQuery = `
+      CREATE TABLE user_plan (
+        id SERIAL PRIMARY KEY,
+        email VARCHAR(255) NOT NULL,
+        websiteQuantity VARCHAR(255) NOT NULL,
+        plan VARCHAR(255) NOT NULL,
+        yearly BOOLEAN NOT NULL,
+        status VARCHAR(255) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        expires_at TIMESTAMP NOT NULL
+      );
+    `;
+    await query(createUserPlanTableQuery);
+  }
+  let expires_at;
+  if (plan === 1 && yearly) {
+    expires_at = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
+  } else if (plan === 1 && !yearly) {
+    expires_at = new Date(new Date().setMonth(new Date().getMonth() + 1));
+  } else if (plan === 2) {
+    expires_at = new Date(
+      new Date().setFullYear(new Date().getFullYear() + 100)
+    );
+  }
+  // insert user plan
+  const insertUserPlanQuery = `
+    INSERT INTO user_plan (email, websiteQuantity, plan, yearly, status, expires_at) VALUES ($1, $2, $3, $4, $5, $6)
+  `;
+  const userPlanResult = await query(insertUserPlanQuery, [
+    email,
+    websiteQuantity,
+    plan,
+    yearly,
+    "Pending",
+    expires_at,
+  ]);
   return NextResponse.json({ message: "Payment created", data });
 }
