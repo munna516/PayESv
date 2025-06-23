@@ -6,6 +6,7 @@ import { Button } from "../ui/button";
 import { Label } from "../ui/label";
 import { Copy, Check } from "lucide-react";
 import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 export default function BinancePayDialog({
   isOpen,
@@ -18,9 +19,12 @@ export default function BinancePayDialog({
 }) {
   const [binanceOrderId, setBinanceOrderId] = useState("");
   const [copied, setCopied] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Binance ID - you can replace this with your actual Binance ID
   const binanceId = process.env.NEXT_PUBLIC_BINANCE_ID;
+
+  const router = useRouter();
 
   const handleCopyId = async () => {
     try {
@@ -39,9 +43,27 @@ export default function BinancePayDialog({
       return;
     }
 
-    // Here you would implement the verification logic
-    // For now, we'll just show a success message
-    toast.success("Payment verification submitted!");
+    console.log(binanceOrderId, amount, currency, plan, email, yearly);
+    setIsLoading(true);
+    const response = await fetch("/api/binance/verify-payment", {
+      method: "POST",
+      body: JSON.stringify({
+        orderId: binanceOrderId,
+        amount,
+        currency: "USDT",
+        plan,
+        email,
+        yearly,
+      }),
+    });
+    const data = await response.json();
+    if (data.verified) {
+      toast.success(data.message);
+      router.push("/user/plans");
+    } else {
+      toast.error(data.message);
+    }
+    setIsLoading(false);
     onClose();
   };
 
@@ -114,8 +136,12 @@ export default function BinancePayDialog({
             onClick={handleVerifyPayment}
             className="w-full bg-yellow-500 hover:bg-yellow-600 text-white"
           >
-            Verify Payment
+            {isLoading ? "Verifying..." : "Verify Payment"}
           </Button>
+
+          <p className="text-sm text-gray-600 dark:text-gray-400 text-center font-semibold">
+            Note: OrderID is valid for 15 minutes after successful payment.
+          </p>
         </div>
       </DialogContent>
     </Dialog>
