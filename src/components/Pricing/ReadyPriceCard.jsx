@@ -27,22 +27,8 @@ export default function ReadyPriceCard({ yearly }) {
   const handleBuyNow = async () => {
     if (status === "authenticated") {
       if (currency === "bdt") {
-        // const response = await fetch("/api/payment/create", {
-        //   method: "POST",
-        //   body: JSON.stringify({
-        //     email: session?.user?.email,
-        //     amount: calculateTotal() * 120 * (yearly ? 10 : 1),
-        //     currency,
-        //     plan: "2",
-        //     yearly: 0,
-        //     quantity: 1,
-        //   }),
-        // });
-        // const data = await response.json();
-        // router.push(data?.data?.bkashURL);
         setShowBkashDialog(true);
       } else {
-        // Open Binance Pay dialog
         setShowBinanceDialog(true);
       }
     } else {
@@ -107,6 +93,9 @@ export default function ReadyPriceCard({ yearly }) {
         onClose={() => setShowBinanceDialog(false)}
         amount={calculateTotal() * (yearly ? 10 : 1)}
         currency={currency}
+        plan={2}
+        email={session?.user?.email}
+        yearly={0}
       />
 
       {/* Bkash Pay Dialog */}
