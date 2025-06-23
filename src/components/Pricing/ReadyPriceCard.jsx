@@ -96,6 +96,7 @@ export default function ReadyPriceCard({ yearly }) {
         plan={2}
         email={session?.user?.email}
         yearly={0}
+        websiteQuantity={"Unlimited"}
       />
 
       {/* Bkash Pay Dialog */}
@@ -107,6 +108,7 @@ export default function ReadyPriceCard({ yearly }) {
         plan={2}
         email={session?.user?.email}
         yearly={0}
+        websiteQuantity={"Unlimited"}
       />
     </div>
   );

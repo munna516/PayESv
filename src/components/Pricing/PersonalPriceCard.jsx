@@ -123,6 +123,19 @@ export default function PersonalPriceCard({ yearly }) {
         plan={1}
         email={session?.user?.email}
         yearly={yearly}
+        websiteQuantity={
+          quantity === "1"
+            ? 1
+            : quantity === "1.5"
+            ? 2
+            : quantity === "2"
+            ? 3
+            : quantity === "3"
+            ? 5
+            : quantity === "5"
+            ? 10
+            : 0
+        }
       />
 
       <BkashPayDialog
@@ -133,6 +146,19 @@ export default function PersonalPriceCard({ yearly }) {
         yearly={yearly}
         plan={1}
         email={session?.user?.email}
+        websiteQuantity={
+          quantity === "1"
+            ? 1
+            : quantity === "1.5"
+            ? 2
+            : quantity === "2"
+            ? 3
+            : quantity === "3"
+            ? 5
+            : quantity === "5"
+            ? 10
+            : 0
+        }
       />
     </div>
   );

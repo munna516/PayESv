@@ -14,11 +14,13 @@ export default function BkashPayDialog({
   yearly,
   plan,
   email,
+  websiteQuantity,
 }) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const handlePayNow = async () => {
     try {
+      console.log(websiteQuantity);
       setIsLoading(true);
       const response = await fetch("/api/payment/create", {
         method: "POST",
@@ -28,6 +30,7 @@ export default function BkashPayDialog({
           currency,
           plan,
           yearly,
+          websiteQuantity,
         }),
       });
       const data = await response.json();

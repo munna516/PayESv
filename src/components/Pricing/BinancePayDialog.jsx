@@ -16,6 +16,7 @@ export default function BinancePayDialog({
   plan,
   email,
   yearly,
+  websiteQuantity,
 }) {
   const [binanceOrderId, setBinanceOrderId] = useState("");
   const [copied, setCopied] = useState(false);
@@ -54,12 +55,13 @@ export default function BinancePayDialog({
         plan,
         email,
         yearly,
+        websiteQuantity,
       }),
     });
     const data = await response.json();
     if (data.verified) {
       toast.success(data.message);
-      router.push("/user/plans");
+      router.push("/payment/status?status=success");
     } else {
       toast.error(data.message);
     }
