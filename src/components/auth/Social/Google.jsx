@@ -13,7 +13,6 @@ export default function Google() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/admin/dashboard";
 
-  console.log(callbackUrl);
 
   const handleGoogleSignIn = () => {
     signIn("google");
