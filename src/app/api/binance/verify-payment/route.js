@@ -87,6 +87,14 @@ export async function POST(req) {
       expires_at,
     ]);
 
+    // update user plan
+    const updateUserPlanQuery = `
+      UPDATE users SET plan = $1 WHERE email = $2
+    `;
+    const updateUserPlanResult = await query(updateUserPlanQuery, [
+      plan,
+      email,
+    ]);
     return NextResponse.json({
       verified: true,
       message: "Payment verified successfully",

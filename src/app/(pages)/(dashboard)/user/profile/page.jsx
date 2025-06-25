@@ -30,6 +30,8 @@ import toast from "react-hot-toast";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { format } from "date-fns";
+import { useQuery } from "@tanstack/react-query";
+import Loading from "@/components/Loading/Loading";
 
 export default function Profile() {
   const { data: session } = useSession();
@@ -42,37 +44,73 @@ export default function Profile() {
     name: "",
     phone: "",
     location: "",
-    company: "",
   });
-  console.log(session);
 
+  const {
+    data: userData,
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ["userData", session?.user?.email],
+    queryFn: async () => {
+      const res = await fetch(
+        `/api/user/profile?email=${session?.user?.email}`
+      );
+      return res.json();
+    },
+  });
+
+  if (isLoading) {
+    return <Loading />;
+  }
+  const user = userData.rows[0];
   const handleEditClick = () => {
     if (!isEditing) {
       // Initialize edited profile with current values
       setEditedProfile({
-        name: session?.user?.name,
-        phone: session?.user?.phone,
-        location: session?.user?.location,
-        company: session?.user?.company,
+        name: user?.name,
+        phone: user?.phone,
+        location: user?.street_address,
       });
     }
     setIsEditing(!isEditing);
   };
 
-  const handleProfileUpdate = () => {
+  const handleProfileUpdate = async () => {
     // Validate the edited fields
     if (!editedProfile.name.trim()) {
       toast.error("Name cannot be empty");
       return;
     }
+    if (!editedProfile.phone.trim()) {
+      toast.error("Phone cannot be empty");
+      return;
+    }
+    if (!editedProfile.location.trim()) {
+      toast.error("Location cannot be empty");
+      return;
+    }
 
-    // Implement profile update logic here
-    // Note: email is not included in the update
-    setIsEditing(false);
-    toast.success("Profile updated successfully!");
+    const res = await fetch(`/api/user/profile`, {
+      method: "PUT",
+      body: JSON.stringify({
+        name: editedProfile.name,
+        phone: editedProfile.phone,
+        street_address: editedProfile.location,
+        email: user?.email,
+      }),
+    });
+    const data = await res.json();
+    if (data.rowCount > 0) {
+      setIsEditing(false);
+      toast.success("Profile updated successfully!");
+      refetch();
+    } else {
+      toast.error("Failed to update profile");
+    }
   };
 
-  const handlePasswordChange = () => {
+  const handlePasswordChange = async () => {
     if (!currentPassword || !newPassword || !confirmPassword) {
       toast.error("Please fill in all fields");
       return;
@@ -82,13 +120,29 @@ export default function Profile() {
       toast.error("New passwords do not match");
       return;
     }
+    if (newPassword.length < 6) {
+      toast.error("Password must be at least 6 characters long");
+      return;
+    }
 
-    // Implement password change logic
-    setIsChangingPassword(false);
-    setCurrentPassword("");
-    setNewPassword("");
-    setConfirmPassword("");
-    toast.success("Password changed successfully!");
+    const res = await fetch(`/api/user/profile`, {
+      method: "POST",
+      body: JSON.stringify({
+        currentPassword,
+        newPassword,
+        email: user?.email,
+      }),
+    });
+    const data = await res.json();
+    console.log(data);
+    if (data.rowCount > 0) {
+      setIsChangingPassword(false);
+      toast.success("Password changed successfully!");
+      refetch();
+    } else {
+      toast.error(data.message);
+    }
+
   };
 
   return (
@@ -140,7 +194,7 @@ export default function Profile() {
                   <div className="text-center md:text-left">
                     {isEditing ? (
                       <Input
-                        value={session?.user?.name}
+                        value={editedProfile?.name}
                         onChange={(e) =>
                           setEditedProfile({
                             ...editedProfile,
@@ -150,15 +204,11 @@ export default function Profile() {
                         className="text-2xl font-bold mb-2"
                       />
                     ) : (
-                      <h2 className="text-2xl font-bold">
-                        {session?.user?.name}
-                      </h2>
+                      <h2 className="text-2xl font-bold">{user?.name}</h2>
                     )}
                     <div className="flex items-center gap-2">
                       <Mail className="h-4 w-4 text-muted-foreground" />
-                      <p className="text-muted-foreground">
-                        {session?.user?.email}
-                      </p>
+                      <p className="text-muted-foreground">{user?.email}</p>
                       <Lock className="h-3 w-3 text-muted-foreground" />
                     </div>
                     <span
@@ -168,13 +218,13 @@ export default function Profile() {
                           : "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300"
                       }`}
                     >
-                      {session?.status === "active" ? (
+                      {user?.status === "active" ? (
                         <CheckCircle2 className="h-3 w-3" />
                       ) : (
                         <XCircle className="h-3 w-3" />
                       )}
-                      {session?.status?.charAt(0).toUpperCase() +
-                        session?.status?.slice(1)}
+                      {user?.status?.charAt(0).toUpperCase() +
+                        user?.status?.slice(1)}
                     </span>
                   </div>
                 </div>
@@ -186,16 +236,14 @@ export default function Profile() {
                       <Mail className="h-5 w-5 text-green-500" />
                       <div>
                         <p className="text-sm text-muted-foreground">Email</p>
-                        <p className="font-medium">{session?.user?.email}</p>
+                        <p className="font-medium">{user?.email}</p>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-3">
                       <Phone className="h-5 w-5 text-green-500" />
                       <div>
-                        <p className="text-sm text-muted-foreground">
-                          {session?.user?.phone}
-                        </p>
+                        <p className="text-sm text-muted-foreground">Phone</p>
                         {isEditing ? (
                           <Input
                             value={editedProfile.phone}
@@ -208,24 +256,8 @@ export default function Profile() {
                             className="mt-1"
                           />
                         ) : (
-                          <p className="font-medium">
-                            {session?.phone || "N/A"}
-                          </p>
+                          <p className="font-medium">{user?.phone || "N/A"}</p>
                         )}
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      <Calendar className="h-5 w-5 text-green-500" />
-                      <div>
-                        <p className="text-sm text-muted-foreground">
-                          Join Date
-                        </p>
-                        <p className="font-medium">
-                          {session?.created_at
-                            ? format(new Date(session.created_at), "d-M-yyyy")
-                            : "N/A"}
-                        </p>
                       </div>
                     </div>
                   </div>
@@ -250,32 +282,23 @@ export default function Profile() {
                           />
                         ) : (
                           <p className="font-medium">
-                            {session?.street_address || "N/A"}
+                            {user?.street_address || "N/A"}
                           </p>
                         )}
                       </div>
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <Building className="h-5 w-5 text-green-500" />
+                      <Calendar className="h-5 w-5 text-green-500" />
                       <div>
-                        <p className="text-sm text-muted-foreground">Company</p>
-                        {isEditing ? (
-                          <Input
-                            value={editedProfile.company}
-                            onChange={(e) =>
-                              setEditedProfile({
-                                ...editedProfile,
-                                company: e.target.value,
-                              })
-                            }
-                            className="mt-1"
-                          />
-                        ) : (
-                          <p className="font-medium">
-                            {session?.company || "N/A"}
-                          </p>
-                        )}
+                        <p className="text-sm text-muted-foreground">
+                          Join Date
+                        </p>
+                        <p className="font-medium">
+                          {user?.created_at
+                            ? format(new Date(user.created_at), "d-M-yyyy")
+                            : "N/A"}
+                        </p>
                       </div>
                     </div>
                   </div>
