@@ -31,6 +31,8 @@ import toast from "react-hot-toast";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { format } from "date-fns";
+import { useQuery } from "@tanstack/react-query";
+import Loading from "@/components/Loading/Loading";
 
 export default function AdminProfile() {
   const { data: session } = useSession();
@@ -43,38 +45,76 @@ export default function AdminProfile() {
     name: "",
     phone: "",
     location: "",
-    company: "",
   });
 
-  console.log(session);
+  const {
+    data: adminData,
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ["userData", session?.user?.email],
+    queryFn: async () => {
+      const res = await fetch(
+        `/api/user/profile?email=${session?.user?.email}`
+      );
+      return res.json();
+    },
+  });
+
+  if (isLoading) {
+    return <Loading />;
+  }
+  const admin = adminData.rows[0];
 
   const handleEditClick = () => {
     if (!isEditing) {
       // Initialize edited profile with current values
       setEditedProfile({
-        name: session?.user?.name,
-        phone: session?.user?.phone,
-        location: session?.user?.location,
-        company: session?.user?.company,
+        name: admin.name,
+        phone: admin.phone,
+        location: admin.street_address,
       });
     }
     setIsEditing(!isEditing);
   };
 
-  const handleProfileUpdate = () => {
+  const handleProfileUpdate = async () => {
     // Validate the edited fields
     if (!editedProfile.name.trim()) {
       toast.error("Name cannot be empty");
       return;
     }
+    if (!editedProfile.phone.trim()) {
+      toast.error("Phone cannot be empty");
+      return;
+    }
+    if (!editedProfile.location.trim()) {
+      toast.error("Location cannot be empty");
+    }
 
-    // Implement profile update logic here
-    // Note: email is not included in the update
-    setIsEditing(false);
-    toast.success("Profile updated successfully!");
+    console.log("editedProfile", editedProfile);
+
+    const res = await fetch(`/api/user/profile`, {
+      method: "PUT",
+      body: JSON.stringify({
+        name: editedProfile.name,
+        phone: editedProfile.phone,
+        street_address: editedProfile.location,
+        email: admin.email,
+      }),
+    });
+    const data = await res.json();
+
+    if (data.rowCount > 0) {
+      setIsEditing(false);
+      toast.success("Profile updated successfully!");
+      refetch();
+    } else {
+      toast.error("Failed to update profile");
+    }
   };
 
-  const handlePasswordChange = () => {
+  const handlePasswordChange = async () => {
     if (!currentPassword || !newPassword || !confirmPassword) {
       toast.error("Please fill in all fields");
       return;
@@ -84,13 +124,28 @@ export default function AdminProfile() {
       toast.error("New passwords do not match");
       return;
     }
+    if (newPassword.length < 6) {
+      toast.error("Password must be at least 6 characters long");
+      return;
+    }
 
-    // Implement password change logic
-    setIsChangingPassword(false);
-    setCurrentPassword("");
-    setNewPassword("");
-    setConfirmPassword("");
-    toast.success("Password changed successfully!");
+    const res = await fetch(`/api/user/profile`, {
+      method: "POST",
+      body: JSON.stringify({
+        currentPassword,
+        newPassword,
+        email: admin.email,
+      }),
+    });
+    const data = await res.json();
+
+    if (data.rowCount > 0) {
+      setIsChangingPassword(false);
+      toast.success("Password changed successfully!");
+      refetch();
+    } else {
+      toast.error(data.message);
+    }
   };
 
   return (
@@ -123,7 +178,7 @@ export default function AdminProfile() {
                 <div className="flex flex-col md:flex-row items-center gap-6 pb-6 border-b dark:border-slate-600">
                   <div className="relative">
                     <Image
-                      src={session?.user?.image || dummyProfile}
+                      src={admin.profile_picture || dummyProfile}
                       alt="Profile"
                       width={100}
                       height={100}
@@ -142,7 +197,7 @@ export default function AdminProfile() {
                   <div className="text-center md:text-left">
                     {isEditing ? (
                       <Input
-                        value={session?.user?.name}
+                        value={editedProfile.name || ""}
                         onChange={(e) =>
                           setEditedProfile({
                             ...editedProfile,
@@ -152,15 +207,11 @@ export default function AdminProfile() {
                         className="text-2xl font-bold mb-2"
                       />
                     ) : (
-                      <h2 className="text-2xl font-bold">
-                        {session?.user?.name}
-                      </h2>
+                      <h2 className="text-2xl font-bold">{admin.name}</h2>
                     )}
                     <div className="flex items-center gap-2">
                       <Mail className="h-4 w-4 text-muted-foreground" />
-                      <p className="text-muted-foreground">
-                        {session?.user?.email}
-                      </p>
+                      <p className="text-muted-foreground">{admin.email}</p>
                       <Lock className="h-3 w-3 text-muted-foreground" />
                     </div>
                     <span
@@ -170,13 +221,13 @@ export default function AdminProfile() {
                           : "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300"
                       }`}
                     >
-                      {session?.status === "active" ? (
+                      {admin.status === "active" ? (
                         <CheckCircle2 className="h-3 w-3" />
                       ) : (
                         <XCircle className="h-3 w-3" />
                       )}
-                      {session?.status?.charAt(0).toUpperCase() +
-                        session?.status?.slice(1)}
+                      {admin.status?.charAt(0).toUpperCase() +
+                        admin.status?.slice(1)}
                     </span>
                   </div>
                 </div>
@@ -188,7 +239,7 @@ export default function AdminProfile() {
                       <Mail className="h-5 w-5 text-green-500" />
                       <div>
                         <p className="text-sm text-muted-foreground">Email</p>
-                        <p className="font-medium">{session?.user?.email}</p>
+                        <p className="font-medium">{admin.email}</p>
                       </div>
                     </div>
 
@@ -198,7 +249,7 @@ export default function AdminProfile() {
                         <p className="text-sm text-muted-foreground">Phone</p>
                         {isEditing ? (
                           <Input
-                            value={editedProfile.phone}
+                            value={editedProfile.phone || ""}
                             onChange={(e) =>
                               setEditedProfile({
                                 ...editedProfile,
@@ -208,24 +259,8 @@ export default function AdminProfile() {
                             className="mt-1"
                           />
                         ) : (
-                          <p className="font-medium">
-                            {session?.phone || "N/A"}
-                          </p>
+                          <p className="font-medium">{admin.phone || "N/A"}</p>
                         )}
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      <Calendar className="h-5 w-5 text-green-500" />
-                      <div>
-                        <p className="text-sm text-muted-foreground">
-                          Join Date
-                        </p>
-                        <p className="font-medium">
-                          {session?.created_at
-                            ? format(new Date(session.created_at), "d-M-yyyy")
-                            : "N/A"}
-                        </p>
                       </div>
                     </div>
                   </div>
@@ -239,7 +274,7 @@ export default function AdminProfile() {
                         </p>
                         {isEditing ? (
                           <Input
-                            value={editedProfile.location}
+                            value={editedProfile.location || ""}
                             onChange={(e) =>
                               setEditedProfile({
                                 ...editedProfile,
@@ -250,32 +285,23 @@ export default function AdminProfile() {
                           />
                         ) : (
                           <p className="font-medium">
-                            {session?.street_address || "N/A"}
+                            {admin.street_address || "N/A"}
                           </p>
                         )}
                       </div>
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <Building className="h-5 w-5 text-green-500" />
+                      <Calendar className="h-5 w-5 text-green-500" />
                       <div>
-                        <p className="text-sm text-muted-foreground">Company</p>
-                        {isEditing ? (
-                          <Input
-                            value={editedProfile.company}
-                            onChange={(e) =>
-                              setEditedProfile({
-                                ...editedProfile,
-                                company: e.target.value,
-                              })
-                            }
-                            className="mt-1"
-                          />
-                        ) : (
-                          <p className="font-medium">
-                            {session?.company || "N/A"}
-                          </p>
-                        )}
+                        <p className="text-sm text-muted-foreground">
+                          Join Date
+                        </p>
+                        <p className="font-medium">
+                          {admin.created_at
+                            ? format(new Date(admin.created_at), "d-M-yyyy")
+                            : "N/A"}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -311,10 +337,12 @@ export default function AdminProfile() {
                   onOpenChange={setIsChangingPassword}
                 >
                   <DialogTrigger asChild>
-                    <Button variant="outline" className="w-full gap-2">
-                      <Shield className="h-4 w-4" />
-                      Change Password
-                    </Button>
+                    {admin.provider === "local" && (
+                      <Button variant="outline" className="w-full gap-2">
+                        <Shield className="h-4 w-4" />
+                        Change Password
+                      </Button>
+                    )}
                   </DialogTrigger>
                   <DialogContent className="dark:bg-slate-700">
                     <DialogHeader>
