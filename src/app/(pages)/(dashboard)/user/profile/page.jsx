@@ -142,7 +142,6 @@ export default function Profile() {
     } else {
       toast.error(data.message);
     }
-
   };
 
   return (
@@ -334,10 +333,12 @@ export default function Profile() {
                   onOpenChange={setIsChangingPassword}
                 >
                   <DialogTrigger asChild>
-                    <Button variant="outline" className="w-full gap-2">
-                      <Shield className="h-4 w-4" />
-                      Change Password
-                    </Button>
+                    {user.provider === "local" && (
+                      <Button variant="outline" className="w-full gap-2">
+                        <Shield className="h-4 w-4" />
+                        Change Password
+                      </Button>
+                    )}
                   </DialogTrigger>
                   <DialogContent className="dark:bg-slate-700">
                     <DialogHeader>
