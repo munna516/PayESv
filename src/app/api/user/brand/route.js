@@ -54,6 +54,25 @@ export async function GET(req) {
   console.log("this is the email", email);
   const brands = await query("SELECT * FROM brands WHERE email = $1", [email]);
 
-  console.log("this is the brands", brands);
   return NextResponse.json(brands);
+}
+
+export async function PUT(req) {
+  const { brandKey, brandName, brandUrl, brandLogo, status } = await req.json();
+  console.log("this is the brandKey", brandKey);
+  console.log("this is the brandName", brandName);
+  console.log("this is the brandUrl", brandUrl);
+  console.log("this is the brandLogo", brandLogo);
+  console.log("this is the status", status);
+
+  const updateBrandQuery = `UPDATE brands SET brand_name = $1, brand_url = $2, brand_logo = $3, status = $4 WHERE brand_key = $5`;
+  const result = await query(updateBrandQuery, [
+    brandName,
+    brandUrl,
+    brandLogo,
+    status,
+    brandKey,
+  ]);
+  console.log("this is the result", result);
+  return NextResponse.json(result);
 }

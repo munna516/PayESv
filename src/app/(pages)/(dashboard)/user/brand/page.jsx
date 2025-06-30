@@ -29,8 +29,8 @@ import { useEffect, useState } from "react";
 import Loading from "@/components/Loading/Loading";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Pencil } from "lucide-react";
-import toast from "react-hot-toast";
+import { Loader, Pencil, Copy, Check } from "lucide-react";
+import toast, { ToastBar } from "react-hot-toast";
 import { useQuery } from "@tanstack/react-query";
 
 export default function Transactions() {
@@ -44,6 +44,23 @@ export default function Transactions() {
   const [status, setStatus] = useState("Active");
   const [editOpen, setEditOpen] = useState(false);
   const [editBrand, setEditBrand] = useState(null);
+  const [copiedKey, setCopiedKey] = useState(null);
+
+  // Function to copy text to clipboard
+  const copyToClipboard = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedKey(text);
+      toast.success("Brand key copied to clipboard!");
+
+      // Reset the copied state after 2 seconds
+      setTimeout(() => {
+        setCopiedKey(null);
+      }, 2000);
+    } catch (err) {
+      toast.error("Failed to copy to clipboard");
+    }
+  };
 
   const fetchBrands = async (email) => {
     const res = await fetch(`/api/user/brand?email=${email}`);
@@ -66,6 +83,7 @@ export default function Transactions() {
       `/api/user/plan?email=${encodeURIComponent(session?.user?.email)}`
     );
     const data = await response.json();
+    console.log(data);
     setData(data);
     setIsLoading(false);
   };
@@ -110,10 +128,37 @@ export default function Transactions() {
   };
 
   // Edit Brand Modal handler
-  const handleEditBrand = (e) => {
+  const handleEditBrand = async (e) => {
     e.preventDefault();
-    console.log(editBrand);
-    setEditOpen(false);
+    setIsLoading(true);
+    try {
+      const res = await fetch("/api/user/brand", {
+        method: "PUT",
+        body: JSON.stringify({
+          brandKey: editBrand.brand_key,
+          brandName: editBrand.brand_name,
+          brandUrl: editBrand.brand_url,
+          brandLogo: editBrand.brand_logo,
+          status: editBrand.status,
+        }),
+      });
+      const data = await res.json();
+      if (data.rowCount > 0) {
+        toast.success("Brand updated successfully");
+        refetch();
+      } else {
+        toast.error("Brand update failed", {
+          duration: 3000,
+        });
+      }
+    } catch (error) {
+      toast.error("Brand update failed", {
+        duration: 3000,
+      });
+    } finally {
+      setEditOpen(false);
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -209,6 +254,7 @@ export default function Transactions() {
                 <TableHeader>
                   <TableRow className="bg-slate-200 dark:bg-slate-700">
                     <TableHead>#</TableHead>
+                    <TableHead>Brand Key</TableHead>
                     <TableHead>Brand Name</TableHead>
                     <TableHead>Brand URL</TableHead>
                     <TableHead>Brand Logo</TableHead>
@@ -220,6 +266,28 @@ export default function Transactions() {
                   {brands.map((brand, index) => (
                     <TableRow key={brand.brand_key}>
                       <TableCell className="">{index + 1}</TableCell>
+                      <TableCell className="">
+                        <div
+                          className="flex items-center gap-2 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-600 p-2 rounded transition-colors duration-200"
+                          onClick={() => copyToClipboard(brand.brand_key)}
+                          title="Click to copy brand key"
+                        >
+                          <span className="font-bold text-green-500 text-sm">
+                            {brand.brand_key}
+                          </span>
+                          {copiedKey === brand.brand_key ? (
+                            <Check
+                              size={16}
+                              className="text-green-600 dark:text-green-400"
+                            />
+                          ) : (
+                            <Copy
+                              size={16}
+                              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                            />
+                          )}
+                        </div>
+                      </TableCell>
                       <TableCell className="">{brand.brand_name}</TableCell>
                       <TableCell>{brand.brand_url}</TableCell>
                       <TableCell>
@@ -337,7 +405,7 @@ export default function Transactions() {
               </Select>
             </div>
             <Button type="submit" variant="primary" className="w-full">
-              Save Changes
+              {isLoading ? <Loader className="animate-spin" /> : "Save Changes"}
             </Button>
           </form>
         </DialogContent>
@@ -345,21 +413,3 @@ export default function Transactions() {
     </div>
   );
 }
-
-// const fetchPlan = async () => {
-//   setIsLoading(true);
-//   const response = await fetch(
-//     `/api/user/plan?email=${encodeURIComponent(session?.user?.email)}`
-//   );
-//   const data = await response.json();
-//   setData(data);
-//   setIsLoading(false);
-// };
-// useEffect(() => {
-//   if (session?.user?.email) {
-//     fetchPlan();
-//   }
-// }, [session]);
-// if (isLoading) return <Loading />;
-
-// console.log(data);
