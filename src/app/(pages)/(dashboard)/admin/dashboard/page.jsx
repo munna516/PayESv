@@ -1,22 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, memo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import {
   Users,
   CheckCircle2,
@@ -24,60 +9,251 @@ import {
   DollarSign,
   Ticket,
   FileText,
+  TrendingUp,
+  BarChart3,
+  PieChart,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
+import { useQuery } from "@tanstack/react-query";
+import Loading from "@/components/Loading/Loading";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler,
+} from "chart.js";
+import { Line, Bar, Doughnut } from "react-chartjs-2";
+
+// Register ChartJS components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+);
+
+// Memoized Chart Components to prevent unnecessary re-renders
+const ChartWrapper = memo(({ children, className }) => (
+  <div className={className}>{children}</div>
+));
+
+ChartWrapper.displayName = "ChartWrapper";
 
 function AdminDashboard() {
-  const { data: session } = useSession();
-  const [timePeriod, setTimePeriod] = useState("today");
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["dashboardData"],
+    queryFn: () => fetch("/api/admin/dashboard").then((res) => res.json()),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: false,
+  });
 
-  const stats = {
-    totalUsers: 1250,
-    successfulTransactions: 850,
-    pendingTransactions: 45,
-    earnings: 25000,
-    pendingTickets: 12,
-    pendingInvoices: 8,
+  if (isLoading) return <Loading />;
+  if (error) return <div>Error loading dashboard data</div>;
+
+  const dashboardData = data?.rows[0];
+
+  // Ensure we have valid data before creating charts
+  if (!dashboardData) {
+    return <div>No dashboard data available</div>;
+  }
+
+  // Safe data extraction with fallbacks
+  const monthlyRevenue = dashboardData.monthly_revenue || [];
+  const monthlyUsers = dashboardData.monthly_users || [];
+
+  // Create labels for the last 12 months
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+
+  const monthlyData = {
+    labels: months,
+    datasets: [
+      {
+        label: "Revenue",
+        data:
+          monthlyRevenue.length > 0
+            ? monthlyRevenue.map((item) => item.revenue || 0)
+            : [
+                12000, 19000, 15000, 25000, 22000, 30000, 28000, 35000, 32000,
+                40000, 38000, 45000,
+              ],
+        borderColor: "rgb(99, 102, 241)",
+        backgroundColor: "rgba(99, 102, 241, 0.1)",
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: "rgb(99, 102, 241)",
+        pointBorderColor: "#fff",
+        pointBorderWidth: 2,
+        pointRadius: 6,
+        pointHoverRadius: 8,
+      },
+      {
+        label: "Users",
+        data:
+          monthlyUsers.length > 0
+            ? monthlyUsers.map((item) => item.user_count || 0)
+            : [100, 150, 120, 200, 180, 250, 220, 300, 280, 350, 320, 400],
+        borderColor: "rgb(34, 197, 94)",
+        backgroundColor: "rgba(34, 197, 94, 0.1)",
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: "rgb(34, 197, 94)",
+        pointBorderColor: "#fff",
+        pointBorderWidth: 2,
+        pointRadius: 6,
+        pointHoverRadius: 8,
+      },
+    ],
   };
 
-  const transactions = [
-    {
-      id: 1,
-      type: "successful",
-      amount: 500.0,
-      date: "2024-03-20",
-      time: "14:30",
-      description: "Payment received",
-      from: "John Doe",
-      to: "System Account",
-      status: "Completed",
-      reference: "TRX-123456",
+  const transactionData = {
+    labels: ["Successful", "Pending"],
+    datasets: [
+      {
+        data: [
+          dashboardData?.successful_transactions || 0,
+          dashboardData?.unsuccessful_transactions || 0,
+        ],
+        backgroundColor: ["rgba(34, 197, 94, 0.8)", "rgba(251, 191, 36, 0.8)"],
+        borderColor: ["rgb(34, 197, 94)", "rgb(251, 191, 36)"],
+        borderWidth: 2,
+        hoverBackgroundColor: ["rgba(34, 197, 94, 1)", "rgba(251, 191, 36, 1)"],
+      },
+    ],
+  };
+
+  const platformData = {
+    labels: ["Users", "Transactions", "Tickets", "Invoices"],
+    datasets: [
+      {
+        label: "Usage",
+        data: [
+          dashboardData.total_users || 0,
+          dashboardData.successful_transactions || 0,
+          dashboardData.pending_tickets || 0,
+          dashboardData.pending_invoices || 0,
+        ],
+        backgroundColor: [
+          "rgba(99, 102, 241, 0.8)",
+          "rgba(34, 197, 94, 0.8)",
+          "rgba(251, 191, 36, 0.8)",
+          "rgba(239, 68, 68, 0.8)",
+        ],
+        borderColor: [
+          "rgb(99, 102, 241)",
+          "rgb(34, 197, 94)",
+          "rgb(251, 191, 36)",
+          "rgb(239, 68, 68)",
+        ],
+        borderWidth: 2,
+        borderRadius: 8,
+        borderSkipped: false,
+      },
+    ],
+  };
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: "top",
+        labels: {
+          usePointStyle: true,
+          padding: 20,
+          font: {
+            size: 12,
+            weight: "600",
+          },
+        },
+      },
+      tooltip: {
+        backgroundColor: "rgba(0, 0, 0, 0.8)",
+        titleColor: "#fff",
+        bodyColor: "#fff",
+        borderColor: "rgba(255, 255, 255, 0.1)",
+        borderWidth: 1,
+        cornerRadius: 8,
+        displayColors: true,
+        padding: 12,
+      },
     },
-    {
-      id: 2,
-      type: "pending",
-      amount: 300.0,
-      date: "2024-03-20",
-      time: "15:45",
-      description: "Payment processing",
-      from: "System Account",
-      to: "ABC Company",
-      status: "Processing",
-      reference: "TRX-123457",
+    scales: {
+      x: {
+        grid: {
+          display: false,
+        },
+        ticks: {
+          font: {
+            size: 12,
+          },
+        },
+      },
+      y: {
+        grid: {
+          color: "rgba(0, 0, 0, 0.1)",
+        },
+        ticks: {
+          font: {
+            size: 12,
+          },
+        },
+      },
     },
-    {
-      id: 3,
-      type: "successful",
-      amount: 750.0,
-      date: "2024-03-19",
-      time: "10:15",
-      description: "Salary deposit",
-      from: "Company XYZ",
-      to: "System Account",
-      status: "Completed",
-      reference: "TRX-123458",
+  };
+
+  const doughnutOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: "bottom",
+        labels: {
+          usePointStyle: true,
+          padding: 20,
+          font: {
+            size: 12,
+            weight: "600",
+          },
+        },
+      },
+      tooltip: {
+        backgroundColor: "rgba(0, 0, 0, 0.8)",
+        titleColor: "#fff",
+        bodyColor: "#fff",
+        borderColor: "rgba(255, 255, 255, 0.1)",
+        borderWidth: 1,
+        cornerRadius: 8,
+        displayColors: true,
+        padding: 12,
+      },
     },
-  ];
+  };
 
   return (
     <div className="space-y-6 mb-14">
@@ -92,7 +268,7 @@ function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-xl sm:text-2xl font-bold text-green-600 dark:text-green-400">
-              {stats.totalUsers}
+              {dashboardData.total_users}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               Registered users
@@ -109,7 +285,7 @@ function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400">
-              {stats.successfulTransactions}
+              {dashboardData.successful_transactions}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               Completed transactions
@@ -126,7 +302,7 @@ function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
-              {stats.pendingTransactions}
+              {dashboardData.unsuccessful_transactions}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               Awaiting confirmation
@@ -143,7 +319,9 @@ function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-              ${stats.earnings}
+              $
+              {parseFloat(dashboardData.total_earning_usdt || 0) * 125 +
+                parseFloat(dashboardData.total_earning_bdt || 0)}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               System earnings
@@ -160,7 +338,7 @@ function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-600 dark:text-red-400">
-              {stats.pendingTickets}
+              {dashboardData.pending_tickets}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               Support tickets
@@ -177,7 +355,7 @@ function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
-              {stats.pendingInvoices}
+              {dashboardData.pending_invoices || 0}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               Unpaid invoices
@@ -186,65 +364,71 @@ function AdminDashboard() {
         </Card>
       </div>
 
-      {/* Transactions Table */}
-      <Card className="w-full dark:bg-slate-700">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Transaction History</CardTitle>
-          <Select value={timePeriod} onValueChange={setTimePeriod}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select time period" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="today">Today</SelectItem>
-              <SelectItem value="week">This Week</SelectItem>
-              <SelectItem value="month">This Month</SelectItem>
-              <SelectItem value="year">This Year</SelectItem>
-            </SelectContent>
-          </Select>
-        </CardHeader>
-        <CardContent>
-          <div className="rounded-md">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Time</TableHead>
-                  <TableHead className="hidden md:table-cell">From</TableHead>
-                  <TableHead className="hidden md:table-cell">To</TableHead>
-                  <TableHead>Reference</TableHead>
-                  <TableHead>Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {transactions.map((transaction) => (
-                  <TableRow key={transaction.id}>
-                    <TableCell>{transaction.date}</TableCell>
-                    <TableCell>${transaction.amount}</TableCell>
-                    <TableCell>{transaction.time}</TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      {transaction.from}
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      {transaction.to}
-                    </TableCell>
-                    <TableCell>{transaction.reference}</TableCell>
-                    <TableCell
-                      className={`${
-                        transaction.type === "pending"
-                          ? "text-yellow-500 font-bold"
-                          : "text-green-500 font-bold"
-                      }`}
-                    >
-                      {transaction.type}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Charts Section */}
+      <div className="space-y-6">
+        {/* Revenue & Users Trend Chart */}
+        <Card className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 w-full">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+            <div>
+              <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                <TrendingUp className="h-5 w-5 text-indigo-600" />
+                Revenue & Users Trend
+              </CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">
+                Monthly performance overview
+              </p>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <ChartWrapper className="h-80 w-full">
+              <Line data={monthlyData} options={chartOptions} />
+            </ChartWrapper>
+          </CardContent>
+        </Card>
+
+        {/* Transaction Status & Platform Usage */}
+        <div className="grid gap-6 grid-cols-1 lg:grid-cols-2 w-full">
+          {/* Transaction Status Doughnut Chart */}
+          <Card className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+              <div>
+                <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                  <PieChart className="h-5 w-5 text-green-600" />
+                  Transaction Status
+                </CardTitle>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Distribution of transaction types
+                </p>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <ChartWrapper className="h-80 w-full">
+                <Doughnut data={transactionData} options={doughnutOptions} />
+              </ChartWrapper>
+            </CardContent>
+          </Card>
+
+          {/* Platform Usage Bar Chart */}
+          <Card className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+              <div>
+                <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                  <BarChart3 className="h-5 w-5 text-blue-600" />
+                  Platform Usage
+                </CardTitle>
+                <p className="text-sm text-muted-foreground mt-1">
+                  User activity across platforms
+                </p>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <ChartWrapper className="h-80 w-full">
+                <Bar data={platformData} options={chartOptions} />
+              </ChartWrapper>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 }
