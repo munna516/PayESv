@@ -29,7 +29,7 @@ import { useEffect, useState } from "react";
 import Loading from "@/components/Loading/Loading";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Loader, Pencil, Copy, Check } from "lucide-react";
+import { Loader, Pencil, Copy, Check, Eye } from "lucide-react";
 import toast, { ToastBar } from "react-hot-toast";
 import { useQuery } from "@tanstack/react-query";
 
@@ -44,23 +44,9 @@ export default function Transactions() {
   const [status, setStatus] = useState("Active");
   const [editOpen, setEditOpen] = useState(false);
   const [editBrand, setEditBrand] = useState(null);
-  const [copiedKey, setCopiedKey] = useState(null);
-
-  // Function to copy text to clipboard
-  const copyToClipboard = async (text) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopiedKey(text);
-      toast.success("Brand key copied to clipboard!");
-
-      // Reset the copied state after 2 seconds
-      setTimeout(() => {
-        setCopiedKey(null);
-      }, 2000);
-    } catch (err) {
-      toast.error("Failed to copy to clipboard");
-    }
-  };
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [selectedBrand, setSelectedBrand] = useState(null);
+  const [copiedField, setCopiedField] = useState(null);
 
   const fetchBrands = async (email) => {
     const res = await fetch(`/api/user/brand?email=${email}`);
@@ -98,6 +84,24 @@ export default function Transactions() {
   const handleEdit = (brand) => {
     setEditBrand(brand);
     setEditOpen(true);
+  };
+
+  // Handler to open details modal with brand data
+  const handleViewDetails = (brand) => {
+    setSelectedBrand(brand);
+    setDetailsOpen(true);
+  };
+
+  // Copy to clipboard function
+  const copyToClipboard = async (text, fieldName) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedField(fieldName);
+      toast.success(`${fieldName} copied to clipboard!`);
+      setTimeout(() => setCopiedField(null), 2000);
+    } catch (err) {
+      toast.error("Failed to copy to clipboard");
+    }
   };
 
   const handleAddBrand = async (e) => {
@@ -254,40 +258,18 @@ export default function Transactions() {
                 <TableHeader>
                   <TableRow className="bg-slate-200 dark:bg-slate-700">
                     <TableHead>#</TableHead>
-                    <TableHead>Brand Key</TableHead>
                     <TableHead>Brand Name</TableHead>
                     <TableHead>Brand URL</TableHead>
                     <TableHead>Brand Logo</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Action</TableHead>
+                    <TableHead>API Details</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {brands.map((brand, index) => (
                     <TableRow key={brand.brand_key}>
                       <TableCell className="">{index + 1}</TableCell>
-                      <TableCell className="">
-                        <div
-                          className="flex items-center gap-2 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-600 p-2 rounded transition-colors duration-200"
-                          onClick={() => copyToClipboard(brand.brand_key)}
-                          title="Click to copy brand key"
-                        >
-                          <span className="font-bold text-green-500 text-sm">
-                            {brand.brand_key}
-                          </span>
-                          {copiedKey === brand.brand_key ? (
-                            <Check
-                              size={16}
-                              className="text-green-600 dark:text-green-400"
-                            />
-                          ) : (
-                            <Copy
-                              size={16}
-                              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                            />
-                          )}
-                        </div>
-                      </TableCell>
                       <TableCell className="">{brand.brand_name}</TableCell>
                       <TableCell>{brand.brand_url}</TableCell>
                       <TableCell>
@@ -315,6 +297,14 @@ export default function Transactions() {
                         >
                           <Pencil size={18} />
                         </button>
+                      </TableCell>
+                      <TableCell className="">
+                        <Button
+                          variant="primary"
+                          onClick={() => handleViewDetails(brand)}
+                        >
+                          View Details
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -408,6 +398,118 @@ export default function Transactions() {
               {isLoading ? <Loader className="animate-spin" /> : "Save Changes"}
             </Button>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* View Details Dialog */}
+      <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
+        <DialogContent className="max-w-[95vw] sm:max-w-[500px] dark:bg-slate-700">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-center">
+              API Details
+            </DialogTitle>
+            <DialogDescription className="text-center">
+              Copy your API credentials for integration
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedBrand && (
+            <div className="space-y-6 mt-4">
+              {/* Brand Key */}
+              <div className="space-y-2">
+                <Label className="font-semibold text-sm">Brand Key</Label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    value={selectedBrand.brand_key || "N/A"}
+                    readOnly
+                    className="flex-1 bg-gray-50 dark:bg-gray-800"
+                  />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      copyToClipboard(
+                        selectedBrand.brand_key || "",
+                        "Brand Key"
+                      )
+                    }
+                    className="min-w-[40px] h-10"
+                  >
+                    {copiedField === "Brand Key" ? (
+                      <Check className="h-4 w-4 text-green-600" />
+                    ) : (
+                      <Copy className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
+              </div>
+
+              {/* API Key */}
+              <div className="space-y-2">
+                <Label className="font-semibold text-sm">API Key</Label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    value={selectedBrand.api_key || "N/A"}
+                    readOnly
+                    className="flex-1 bg-gray-50 dark:bg-gray-800"
+                  />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      copyToClipboard(selectedBrand.api_key || "", "API Key")
+                    }
+                    className="min-w-[40px] h-10"
+                  >
+                    {copiedField === "API Key" ? (
+                      <Check className="h-4 w-4 text-green-600" />
+                    ) : (
+                      <Copy className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
+              </div>
+
+              {/* API Secret */}
+              <div className="space-y-2">
+                <Label className="font-semibold text-sm">API Secret</Label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    value={selectedBrand.api_secret || "N/A"}
+                    readOnly
+                    className="flex-1 bg-gray-50 dark:bg-gray-800"
+                  />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      copyToClipboard(
+                        selectedBrand.api_secret || "",
+                        "API Secret"
+                      )
+                    }
+                    className="min-w-[40px] h-10"
+                  >
+                    {copiedField === "API Secret" ? (
+                      <Check className="h-4 w-4 text-green-600" />
+                    ) : (
+                      <Copy className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
+              </div>
+
+              <div className="pt-4 border-t">
+                <Button
+                  variant="secondary"
+                  className="w-full"
+                  onClick={() => setDetailsOpen(false)}
+                >
+                  Close
+                </Button>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>
