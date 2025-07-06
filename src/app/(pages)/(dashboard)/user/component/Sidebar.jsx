@@ -17,7 +17,6 @@ import {
   FileText,
   PlusSquare,
   Database,
-  Plus,
   Building,
   Smartphone,
   Wallet,
@@ -37,11 +36,7 @@ import toast from "react-hot-toast";
 const navMain = [
   { label: "Dashboard", icon: LayoutDashboard, href: "/user/dashboard" },
   { label: "Transactions", icon: CreditCard, href: "/user/transactions" },
-  {
-    label: "Withdraw",
-    icon: ArrowUpRight,
-    href: "/user/withdraw",
-  },
+  { label: "Withdraw", icon: ArrowUpRight, href: "/user/withdraw", plan: 1 },
   {
     label: "Bank Transactions",
     icon: Banknote,
@@ -131,7 +126,7 @@ export default function Sidebar({
                 isActive(item.href)
                   ? " text-green-600 bg-green-100 dark:bg-white dark:text-green-600"
                   : "text-gray-700 dark:text-white  hover:text-green-500 dark:hover:text-green-500"
-              }`}
+              } ${item.plan === 2 && "hidden"}`}
             >
               <item.icon
                 className={`w-5 h-5 lg:w-7 lg:h-7 font-semibold ${
@@ -145,6 +140,7 @@ export default function Sidebar({
               )}
             </Link>
           ))}
+          
         </nav>
       </div>
       {/* Others Navigation */}
