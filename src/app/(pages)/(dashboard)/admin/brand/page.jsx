@@ -20,45 +20,33 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-
-// Mock data - replace with actual data from your API
-const mockBrands = [
-  {
-    id: 1,
-    merchantEmail: "merchant1@example.com",
-    businessEmail: "business1@example.com",
-    domain: "example1.com",
-    ip: "192.168.1.1",
-    status: "Active",
-  },
-  {
-    id: 2,
-    merchantEmail: "merchant2@example.com",
-    businessEmail: "business2@example.com",
-    domain: "example2.com",
-    ip: "192.168.1.2",
-    status: "Inactive",
-  },
-  {
-    id: 3,
-    merchantEmail: "merchant3@example.com",
-    businessEmail: "business3@example.com",
-    domain: "example3.com",
-    ip: "192.168.1.3",
-    status: "Active",
-  },
-];
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useQuery } from "@tanstack/react-query";
+import Loading from "@/components/Loading/Loading";
+import Image from "next/image";
+import toast from "react-hot-toast";
 
 export default function Brand() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedBrand, setSelectedBrand] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editForm, setEditForm] = useState({
-    domain: "",
-    ip: "",
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ["admin-brands"],
+    queryFn: () => fetch("/api/admin/brands").then((res) => res.json()),
   });
 
-  const filteredBrands = mockBrands.filter((brand) =>
+  const [editForm, setEditForm] = useState({
+    status: "",
+  });
+  if (isLoading) return <Loading />;
+  const brands = data?.rows;
+  const filteredBrands = brands.filter((brand) =>
     Object.values(brand).some((value) =>
       value.toString().toLowerCase().includes(searchQuery.toLowerCase())
     )
@@ -67,16 +55,33 @@ export default function Brand() {
   const handleEdit = (brand) => {
     setSelectedBrand(brand);
     setEditForm({
-      domain: brand.domain,
-      ip: brand.ip,
+      status: brand.status,
     });
     setIsDialogOpen(true);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     // Implement save functionality
-    console.log("Saving changes:", { ...selectedBrand, ...editForm });
+    const res = await fetch(`/api/admin/brands`, {
+      method: "PUT",
+      body: JSON.stringify({
+        brand_key: selectedBrand.brand_key,
+        status: editForm.status,
+      }),
+    });
+    const data = await res.json();
+    if (data.message) {
+      toast.success(data.message);
+    }
+    if (data.error) {
+      toast.error(data.error);
+    }
     setIsDialogOpen(false);
+    refetch();
+  };
+
+  const handleStatusChange = (value) => {
+    setEditForm({ ...editForm, status: value });
   };
 
   return (
@@ -101,21 +106,28 @@ export default function Brand() {
                 <TableRow>
                   <TableHead className="w-[50px]">#</TableHead>
                   <TableHead>Merchant Email</TableHead>
-                  <TableHead>Business Email</TableHead>
+                  <TableHead>Brand Name</TableHead>
                   <TableHead>Domain</TableHead>
-                  <TableHead>IP</TableHead>
+                  <TableHead>Brand Logo</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="text-center">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredBrands.map((brand, index) => (
-                  <TableRow key={brand.id}>
+                  <TableRow key={brand.brand_key}>
                     <TableCell>{index + 1}</TableCell>
-                    <TableCell>{brand.merchantEmail}</TableCell>
-                    <TableCell>{brand.businessEmail}</TableCell>
-                    <TableCell>{brand.domain}</TableCell>
-                    <TableCell>{brand.ip}</TableCell>
+                    <TableCell>{brand.email}</TableCell>
+                    <TableCell>{brand.brand_name}</TableCell>
+                    <TableCell>{brand.brand_url}</TableCell>
+                    <TableCell>
+                      <Image
+                        src={brand.brand_logo}
+                        alt={brand.brand_name}
+                        width={50}
+                        height={50}
+                      />
+                    </TableCell>
                     <TableCell>
                       <span
                         className={`px-2 py-1 rounded-full text-xs ${
@@ -148,41 +160,32 @@ export default function Brand() {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Edit Brand Details</DialogTitle>
+            <DialogTitle>Edit Brand Status</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="domain" className="text-right">
-                Domain
+              <Label htmlFor="status" className="text-right">
+                Status
               </Label>
-              <Input
-                id="domain"
-                value={editForm.domain}
-                onChange={(e) =>
-                  setEditForm({ ...editForm, domain: e.target.value })
-                }
-                className="col-span-3"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="ip" className="text-right">
-                IP
-              </Label>
-              <Input
-                id="ip"
-                value={editForm.ip}
-                onChange={(e) =>
-                  setEditForm({ ...editForm, ip: e.target.value })
-                }
-                className="col-span-3"
-              />
+              <Select
+                value={editForm.status}
+                onValueChange={handleStatusChange}
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Active">Active</SelectItem>
+                  <SelectItem value="Deactive">Deactive</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
               Cancel
             </Button>
-            <Button variant="primary" onClick={handleSave}>
+            <Button variant="primary" onClick={() => handleSave()}>
               Save changes
             </Button>
           </DialogFooter>
