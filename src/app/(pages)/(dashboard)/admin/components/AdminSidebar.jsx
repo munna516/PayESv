@@ -51,7 +51,6 @@ const navMain = [
     href: "/admin/staff",
   },
   { label: "Brand", icon: Building, href: "/admin/brand" },
-  { label: "Device", icon: Smartphone, href: "/admin/device" },
   {
     label: "Blogs",
     icon: FileText,
