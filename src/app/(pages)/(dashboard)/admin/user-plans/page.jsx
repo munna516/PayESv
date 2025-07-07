@@ -8,13 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
 import {
   Table,
   TableBody,
@@ -27,79 +21,33 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, Pencil } from "lucide-react";
 import { Label } from "@/components/ui/label";
+import { useQuery } from "@tanstack/react-query";
+import Loading from "@/app/(pages)/pay/loading";
 
 export default function UserPlans() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [entriesPerPage, setEntriesPerPage] = useState("10");
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingPlan, setEditingPlan] = useState(null);
 
-  // Mock data - replace with actual data from your backend
-  const userPlans = [
-    {
-      id: 1,
-      email: "john.doe@example.com",
-      planName: "Premium Plan",
-      planDescription: "Full access to all features",
-      price: 5000,
-      expiryDate: "2024-04-20",
-      maxDevices: 5,
-      brand: "Samsung",
-      expiryDays: 30,
-    },
-    {
-      id: 2,
-      email: "jane.smith@example.com",
-      planName: "Basic Plan",
-      planDescription: "Limited features access",
-      price: 2500,
-      expiryDate: "2024-05-15",
-      maxDevices: 3,
-      brand: "Apple",
-      expiryDays: 15,
-    },
-    {
-      id: 3,
-      email: "mike.johnson@example.com",
-      planName: "Enterprise Plan",
-      planDescription: "Advanced features with priority support",
-      price: 10000,
-      expiryDate: "2024-06-01",
-      maxDevices: 10,
-      brand: "Xiaomi",
-      expiryDays: 60,
-    },
-  ];
-
-  const [formData, setFormData] = useState({
-    maxDevices: "",
-    brand: "",
-    expiryDays: "",
+  const { data, isLoading } = useQuery({
+    queryKey: ["user-plans"],
+    queryFn: () => fetch("/api/admin/user-plans").then((res) => res.json()),
   });
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+  if (isLoading) return <Loading />;
+
+  const userPlans = data?.rows;
 
   const handleEditPlan = (plan) => {
     setEditingPlan(plan);
     setFormData({
-      maxDevices: plan.maxDevices.toString(),
-      brand: plan.brand,
-      expiryDays: plan.expiryDays.toString(),
+      websitequantity:
+        plan.websitequantity == "Unlimited" ? 0 : plan.websitequantity,
+      plan:
+        plan.plan == 1
+          ? "Personal Account Automation"
+          : "Ready Payment Gateway",
+      expires_at: 0,
     });
     setIsDialogOpen(true);
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Handle form submission here
-  
-    setIsDialogOpen(false);
   };
 
   // Filter plans based on search query
@@ -124,18 +72,6 @@ export default function UserPlans() {
                 className="pl-8 dark:text-white"
               />
             </div>
-            <Select value={entriesPerPage} onValueChange={setEntriesPerPage}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Select entries" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="5">5 entries</SelectItem>
-                <SelectItem value="10">10 entries</SelectItem>
-                <SelectItem value="25">25 entries</SelectItem>
-                <SelectItem value="50">50 entries</SelectItem>
-                <SelectItem value="100">100 entries</SelectItem>
-              </SelectContent>
-            </Select>
           </div>
         </CardHeader>
 
@@ -146,31 +82,32 @@ export default function UserPlans() {
                 <TableRow className="dark:border-slate-600">
                   <TableHead className="w-[50px]">#</TableHead>
                   <TableHead>User</TableHead>
-                  <TableHead>Plan Name</TableHead>
-                  <TableHead>Plan Description</TableHead>
-                  <TableHead>Price</TableHead>
+                  <TableHead>Website Quantity</TableHead>
+                  <TableHead>Plan</TableHead>
+                  <TableHead>Duration</TableHead>
                   <TableHead>Expiry Date</TableHead>
-                  <TableHead>Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredPlans.map((plan) => (
+                {filteredPlans.map((plan, index) => (
                   <TableRow key={plan.id} className="dark:border-slate-600">
-                    <TableCell>{plan.id}</TableCell>
+                    <TableCell>{index + 1}</TableCell>
                     <TableCell className="font-medium">{plan.email}</TableCell>
-                    <TableCell>{plan.planName}</TableCell>
-                    <TableCell>{plan.planDescription}</TableCell>
-                    <TableCell>৳{plan.price.toFixed(2)}</TableCell>
-                    <TableCell>{plan.expiryDate}</TableCell>
+                    <TableCell>{plan.websitequantity}</TableCell>
                     <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleEditPlan(plan)}
-                        className="h-8 w-8"
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
+                      {plan.plan == 1
+                        ? "Personal Account Automation"
+                        : "Ready Payment Gateway"}
+                    </TableCell>
+                    <TableCell>
+                      {plan.yearly
+                        ? "Yearly"
+                        : plan.plan == 2
+                        ? "Unlimited"
+                        : "Monthly"}
+                    </TableCell>
+                    <TableCell>
+                      {new Date(plan.expires_at).toLocaleDateString()}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -179,60 +116,6 @@ export default function UserPlans() {
           </div>
         </CardContent>
       </Card>
-
-      {/* Edit Plan Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="dark:bg-slate-700">
-          <DialogHeader>
-            <DialogTitle>Edit User Plan</DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="maxDevices">Maximum Devices</Label>
-              <Input
-                id="maxDevices"
-                name="maxDevices"
-                type="number"
-                value={formData.maxDevices}
-                onChange={handleInputChange}
-                required
-                className="dark:bg-slate-600 dark:border-slate-500"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="brand">Brand</Label>
-              <Input
-                id="brand"
-                name="brand"
-                value={formData.brand}
-                onChange={handleInputChange}
-                required
-                className="dark:bg-slate-600 dark:border-slate-500"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="expiryDays">
-                Number of Expiry Days to Increase
-              </Label>
-              <Input
-                id="expiryDays"
-                name="expiryDays"
-                type="number"
-                value={formData.expiryDays}
-                onChange={handleInputChange}
-                required
-                className="dark:bg-slate-600 dark:border-slate-500"
-              />
-            </div>
-
-            <Button type="submit" className="w-full">
-              Update Plan
-            </Button>
-          </form>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
