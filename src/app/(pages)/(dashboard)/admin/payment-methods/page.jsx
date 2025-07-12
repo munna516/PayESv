@@ -27,136 +27,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-// Mock data - replace with actual data from your API
-const mockPaymentMethods = [
-  {
-    id: 1,
-    logo: "https://example.com/bkash-logo.png",
-    name: "BKash",
-    type: "Mobile Banking",
-    sort: 1,
-    status: "active",
-  },
-  {
-    id: 2,
-    logo: "https://example.com/nagad-logo.png",
-    name: "Nagad",
-    type: "Mobile Banking",
-    sort: 2,
-    status: "active",
-  },
-  {
-    id: 3,
-    logo: "https://example.com/rocket-logo.png",
-    name: "Rocket",
-    type: "Mobile Banking",
-    sort: 3,
-    status: "active",
-  },
-  {
-    id: 4,
-    logo: "https://example.com/upay-logo.png",
-    name: "Upay",
-    type: "Mobile Banking",
-    sort: 4,
-    status: "active",
-  },
-  {
-    id: 5,
-    logo: "https://example.com/tap-logo.png",
-    name: "Tap",
-    type: "Mobile Banking",
-    sort: 5,
-    status: "deactive",
-  },
-  {
-    id: 6,
-    logo: "https://example.com/sure-cash-logo.png",
-    name: "Sure Cash",
-    type: "Mobile Banking",
-    sort: 6,
-    status: "active",
-  },
-  {
-    id: 7,
-    logo: "https://example.com/dutch-bangla-logo.png",
-    name: "DBBL Mobile Banking",
-    type: "Bank",
-    sort: 7,
-    status: "active",
-  },
-  {
-    id: 8,
-    logo: "https://example.com/sonali-bank-logo.png",
-    name: "Sonali Bank",
-    type: "Bank",
-    sort: 8,
-    status: "deactive",
-  },
-  {
-    id: 9,
-    logo: "https://example.com/rupali-bank-logo.png",
-    name: "Rupali Bank",
-    type: "Bank",
-    sort: 9,
-    status: "active",
-  },
-  {
-    id: 10,
-    logo: "https://example.com/ucash-logo.png",
-    name: "UCash",
-    type: "Mobile Banking",
-    sort: 10,
-    status: "deactive",
-  },
-  {
-    id: 11,
-    logo: "https://example.com/tap-logo.png",
-    name: "Tap",
-    type: "Mobile Banking",
-    sort: 11,
-    status: "deactive",
-  },
-  {
-    id: 12,
-    logo: "https://example.com/prime-bank-logo.png",
-    name: "Prime Bank",
-    type: "Bank",
-    sort: 12,
-    status: "deactive",
-  },
-  {
-    id: 13,
-    logo: "https://example.com/city-bank-logo.png",
-    name: "City Bank",
-    type: "Bank",
-    sort: 13,
-    status: "active",
-  },
-  {
-    id: 14,
-    logo: "https://example.com/ebl-logo.png",
-    name: "Eastern Bank",
-    type: "Bank",
-    sort: 14,
-    status: "active",
-  },
-  {
-    id: 15,
-    logo: "https://example.com/ucb-logo.png",
-    name: "UCB Bank",
-    type: "Bank",
-    sort: 15,
-    status: "deactive",
-  },
-];
+import { useQuery } from "@tanstack/react-query";
+import Loading from "@/components/Loading/Loading";
+import toast from "react-hot-toast";
+import Image from "next/image";
+import Swal from "sweetalert2";
 
 export default function PaymentMethods() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedMethod, setSelectedMethod] = useState(null);
+  const [editPayment, setEditPayment] = useState(false);
+
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: ["payment-methods"],
+    queryFn: () => fetch("/api/admin/payment-method").then((res) => res.json()),
+  });
+
   const [formData, setFormData] = useState({
     logo: "",
     name: "",
@@ -165,19 +53,29 @@ export default function PaymentMethods() {
     status: "active",
   });
 
-  const filteredMethods = mockPaymentMethods
-    .filter((method) => {
-      const matchesSearch =
-        method.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        method.type.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesStatus =
-        statusFilter === "all" || method.status === statusFilter;
-      return matchesSearch && matchesStatus;
-    })
-    .sort((a, b) => a.sort - b.sort);
+  if (isLoading) return <Loading />;
+  if (data?.error) {
+    return toast.error(data.error);
+  }
+  const paymentMethods = data?.rows || [];
+
+  const filteredMethods = paymentMethods.filter((method) => {
+    const name = method.method_name || "";
+    const type = method.method_type || "";
+    const status = method.status || "";
+
+    const matchesSearch =
+      name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      type.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesStatus = statusFilter === "all" || status === statusFilter;
+
+    return matchesSearch && matchesStatus;
+  });
 
   const handleAddNew = () => {
     setSelectedMethod(null);
+    setEditPayment(false);
     setFormData({
       logo: "",
       name: "",
@@ -190,25 +88,105 @@ export default function PaymentMethods() {
 
   const handleEdit = (method) => {
     setSelectedMethod(method);
+    setEditPayment(true);
     setFormData({
-      logo: method.logo,
-      name: method.name,
-      type: method.type,
-      sort: method.sort.toString(),
-      status: method.status,
+      logo: method.method_logo || "",
+      name: method.method_name || "",
+      type: method.method_type || "",
+      sort: method.sort?.toString() || "",
+      status: method.status || "active",
     });
     setIsDialogOpen(true);
   };
 
   const handleDelete = (id) => {
-    // Implement delete functionality
-    console.log("Deleting payment method:", id);
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const response = await fetch(`/api/admin/payment-method`, {
+          method: "DELETE",
+          body: JSON.stringify({ id }),
+        });
+        const data = await response.json();
+
+        if (data?.rowCount > 0) {
+          Swal.fire({
+            title: "Deleted!",
+            text: "Your file has been deleted.",
+            icon: "success",
+          });
+          refetch();
+        }
+      }
+    });
   };
 
-  const handleSave = () => {
-    // Implement save functionality
-    console.log("Saving payment method:", formData);
-    setIsDialogOpen(false);
+  const handleSave = async () => {
+    console.log("this is form data", formData);
+    console.log("this is edit payment", editPayment);
+    try {
+      if (editPayment) {
+        // Handle edit operation
+        const response = await fetch("/api/admin/payment-method", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            id: selectedMethod.id,
+            method_logo: formData.logo,
+            method_name: formData.name,
+            method_type: formData.type,
+            sort: parseInt(formData.sort) || 0,
+            status: formData.status,
+          }),
+        });
+        const data = await response.json();
+        console.log("Edit response:", data);
+        if (data?.rowCount > 0) {
+          toast.success("Payment method updated");
+          refetch();
+        } else {
+          toast.error("Failed to update payment method");
+        }
+      } else {
+        // Handle add operation
+        const response = await fetch("/api/admin/payment-method", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            method_logo: formData.logo,
+            method_name: formData.name,
+            method_type: formData.type,
+            sort: parseInt(formData.sort) || 0,
+            status: formData.status,
+          }),
+        });
+        const data = await response.json();
+        console.log("Add response:", data);
+        if (data?.rowCount > 0) {
+          toast.success("Payment method created successfully");
+          refetch();
+        } else {
+          toast.error("Failed to create payment method");
+        }
+      }
+    } catch (error) {
+      toast.error("Failed to save payment method");
+    } finally {
+      setIsDialogOpen(false);
+      setEditPayment(false);
+      setSelectedMethod(null);
+    }
   };
 
   return (
@@ -258,63 +236,77 @@ export default function PaymentMethods() {
             </div>
           </div>
 
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[50px]">#</TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Payment Method</TableHead>
-
-                  <TableHead>Sort</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-center">Action</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredMethods.map((method, index) => (
-                  <TableRow key={method.id}>
-                    <TableCell>{index + 1}</TableCell>
-                    <TableCell>{method.name}</TableCell>
-                    <TableCell>{method.type}</TableCell>
-
-                    <TableCell>{method.sort}</TableCell>
-                    <TableCell>
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs ${
-                          method.status === "active"
-                            ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100"
-                            : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100"
-                        }`}
-                      >
-                        {method.status}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex justify-center gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleEdit(method)}
-                          className="h-8 w-8"
-                        >
-                          <Pencil className="h-4 w-4 dark:text-white" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDelete(method.id)}
-                          className="h-8 w-8 text-destructive hover:text-destructive"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
+          {paymentMethods.length > 0 ? (
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[50px]">#</TableHead>
+                    <TableHead>Method Name</TableHead>
+                    <TableHead>Method Type</TableHead>
+                    <TableHead>Method Logo</TableHead>
+                    <TableHead>Sort</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-center">Action</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                </TableHeader>
+                <TableBody>
+                  {filteredMethods.map((method, index) => (
+                    <TableRow key={method.id}>
+                      <TableCell>{index + 1}</TableCell>
+                      <TableCell>{method.method_name}</TableCell>
+                      <TableCell>{method.method_type}</TableCell>
+                      <TableCell>
+                        <Image
+                          src={method.method_logo}
+                          alt={method.method_name}
+                          className="w-10 h-10 rounded-full"
+                          width={40}
+                          height={40}
+                        />
+                      </TableCell>
+                      <TableCell>{method.sort}</TableCell>
+                      <TableCell>
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs ${
+                            method.status === "active"
+                              ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100"
+                              : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100"
+                          }`}
+                        >
+                          {method.status === "active" ? "Active" : "Deactive"}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex justify-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleEdit(method)}
+                            className="h-8 w-8"
+                          >
+                            <Pencil className="h-4 w-4 dark:text-white" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDelete(method.id)}
+                            className="h-8 w-8 text-destructive hover:text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          ) : (
+            <div className="flex justify-center items-center h-full">
+              <p className="text-muted-foreground">No payment methods found</p>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -322,9 +314,7 @@ export default function PaymentMethods() {
         <DialogContent className="sm:max-w-[600px] dark:bg-slate-700">
           <DialogHeader>
             <DialogTitle>
-              {selectedMethod
-                ? "Edit Payment Method"
-                : "Add New Payment Method"}
+              {editPayment ? "Edit Payment Method" : "Add New Payment Method"}
             </DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -352,14 +342,21 @@ export default function PaymentMethods() {
             </div>
             <div className="grid gap-2">
               <Label htmlFor="type">Method Type</Label>
-              <Input
-                id="type"
+              <Select
                 value={formData.type}
-                onChange={(e) =>
-                  setFormData({ ...formData, type: e.target.value })
+                onValueChange={(value) =>
+                  setFormData({ ...formData, type: value })
                 }
-                placeholder="Enter method type"
-              />
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select method type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Cards">Cards</SelectItem>
+                  <SelectItem value="Mobile Banking">Mobile Banking</SelectItem>
+                  <SelectItem value="Net Banking">Net Banking</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
@@ -398,7 +395,7 @@ export default function PaymentMethods() {
               Cancel
             </Button>
             <Button variant="primary" onClick={handleSave}>
-              {selectedMethod ? "Save changes" : "Add Payment Method"}
+              {editPayment ? "Save changes" : "Add Payment Method"}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -61,11 +61,11 @@ const navMain = [
     icon: FaQuestion,
     href: "/admin/faq",
   },
-  {
-    label: "Plans",
-    icon: Gift,
-    href: "/admin/plans",
-  },
+  // {
+  //   label: "Plans",
+  //   icon: Gift,
+  //   href: "/admin/plans",
+  // },
   {
     label: "Coupons",
     icon: FaTag,
