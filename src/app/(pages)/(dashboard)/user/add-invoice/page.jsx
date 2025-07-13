@@ -15,7 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function AddInvoice() {
   return (
-    <Card className="w-full dark:bg-slate-700">
+    <Card className="w-full dark:bg-slate-700 mb-20">
       <CardHeader>
         <CardTitle className="text-2xl font-bold text-center mb-5">
           Add Invoice
