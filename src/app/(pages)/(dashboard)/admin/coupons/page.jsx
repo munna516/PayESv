@@ -27,74 +27,33 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
-
-// Mock data - replace with actual data from your API
-const mockCoupons = [
-  {
-    id: 1,
-    code: "WELCOME50",
-    type: "percent",
-    price: 50,
-    limit: 100,
-    used: 25,
-    startDate: new Date("2024-03-01"),
-    endDate: new Date("2024-03-31"),
-    status: "active",
-    description: "Welcome discount for new users",
-  },
-  {
-    id: 2,
-    code: "FLAT20",
-    type: "fixed",
-    price: 20,
-    limit: 50,
-    used: 10,
-    startDate: new Date("2024-03-15"),
-    endDate: new Date("2024-04-15"),
-    status: "active",
-    description: "Flat discount on all products",
-  },
-  {
-    id: 3,
-    code: "SUMMER30",
-    type: "percent",
-    price: 30,
-    limit: 200,
-    used: 150,
-    startDate: new Date("2024-02-01"),
-    endDate: new Date("2024-02-29"),
-    status: "deactive",
-    description: "Summer special discount",
-  },
-];
+import { useQuery } from "@tanstack/react-query";
+import Loading from "@/components/Loading/Loading";
+import toast from "react-hot-toast";
+import Swal from "sweetalert2";
 
 export default function Coupons() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedCoupon, setSelectedCoupon] = useState(null);
+
+  const { data, isLoading,  refetch } = useQuery({
+    queryKey: ["coupons"],
+    queryFn: () => fetch("/api/admin/coupons").then((res) => res.json()),
+  });
   const [formData, setFormData] = useState({
     code: "",
     type: "fixed",
     price: "",
-    limit: "",
-    startDate: new Date(),
-    endDate: new Date(),
     status: "active",
     description: "",
   });
 
-  const filteredCoupons = mockCoupons.filter((coupon) => {
+  if (isLoading) return <Loading />;
+  const coupons = data?.rows || [];
+  const filteredCoupons = coupons.filter((coupon) => {
     const matchesSearch = coupon.code
       .toLowerCase()
       .includes(searchQuery.toLowerCase());
@@ -109,9 +68,6 @@ export default function Coupons() {
       code: "",
       type: "fixed",
       price: "",
-      limit: "",
-      startDate: new Date(),
-      endDate: new Date(),
       status: "active",
       description: "",
     });
@@ -124,24 +80,77 @@ export default function Coupons() {
       code: coupon.code,
       type: coupon.type,
       price: coupon.price.toString(),
-      limit: coupon.limit.toString(),
-      startDate: coupon.startDate,
-      endDate: coupon.endDate,
       status: coupon.status,
       description: coupon.description,
     });
     setIsDialogOpen(true);
   };
 
-  const handleDelete = (id) => {
-    // Implement delete functionality
-    console.log("Deleting coupon:", id);
+  const handleDelete = async (id) => {
+    Swal.fire({
+      title: "Are you sure ?",
+      text: "",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Delete",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const response = await fetch(`/api/admin/coupons`, {
+          method: "DELETE",
+          body: JSON.stringify({ id }),
+        });
+        const data = await response.json();
+        if (data?.rowCount > 0) {
+          Swal.fire({
+            title: "Deleted!",
+            text: "Your coupon has been deleted.",
+            icon: "success",
+          });
+          refetch();
+        }
+      }
+    });
   };
 
-  const handleSave = () => {
-    // Implement save functionality
-    console.log("Saving coupon:", formData);
-    setIsDialogOpen(false);
+  const handleSave = async () => {
+    try {
+      if (selectedCoupon) {
+        const response = await fetch(`/api/admin/coupons`, {
+          method: "PUT",
+          body: JSON.stringify({
+            id: selectedCoupon.id,
+            code: formData.code,
+            type: formData.type,
+            price: formData.price,
+            status: formData.status,
+            description: formData.description,
+          }),
+        });
+        if (response.ok) {
+          toast.success("Coupon updated successfully");
+          refetch();
+        } else {
+          toast.error("Failed to update coupon");
+        }
+      } else {
+        const response = await fetch("/api/admin/coupons", {
+          method: "POST",
+          body: JSON.stringify(formData),
+        });
+        if (response.ok) {
+          toast.success("Coupon created successfully");
+          refetch();
+        } else {
+          toast.error("Failed to create coupon");
+        }
+      }
+    } catch (error) {
+      console.error("Error saving coupon:", error);
+    } finally {
+      setIsDialogOpen(false);
+    }
   };
 
   return (
@@ -185,75 +194,81 @@ export default function Coupons() {
             </div>
           </div>
 
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[50px]">#</TableHead>
-                  <TableHead>Code</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Price</TableHead>
-                  <TableHead>Limit</TableHead>
-                  <TableHead>Used</TableHead>
-                  <TableHead>From</TableHead>
-                  <TableHead>To</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-center">Action</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredCoupons.map((coupon, index) => (
-                  <TableRow key={coupon.id}>
-                    <TableCell>{index + 1}</TableCell>
-                    <TableCell className="font-medium">{coupon.code}</TableCell>
-                    <TableCell>
-                      <span className="capitalize">{coupon.type}</span>
-                    </TableCell>
-                    <TableCell>
-                      {coupon.type === "percent"
-                        ? `${coupon.price}%`
-                        : `$${coupon.price}`}
-                    </TableCell>
-                    <TableCell>{coupon.limit}</TableCell>
-                    <TableCell>{coupon.used}</TableCell>
-                    <TableCell>{format(coupon.startDate, "PPP")}</TableCell>
-                    <TableCell>{format(coupon.endDate, "PPP")}</TableCell>
-                    <TableCell>
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs ${
-                          coupon.status === "active"
-                            ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100"
-                            : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100"
-                        }`}
-                      >
-                        {coupon.status}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex justify-center gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleEdit(coupon)}
-                          className="h-8 w-8"
-                        >
-                          <Pencil className="h-4 w-4 dark:text-white" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDelete(coupon.id)}
-                          className="h-8 w-8 text-destructive hover:text-destructive"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
+          {filteredCoupons.length > 0 ? (
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[50px]">#</TableHead>
+                    <TableHead>Code</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Price</TableHead>
+                    <TableHead>Used</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Description</TableHead>
+                    <TableHead className="text-center">Action</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                </TableHeader>
+                <TableBody>
+                  {filteredCoupons.map((coupon, index) => (
+                    <TableRow key={coupon.id}>
+                      <TableCell>{index + 1}</TableCell>
+                      <TableCell className="font-medium">
+                        {coupon.code}
+                      </TableCell>
+                      <TableCell>
+                        <span className="capitalize">{coupon.type}</span>
+                      </TableCell>
+                      <TableCell>
+                        {coupon.type === "percent"
+                          ? `${coupon.price}%`
+                          : `৳ ${coupon.price}`}
+                      </TableCell>
+                      <TableCell>{coupon.used_count || 0}</TableCell>
+                      <TableCell>
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs ${
+                            coupon.status === "active"
+                              ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100"
+                              : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100"
+                          }`}
+                        >
+                          {coupon.status === "active" ? "Active" : "Deactive"}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        {coupon.description.slice(0, 50)}...
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex justify-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleEdit(coupon)}
+                            className="h-8 w-8"
+                          >
+                            <Pencil className="h-4 w-4 dark:text-white" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDelete(coupon.id)}
+                            className="h-8 w-8 text-destructive hover:text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          ) : (
+            <div className="flex justify-center items-center h-full">
+              No coupons found
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -307,83 +322,8 @@ export default function Coupons() {
                 </Select>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="grid gap-2">
-                <Label>Start Date</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "justify-start text-left font-normal",
-                        !formData.startDate && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {formData.startDate ? (
-                        format(formData.startDate, "PPP")
-                      ) : (
-                        <span>Pick a date</span>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                    <Calendar
-                      mode="single"
-                      selected={formData.startDate}
-                      onSelect={(date) =>
-                        setFormData({ ...formData, startDate: date })
-                      }
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-              <div className="grid gap-2">
-                <Label>End Date</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "justify-start text-left font-normal",
-                        !formData.endDate && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {formData.endDate ? (
-                        format(formData.endDate, "PPP")
-                      ) : (
-                        <span>Pick a date</span>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                    <Calendar
-                      mode="single"
-                      selected={formData.endDate}
-                      onSelect={(date) =>
-                        setFormData({ ...formData, endDate: date })
-                      }
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="limit">Limit</Label>
-                <Input
-                  id="limit"
-                  type="number"
-                  value={formData.limit}
-                  onChange={(e) =>
-                    setFormData({ ...formData, limit: e.target.value })
-                  }
-                  placeholder="Enter limit"
-                />
-              </div>
+
+            <div className="grid grid-cols-1 gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="status">Status</Label>
                 <Select
@@ -419,7 +359,7 @@ export default function Coupons() {
             <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
               Cancel
             </Button>
-            <Button variant="primary" onClick={handleSave}>
+            <Button variant="primary" onClick={() => handleSave()}>
               {selectedCoupon ? "Save changes" : "Add Coupon"}
             </Button>
           </DialogFooter>
