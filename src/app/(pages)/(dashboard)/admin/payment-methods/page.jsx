@@ -129,8 +129,6 @@ export default function PaymentMethods() {
   };
 
   const handleSave = async () => {
-    console.log("this is form data", formData);
-    console.log("this is edit payment", editPayment);
     try {
       if (editPayment) {
         // Handle edit operation
