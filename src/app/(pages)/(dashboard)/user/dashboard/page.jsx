@@ -75,7 +75,7 @@ export default function Dashboard() {
   return (
     <div className=" space-y-6 mb-14">
       {/* Stats Cards */}
-      {session?.plan === "0" ? (
+      {session?.plan === "1" ? (
         <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
           <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 p-4 sm:p-6">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-5">
