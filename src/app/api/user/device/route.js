@@ -3,7 +3,7 @@ import { query } from "@/lib/db";
 
 export async function POST(req) {
   const { email, deviceInfo } = await req.json();
-  console.log(email, deviceInfo);
+  
   const ipAddress =
     req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip");
 

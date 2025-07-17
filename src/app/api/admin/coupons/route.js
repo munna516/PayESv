@@ -13,7 +13,7 @@ export async function GET(req) {
         `;
     const tableExists = await query(checkTableQuery);
     if (!tableExists.rows[0].exists) {
-      console.log("coupons table not found");
+     
       // create coupons table
       await query(`CREATE TABLE coupons (
                 id SERIAL PRIMARY KEY,
@@ -25,7 +25,7 @@ export async function GET(req) {
                 description TEXT NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );`);
-      console.log("coupons table created");
+    
     }
     const coupons = await query("SELECT * FROM coupons");
     return NextResponse.json(coupons);
@@ -40,7 +40,7 @@ export async function GET(req) {
 export async function POST(req) {
   const { code, type, price, status, description } = await req.json();
 
-  console.log(code, type, price, status, description);
+
   const coupon = await query(
     "INSERT INTO coupons (code, type, price, status, description) VALUES ($1, $2, $3, $4, $5)",
     [code, type, price, status, description]

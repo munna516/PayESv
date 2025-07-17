@@ -8,12 +8,9 @@ export async function POST(req) {
     const { amount, currency, customer, orderId, redirectUrl } =
       await req.json();
 
-    console.log(amount, currency, customer, orderId, redirectUrl);
-
     const apiKey = headers.get("x-api-key");
     const apiSecret = headers.get("x-api-secret");
     const brandKey = headers.get("x-brand-key");
-    console.log(apiKey, apiSecret, brandKey);
     if (!apiKey || !apiSecret || !brandKey) {
       return NextResponse.json(
         { error: "Missing required headers" },
@@ -42,7 +39,7 @@ export async function POST(req) {
       );
     }
 
-    const transactionId = uuidv4();
+    const id = uuidv4();
 
     //   check Transaction table exists or not
 
@@ -58,27 +55,30 @@ export async function POST(req) {
 
     if (!tableExists.rows[0].exists) {
       await query(`CREATE TABLE transactions (
-        id SERIAL PRIMARY KEY,
-        transaction_id VARCHAR(255) NOT NULL,
+        id VARCHAR(255) PRIMARY KEY NOT NULL,
+        payment_id VARCHAR(255),
+        transaction_id VARCHAR(255),
         order_id VARCHAR(255) NOT NULL,
         merchant_email VARCHAR(255) NOT NULL,
+        payment_method VARCHAR(255),
         amount DECIMAL(10, 2) NOT NULL,
         currency VARCHAR(3) NOT NULL,
         status VARCHAR(50) NOT NULL DEFAULT 'pending',
         customer_name VARCHAR(255) NOT NULL,
         customer_email VARCHAR(255) NOT NULL,
         customer_phone VARCHAR(20) NOT NULL,
-        redirect_url VARCHAR(255) NOT NULL,
+        redirect_success_url VARCHAR(255) NOT NULL,
+        redirect_failed_url VARCHAR(255) NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )`);
     }
     // ✅ Store pending transaction (optional but recommended)
-   const response = await query(
-      `INSERT INTO transactions (transaction_id, order_id, merchant_email, amount, currency, status, customer_name, customer_email, customer_phone, redirect_url)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+    const response = await query(
+      `INSERT INTO transactions (id, order_id, merchant_email, amount, currency, status, customer_name, customer_email, customer_phone, redirect_success_url, redirect_failed_url)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
       [
-        transactionId,
+        id,
         orderId,
         marchant_email,
         amount,
@@ -87,15 +87,16 @@ export async function POST(req) {
         customer.name,
         customer.email,
         customer.phone,
-        redirectUrl,
+        redirectUrl.success,
+        redirectUrl.failed,
       ]
     );
 
     return NextResponse.json(
       {
         message: "Transaction initiated",
-        transactionId,
-        redirectGatewayUrl: `https://checkout.payesv.com/pay/${transactionId}`,
+        id,
+        redirectGatewayUrl: `https://checkout.payesv.com/pay/${id}`,
       },
       { status: 200 }
     );
@@ -106,3 +107,5 @@ export async function POST(req) {
     );
   }
 }
+
+

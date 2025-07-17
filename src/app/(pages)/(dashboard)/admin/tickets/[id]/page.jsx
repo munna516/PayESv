@@ -26,7 +26,6 @@ export default function TicketDetails() {
   if (error) return <div>Error loading ticket details</div>;
 
   const handleStatusChange = async (newStatus) => {
-    console.log(newStatus);
     const res = await fetch(`/api/admin/tickets/${id}`, {
       method: "PUT",
       headers: {
