@@ -20,7 +20,10 @@ import {
 } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+import Loading from "@/components/Loading/Loading";
+import Image from "next/image";
 
 // Payment card data with logos
 const paymentCards = [
@@ -102,6 +105,8 @@ const netBanking = [
 export default function Checkout() {
   const router = useRouter();
 
+  const params = useParams();
+
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null);
   const [activeTab, setActiveTab] = useState("card");
   const [affiliateLink, setAffiliateLink] = useState(
@@ -116,19 +121,44 @@ export default function Checkout() {
     router.push(paymentInfo?.bkashURL);
   };
 
-  return (
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["paymentInfo", params?.id],
+    queryFn: () =>
+      fetch(`/api/user/paymentpage?transactionId=${params?.id}`).then((res) =>
+        res.json()
+      ),
+    enabled: !!params?.id,
+  });
+
+  if (isLoading) return <Loading />;
+
+  const paymentInfo = data;
+  console.log(paymentInfo);
+  return paymentInfo?.error ? (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 ">
+      <div className="max-w-3xl mx-auto">
+        <div className="text-red-500 text-center text-3xl font-bold">
+          {paymentInfo?.error}
+        </div>
+      </div>
+    </div>
+  ) : (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 ">
       <div className="max-w-3xl mx-auto">
         {/* Main Card */}
         <Card className="w-full shadow-lg">
           <CardHeader>
             <CardTitle className=" text-center flex items-center justify-center gap-5 mb-3">
-              <img
+              <Image
                 className="h-10 w-10 rounded-lg"
-                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQa9KAOGV7c9MnH37PVl4I9hDNsE9IPLrLrrw&s"
-                alt=""
+                src={paymentInfo?.brand_logo}
+                alt={paymentInfo?.brand_name}
+                width={40}
+                height={40}
               />
-              <h1 className="text-green-500 text-3xl font-bold">SMMXZ</h1>
+              <h1 className="text-green-500 text-3xl font-bold">
+                {paymentInfo?.brand_name}
+              </h1>
             </CardTitle>
           </CardHeader>
           <CardContent>
