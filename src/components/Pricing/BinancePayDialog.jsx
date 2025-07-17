@@ -44,7 +44,6 @@ export default function BinancePayDialog({
       return;
     }
 
-    console.log(binanceOrderId, amount, currency, plan, email, yearly);
     setIsLoading(true);
     const response = await fetch("/api/binance/verify-payment", {
       method: "POST",

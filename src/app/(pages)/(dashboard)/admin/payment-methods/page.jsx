@@ -147,7 +147,7 @@ export default function PaymentMethods() {
           }),
         });
         const data = await response.json();
-        console.log("Edit response:", data);
+       
         if (data?.rowCount > 0) {
           toast.success("Payment method updated");
           refetch();
@@ -170,7 +170,7 @@ export default function PaymentMethods() {
           }),
         });
         const data = await response.json();
-        console.log("Add response:", data);
+        
         if (data?.rowCount > 0) {
           toast.success("Payment method created successfully");
           refetch();

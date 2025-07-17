@@ -98,6 +98,6 @@ export async function PUT(req) {
     status,
     brandKey,
   ]);
-  console.log("this is the result", result);
+  
   return NextResponse.json(result);
 }

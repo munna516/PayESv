@@ -148,12 +148,12 @@ export default function Plans() {
 
   const handleDelete = (id) => {
     // Implement delete functionality
-    console.log("Deleting plan:", id);
+    
   };
 
   const handleSave = () => {
     // Implement save functionality
-    console.log("Saving plan:", formData);
+    
     setIsDialogOpen(false);
   };
 

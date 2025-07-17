@@ -28,7 +28,7 @@ export const POST = async (request) => {
     "INSERT INTO users (name, email, phone, password_hash, status, role) VALUES ($1, $2, $3, $4, $5, $6)",
     [name, email, phone, password_hash, status, role]
   );
-  console.log("this is staff", staff);
+  
   return NextResponse.json(staff);
 };
 

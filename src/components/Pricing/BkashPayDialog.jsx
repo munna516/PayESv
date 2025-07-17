@@ -20,7 +20,6 @@ export default function BkashPayDialog({
   const [isLoading, setIsLoading] = useState(false);
   const handlePayNow = async () => {
     try {
-      console.log(websiteQuantity);
       setIsLoading(true);
       const response = await fetch("/api/payment/create", {
         method: "POST",

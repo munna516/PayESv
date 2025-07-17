@@ -15,7 +15,7 @@ export const POST = async (request) => {
   const userExists = await query("SELECT * FROM users WHERE email = $1", [
     email,
   ]);
-  console.log("this is userExists", userExists);
+  
   if (userExists.rowCount > 0) {
     return NextResponse.json({ error: "User already exists" });
   }
@@ -27,7 +27,7 @@ export const POST = async (request) => {
     "INSERT INTO users (name, email, phone, password_hash, status) VALUES ($1, $2, $3, $4, $5)",
     [name, email, phone, password_hash, status]
   );
-  console.log("this is user", user);
+  
   return NextResponse.json(user);
 };
 

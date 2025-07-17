@@ -36,7 +36,7 @@ export default function Devices() {
       method: "GET",
     });
     const data = await res.json();
-    console.log(data);
+   
     setDevices(data?.rows);
   };
 

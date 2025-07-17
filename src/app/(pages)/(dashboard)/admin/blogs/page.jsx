@@ -56,7 +56,6 @@ export default function Blogs() {
   if (isLoading) return <Loading />;
   const blogs = data?.rows;
 
-  console.log("this is blogs", blogs);
 
   const filteredBlogs = blogs
     ?.filter((blog) => {
