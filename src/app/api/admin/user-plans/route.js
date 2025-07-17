@@ -6,7 +6,7 @@ export async function GET(req) {
     const userPlans = await query(
       `SELECT * FROM user_plan where status = 'Active'`
     );
-    console.log(userPlans);
+   
     return NextResponse.json(userPlans);
   } catch (error) {
     return NextResponse.json(

@@ -92,7 +92,7 @@ export default function AdminProfile() {
       toast.error("Location cannot be empty");
     }
 
-    console.log("editedProfile", editedProfile);
+    
 
     const res = await fetch(`/api/user/profile`, {
       method: "PUT",

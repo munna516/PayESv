@@ -134,7 +134,7 @@ export default function Profile() {
       }),
     });
     const data = await res.json();
-    console.log(data);
+
     if (data.rowCount > 0) {
       setIsChangingPassword(false);
       toast.success("Password changed successfully!");

@@ -57,7 +57,7 @@ export default function Device() {
 
   const handleDelete = (id) => {
     // Implement delete functionality
-    console.log("Delete device:", id);
+  
   };
 
   return (

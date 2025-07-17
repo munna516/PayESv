@@ -16,7 +16,6 @@ export async function GET(req) {
 export async function PUT(req) {
   try {
     const { brand_key, status } = await req.json();
-    console.log(brand_key, status);
     const res = await query(
       `UPDATE brands SET status = $1 WHERE brand_key = $2`,
       [status, brand_key]

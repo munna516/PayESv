@@ -12,119 +12,57 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Mail,
-  MessageCircle,
-  Link as LinkIcon,
-  HelpCircle,
-} from "lucide-react";
-import { Label } from "@/components/ui/label";
-import Link from "next/link";
+import { Mail, MessageCircle, HelpCircle } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import Loading from "@/components/Loading/Loading";
 import Image from "next/image";
-
-// Payment card data with logos
-const paymentCards = [
-  {
-    id: 1,
-    name: "DBBL",
-    logo: "https://play-lh.googleusercontent.com/xodZSlJ7hqm7i8Txsgyy8fQtTtSNtb9kywyVB2S8CqSUGUvRyB9brq0ExXsSbEWKFkw=w600-h300-pc0xffffff-pd",
-  },
-  {
-    id: 2,
-    name: "Visa",
-    logo: "https://logos-world.net/wp-content/uploads/2020/06/Visa-Logo-2006.png",
-  },
-  {
-    id: 3,
-    name: "MasterCard",
-    logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Mastercard_2019_logo.svg/1200px-Mastercard_2019_logo.svg.png",
-  },
-  {
-    id: 4,
-    name: "Amex ",
-    logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ3PDXjS8cxZpIsNmUPIHM0dQO73rq2PLojyZG3sbkj3xSkB9jW3SZJeM9jx6XyQ4cAzWc&usqp=CAU",
-  },
-];
-
-// Mobile payment options with logos
-const mobilePayments = [
-  {
-    id: 1,
-    name: "Bkash",
-    logo: "https://logos-download.com/wp-content/uploads/2022/01/BKash_Logo_icon-700x662.png",
-  },
-  {
-    id: 2,
-    name: "Nagad",
-    logo: "https://www.logo.wine/a/logo/Nagad/Nagad-Vertical-Logo.wine.svg",
-  },
-  {
-    id: 3,
-    name: "Rocket",
-    logo: "https://images.seeklogo.com/logo-png/31/1/dutch-bangla-rocket-logo-png_seeklogo-317692.png",
-  },
-  {
-    id: 4,
-    name: "Upay",
-    logo: "https://channelreport.upaybd.com/static/media/logo.png",
-  },
-  {
-    id: 5,
-    name: "Ok Walltet",
-    logo: "https://okwallet.com.bd/images/bs-img.png",
-  },
-];
-
-// Net banking options with logos
-const netBanking = [
-  {
-    id: 1,
-    name: "Binance",
-    logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Binance_Logo.svg/640px-Binance_Logo.svg.png",
-  },
-  {
-    id: 2,
-    name: "Stripe",
-    logo: "https://memberpress.com/wp-content/uploads/2017/09/Integrations-Stripe-1724x970-1.svg",
-  },
-  {
-    id: 3,
-    name: "PayPal",
-    logo: "https://downloadr2.apkmirror.com/wp-content/uploads/2018/08/5b6b880550789.png",
-  },
-  {
-    id: 4,
-    name: "Payoneer",
-    logo: "https://clemta.com/wp-content/uploads/2023/05/Payoneer.png",
-  },
-];
+import react from "@heroicons/react";
 
 export default function Checkout() {
   const router = useRouter();
-
   const params = useParams();
+  const [loading, setLoading] = useState(false);
 
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null);
-  const [activeTab, setActiveTab] = useState("card");
-  const [affiliateLink, setAffiliateLink] = useState(
-    "https://smmxz.com/ref/user123"
-  ); // Replace with actual user's affiliate link
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(affiliateLink);
-    // You can add a toast notification here
-  };
+  const [activeTab, setActiveTab] = useState("mobile");
 
-  const handlePayNow = () => {
-    router.push(paymentInfo?.bkashURL);
+  const handlePayNow = async () => {
+    // router.push(paymentInfo?.bkashURL);
+
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/user/bkash/payment-create`, {
+        method: "POST",
+        body: JSON.stringify({
+          email: info?.customer_email,
+          amount: info?.amount,
+          currency: info?.currency,
+          apiKey: walletInfo?.api_key,
+          apiSecret: walletInfo?.api_secret,
+          username: walletInfo?.username,
+          password: walletInfo?.password,
+          environment: walletInfo?.environment,
+          marchant_number: walletInfo?.merchant_number,
+          p_id: params?.id,
+        }),
+      });
+      if (response.ok) {
+        const url = await response.json();
+        setLoading(false);
+        router.push(url);
+      } else {
+        toast.error("Payment failed");
+      }
+    } catch (error) {
+      toast.error("Payment failed");
+    } 
   };
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["paymentInfo", params?.id],
     queryFn: () =>
-      fetch(`/api/user/paymentpage?transactionId=${params?.id}`).then((res) =>
+      fetch(`/api/user/paymentpage?Id=${params?.id}`).then((res) =>
         res.json()
       ),
     enabled: !!params?.id,
@@ -132,17 +70,26 @@ export default function Checkout() {
 
   if (isLoading) return <Loading />;
 
-  const paymentInfo = data;
-  console.log(paymentInfo);
-  return paymentInfo?.error ? (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 ">
-      <div className="max-w-3xl mx-auto">
-        <div className="text-red-500 text-center text-3xl font-bold">
-          {paymentInfo?.error}
+  if (data?.error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 ">
+        <div className="max-w-3xl mx-auto">
+          <div className="text-red-500 text-center text-3xl font-bold">
+            {data?.error}
+          </div>
         </div>
       </div>
-    </div>
-  ) : (
+    );
+  }
+  const { brand: paymentInfo, info, paymentMethods, walletInfo } = data || {};
+
+  const mobilePayments = paymentMethods.map((method) => ({
+    id: method.id,
+    name: method.method_name,
+    logo: method.method_logo,
+  }));
+
+  return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 ">
       <div className="max-w-3xl mx-auto">
         {/* Main Card */}
@@ -163,13 +110,14 @@ export default function Checkout() {
           </CardHeader>
           <CardContent>
             <Tabs
-              defaultValue="card"
               className="w-full"
+              defaultValue="mobile"
               onValueChange={(value) => setActiveTab(value)}
             >
               <TabsList className="grid w-full grid-cols-3 mb-8">
                 <TabsTrigger
                   value="card"
+                  disabled
                   className={`flex items-center gap-2 ${
                     activeTab === "card" ? "bg-green-500 text-white" : ""
                   }`}
@@ -188,6 +136,7 @@ export default function Checkout() {
                 </TabsTrigger>
                 <TabsTrigger
                   value="netbanking"
+                  disabled
                   className={`flex items-center gap-2 ${
                     activeTab === "netbanking"
                       ? "bg-green-500 text-red-500"
@@ -200,7 +149,7 @@ export default function Checkout() {
               </TabsList>
 
               {/* Card Payment Tab */}
-              <TabsContent value="card">
+              {/* <TabsContent value="card">
                 <div className="grid grid-cols-3 gap-4">
                   {paymentCards.map((card) => (
                     <div
@@ -225,7 +174,7 @@ export default function Checkout() {
                     </div>
                   ))}
                 </div>
-              </TabsContent>
+              </TabsContent> */}
 
               {/* Mobile Payment Tab */}
               <TabsContent value="mobile">
@@ -243,9 +192,11 @@ export default function Checkout() {
                       }
                     >
                       <div className="w-12 h-12 flex items-center justify-center">
-                        <img
+                        <Image
                           src={payment.logo}
                           alt={payment.name}
+                          height={40}
+                          width={40}
                           className="object-contain"
                         />
                       </div>
@@ -256,7 +207,7 @@ export default function Checkout() {
               </TabsContent>
 
               {/* Net Banking Tab */}
-              <TabsContent value="netbanking">
+              {/* <TabsContent value="netbanking">
                 <div className="grid grid-cols-3 gap-4">
                   {netBanking.map((bank) => (
                     <div
@@ -281,7 +232,7 @@ export default function Checkout() {
                     </div>
                   ))}
                 </div>
-              </TabsContent>
+              </TabsContent> */}
             </Tabs>
 
             {/* Pay Button */}
@@ -291,12 +242,12 @@ export default function Checkout() {
                 disabled={!selectedPaymentMethod}
                 onClick={handlePayNow}
               >
-                Pay Now
+                {loading ? "Processing..." : "Pay Now"}
               </Button>
             </div>
 
             {/* Support and Affiliate Section */}
-            <div className="mt-2 space-y-4 flex items-center justify-center">
+            <div className="mt-5 space-y-4 flex items-center justify-center">
               {/* Support Dialog */}
               <Dialog className="w-1/2">
                 <DialogTrigger asChild>
@@ -324,19 +275,6 @@ export default function Checkout() {
                   </div>
                 </DialogContent>
               </Dialog>
-
-              {/* Affiliate Link Section */}
-              <div className=" w-1/2border rounded-lg p-4">
-                <Link
-                  href="https://smmxz.com/ref/user123"
-                  className="flex items-center gap-2 mb-2"
-                >
-                  <LinkIcon className="h-4 w-4 text-green-600" />
-                  <Label className="text-sm font-medium">
-                    Try This Gateway
-                  </Label>
-                </Link>
-              </div>
             </div>
           </CardContent>
         </Card>

@@ -69,7 +69,7 @@ export default function Transactions() {
       `/api/user/plan?email=${encodeURIComponent(session?.user?.email)}`
     );
     const data = await response.json();
-    console.log(data);
+
     setData(data);
     setIsLoading(false);
   };
@@ -106,7 +106,7 @@ export default function Transactions() {
 
   const handleAddBrand = async (e) => {
     e.preventDefault();
-    console.log(brandName, brandUrl, status, brandLogo);
+    
     const res = await fetch("/api/user/brand", {
       method: "POST",
       body: JSON.stringify({
