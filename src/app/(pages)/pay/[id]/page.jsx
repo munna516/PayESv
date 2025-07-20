@@ -56,15 +56,13 @@ export default function Checkout() {
       }
     } catch (error) {
       toast.error("Payment failed");
-    } 
+    }
   };
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["paymentInfo", params?.id],
     queryFn: () =>
-      fetch(`/api/user/paymentpage?Id=${params?.id}`).then((res) =>
-        res.json()
-      ),
+      fetch(`/api/user/paymentpage?Id=${params?.id}`).then((res) => res.json()),
     enabled: !!params?.id,
   });
 
@@ -72,7 +70,7 @@ export default function Checkout() {
 
   if (data?.error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 ">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="max-w-3xl mx-auto">
           <div className="text-red-500 text-center text-3xl font-bold">
             {data?.error}

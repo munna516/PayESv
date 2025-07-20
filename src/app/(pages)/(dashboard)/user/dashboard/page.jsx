@@ -1,14 +1,5 @@
 "use client";
-
-import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -19,58 +10,23 @@ import {
 } from "@/components/ui/table";
 import { Wallet, Clock, CreditCard } from "lucide-react";
 import { useSession } from "next-auth/react";
+import { useQuery } from "@tanstack/react-query";
+import Loading from "@/components/Loading/Loading";
 
 export default function Dashboard() {
-  const [timePeriod, setTimePeriod] = useState("today");
 
   const { data: session } = useSession();
 
-  // Mock data - replace with actual data from your backend
-  const stats = {
-    balance: 2500.0,
-    successfulTransactions: 1500.0,
-    pendingTransactions: 500.0,
-    payments: 2000.0,
-  };
+  const { data: transactions, isLoading } = useQuery({
+    queryKey: ["transactions"],
+    queryFn: () =>
+      fetch(`/api/user/transactions?email=${session?.user?.email}`).then(
+        (res) => res.json()
+      ),
+    enabled: !!session?.user?.email,
+  });
 
-  const transactions = [
-    {
-      id: 1,
-      type: "successful",
-      amount: 500.0,
-      date: "2024-03-20",
-      time: "14:30",
-      description: "Payment received",
-      from: "John Doe",
-      to: "Your Account",
-      status: "Completed",
-      reference: "TRX-123456",
-    },
-    {
-      id: 2,
-      type: "pending",
-      amount: 300.0,
-      date: "2024-03-20",
-      time: "15:45",
-      description: "Payment processing",
-      from: "Your Account",
-      to: "ABC Company",
-      status: "Processing",
-      reference: "TRX-123457",
-    },
-    {
-      id: 3,
-      type: "successful",
-      amount: 750.0,
-      date: "2024-03-19",
-      time: "10:15",
-      description: "Salary deposit",
-      from: "Company XYZ",
-      to: "Your Account",
-      status: "Completed",
-      reference: "TRX-123458",
-    },
-  ];
+  if (isLoading) return <Loading />;
 
   return (
     <div className=" space-y-6 mb-14">
@@ -86,7 +42,7 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-xl sm:text-2xl font-bold text-green-600 dark:text-green-400">
-                ${stats.balance.toFixed(2)}
+              ৳ {transactions?.successAmount||0}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
                 Available for withdrawal
@@ -102,7 +58,7 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-xl sm:text-2xl font-bold text-green-600 dark:text-green-400">
-                ${stats.balance.toFixed(2)}
+              ৳ {transactions?.successAmount ||0}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
                 Total successful transactions
@@ -119,7 +75,7 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
-                ${stats.pendingTransactions.toFixed(2)}
+              ৳ {transactions?.pendingAmount ||0}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
                 Awaiting confirmation
@@ -136,7 +92,7 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                ${stats.payments.toFixed(2)}
+              ৳ {transactions?.allPayments ||0}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
                 Processed payments
@@ -155,7 +111,7 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-xl sm:text-2xl font-bold text-green-600 dark:text-green-400">
-                ${stats.balance.toFixed(2)}
+              ৳{transactions?.todayAmount ||0}
               </div>
             </CardContent>
           </Card>
@@ -168,7 +124,7 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-xl sm:text-2xl font-bold text-green-600 dark:text-green-400">
-                ${stats.balance.toFixed(2)}
+              ৳{transactions?.yesterdayAmount ||0}
               </div>
             </CardContent>
           </Card>
@@ -182,7 +138,7 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
-                ${stats.pendingTransactions.toFixed(2)}
+              ৳{transactions?.last7DaysAmount ||0}
               </div>
             </CardContent>
           </Card>
@@ -196,7 +152,7 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                ${stats.payments.toFixed(2)}
+              ৳{transactions?.last30DaysAmount ||0}
               </div>
             </CardContent>
           </Card>
@@ -207,17 +163,6 @@ export default function Dashboard() {
       <Card className="w-full dark:bg-slate-700">
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Transaction History</CardTitle>
-          <Select value={timePeriod} onValueChange={setTimePeriod}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select time period" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="today">Today</SelectItem>
-              <SelectItem value="week">This Week</SelectItem>
-              <SelectItem value="month">This Month</SelectItem>
-              <SelectItem value="year">This Year</SelectItem>
-            </SelectContent>
-          </Select>
         </CardHeader>
         <CardContent>
           <div className="rounded-md">
@@ -234,27 +179,34 @@ export default function Dashboard() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {transactions.map((transaction) => (
-                  <TableRow key={transaction.id}>
-                    <TableCell className="">{transaction.date}</TableCell>
-                    <TableCell className="">${transaction.amount}</TableCell>
+                {transactions?.transactions.map((transaction) => (
+                  <TableRow key={transaction?.id}>
+                    <TableCell className="">
+                      {transaction.created_at.split("T")[0]}
+                    </TableCell>
+                    <TableCell className="">৳ {transaction.amount}</TableCell>
 
-                    <TableCell className="">{transaction.time}</TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      {transaction.from}
+                    <TableCell className="">
+                      {transaction.created_at.split("T")[1].split(".")[0]}
                     </TableCell>
                     <TableCell className="hidden md:table-cell">
-                      {transaction.to}
+                      {transaction.customer_name}
                     </TableCell>
-                    <TableCell className="">{transaction.reference}</TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      {transaction.merchant_email}
+                    </TableCell>
+                    <TableCell className="">{transaction.transaction_id || '--------------'}</TableCell>
                     <TableCell
                       className={`${
-                        transaction.type == "pending"
+                        transaction.status == "pending"
                           ? "text-yellow-500 font-bold"
-                          : "text-green-500 font-bold"
+                          : transaction.status == "success"
+                          ? "text-green-500 font-bold"
+                          : "text-red-500 font-bold"
                       }`}
                     >
-                      {transaction.type}
+                      {transaction.status.charAt(0).toUpperCase() +
+                        transaction.status.slice(1)}
                     </TableCell>
                   </TableRow>
                 ))}
