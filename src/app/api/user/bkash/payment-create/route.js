@@ -2,12 +2,6 @@ import { query } from "@/lib/db";
 import { NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid";
 
-// const BKASH_BASE_URL = process.env.BKASH_BASE_URL;
-// const BKASH_APP_KEY = process.env.BKASH_APP_KEY;
-// const BKASH_APP_SECRET = process.env.BKASH_APP_SECRET;
-// const BKASH_USERNAME = process.env.BKASH_USERNAME;
-// const BKASH_PASSWORD = process.env.BKASH_PASSWORD;
-
 const getToken = async (
   environment,
   username,

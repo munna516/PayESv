@@ -1,13 +1,7 @@
 "use client";
+import Loading from "@/components/Loading/Loading";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -16,45 +10,46 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
+import { useState, useMemo } from "react";
 
 export default function Transactions() {
-  const transactions = [
-    {
-      id: 1,
-      type: "successful",
-      amount: 500.0,
-      date: "2024-03-20",
-      time: "14:30",
-      from: "John Doe",
-      to: "Your Account",
-      status: "Completed",
-      transactionId: "TRX-123456",
+  const { data: session } = useSession();
+  const [searchTerm, setSearchTerm] = useState("");
+  
+  const { data: transactions, isLoading } = useQuery({
+    queryKey: ["user_transactions"],
+    queryFn: async () => {
+      const res = await fetch(
+        `/api/user/user-transactions?email=${session?.user?.email}`
+      );
+      return res.json();
     },
-    {
-      id: 2,
-      type: "pending",
-      amount: 300.0,
-      date: "2024-03-20",
-      time: "15:45",
-      from: "Your Account",
-      to: "ABC Company",
-      status: "Processing",
-      transactionId: "TRX-123457",
-    },
-    {
-      id: 3,
-      type: "successful",
-      amount: 750.0,
-      date: "2024-03-19",
-      time: "10:15",
-      from: "Company XYZ",
-      to: "Your Account",
-      status: "Completed",
-      transactionId: "TRX-123458",
-    },
-  ];
-  const [timePeriod, setTimePeriod] = useState("today");
+  });
+
+  // Filter transactions based on search term
+  const filteredTransactions = useMemo(() => {
+    if (!transactions || !searchTerm.trim()) {
+      return transactions;
+    }
+
+    const searchLower = searchTerm.toLowerCase();
+    return transactions.filter((transaction) => {
+      const amount = transaction?.amount?.toString() || "";
+      const customerName = transaction?.customer_name?.toLowerCase() || "";
+      const status = transaction?.status?.toLowerCase() || "";
+
+      return (
+        amount.includes(searchLower) ||
+        customerName.includes(searchLower) ||
+        status.includes(searchLower)
+      );
+    });
+  }, [transactions, searchTerm]);
+
+  if (isLoading) return <Loading />;
+
   return (
     <Card className="w-full dark:bg-slate-700">
       <CardHeader className="flex flex-row items-center justify-between mb-6">
@@ -62,19 +57,13 @@ export default function Transactions() {
           Transactions
         </CardTitle>
         <div>
-          <Input type="text" placeholder="Search" />
+          <Input 
+            type="text" 
+            placeholder="Search by amount, customer name, or status..." 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
-        <Select value={timePeriod} onValueChange={setTimePeriod}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Select time period" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="today">Today</SelectItem>
-            <SelectItem value="week">This Week</SelectItem>
-            <SelectItem value="month">This Month</SelectItem>
-            <SelectItem value="year">This Year</SelectItem>
-          </SelectContent>
-        </Select>
       </CardHeader>
       <CardContent>
         <div className="rounded-md">
@@ -91,29 +80,34 @@ export default function Transactions() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {transactions.map((transaction) => (
-                <TableRow key={transaction.id}>
-                  <TableCell className="">{transaction.date}</TableCell>
-                  <TableCell className="">${transaction.amount}</TableCell>
-
-                  <TableCell className="">{transaction.time}</TableCell>
-                  <TableCell className="hidden md:table-cell">
-                    {transaction.from}
+              {filteredTransactions?.map((transaction) => (
+                <TableRow key={transaction?.id}>
+                  <TableCell className="">
+                    {transaction?.created_at.split("T")[0]}
+                  </TableCell>
+                  <TableCell className=""> ৳ {transaction?.amount}</TableCell>
+                  <TableCell className="">
+                    {transaction.created_at.split("T")[1].split(".")[0]}
                   </TableCell>
                   <TableCell className="hidden md:table-cell">
-                    {transaction.to}
+                    {transaction?.customer_name}
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell">
+                    {transaction?.merchant_email}
                   </TableCell>
                   <TableCell className="">
-                    {transaction.transactionId}
+                    {transaction.transaction_id || "-------------"}
                   </TableCell>
                   <TableCell
                     className={`${
-                      transaction.type == "pending"
+                      transaction?.status == "success"
+                        ? "text-green-500 font-bold"
+                        : transaction?.status === "pending"
                         ? "text-yellow-500 font-bold"
-                        : "text-green-500 font-bold"
+                        : "text-red-500 font-bold"
                     }`}
                   >
-                    {transaction.type}
+                    {transaction?.status}
                   </TableCell>
                 </TableRow>
               ))}
