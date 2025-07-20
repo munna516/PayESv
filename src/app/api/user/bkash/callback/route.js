@@ -51,7 +51,6 @@ export async function GET(req) {
       }
     );
     const data = await payment.json();
-    
     if (data?.statusCode === "0000") {
       const updateTransaction = await query(
         `UPDATE transactions SET status = $1, transaction_id = $2, payment_method = $3 WHERE payment_id = $4`,
