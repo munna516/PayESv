@@ -64,6 +64,8 @@ export default function Sidebar({
   setMobileSidebar,
 }) {
   const { data: session } = useSession();
+
+  
   const pathname = usePathname();
 
   const handleSignOut = () => {
@@ -118,28 +120,34 @@ export default function Sidebar({
       <div className="px-6 mt-4">
         <div className="text-xs text-gray-400 font-semibold mb-3">MAIN</div>
         <nav className="flex flex-col gap-1">
-          {navMain.map((item) => (
-            <Link
-              key={item.label}
-              href={item.href}
-              className={`flex items-center gap-3 px-3 py-2 rounded-md transition ${
-                isActive(item.href)
-                  ? " text-green-600 bg-green-100 dark:bg-white dark:text-green-600"
-                  : "text-gray-700 dark:text-white  hover:text-green-500 dark:hover:text-green-500"
-              } ${item.plan === 2 && "hidden"}`}
-            >
-              <item.icon
-                className={`w-5 h-5 lg:w-7 lg:h-7 font-semibold ${
-                  isActive(item.href) ? "" : ""
+          {navMain.map((item) => {
+            // Only show Withdraw if session?.plan === "2"
+            if (item.label === "Withdraw" && session?.plan !== "2") {
+              return null;
+            }
+            return (
+              <Link
+                key={item.label}
+                href={item.href}
+                className={`flex items-center gap-3 px-3 py-2 rounded-md transition ${
+                  isActive(item.href)
+                    ? " text-green-600 bg-green-100 dark:bg-white dark:text-green-600"
+                    : "text-gray-700 dark:text-white  hover:text-green-500 dark:hover:text-green-500"
                 }`}
-              />
-              {(isSidebarOpen || mobileSidebar) && (
-                <span className="text-sm lg:text-base font-semibold">
-                  {item.label}
-                </span>
-              )}
-            </Link>
-          ))}
+              >
+                <item.icon
+                  className={`w-5 h-5 lg:w-7 lg:h-7 font-semibold ${
+                    isActive(item.href) ? "" : ""
+                  }`}
+                />
+                {(isSidebarOpen || mobileSidebar) && (
+                  <span className="text-sm lg:text-base font-semibold">
+                    {item.label}
+                  </span>
+                )}
+              </Link>
+            );
+          })}
           
         </nav>
       </div>
