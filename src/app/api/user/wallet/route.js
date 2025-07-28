@@ -18,12 +18,14 @@ export async function GET(req) {
             id SERIAL PRIMARY KEY,
             email VARCHAR(255) NOT NULL,
             wallet_provider VARCHAR(255) NOT NULL,
-            merchant_number VARCHAR(255) NOT NULL,
-            api_key VARCHAR(255) NOT NULL,
-            api_secret VARCHAR(255) NOT NULL,
-            username VARCHAR(255) NOT NULL,
-            password VARCHAR(255) NOT NULL,
-            environment VARCHAR(255) NOT NULL,
+            merchant_number VARCHAR(255),
+            api_key VARCHAR(255),
+            api_secret VARCHAR(255),
+            username VARCHAR(255),
+            password VARCHAR(255),
+            binance_id VARCHAR(255),
+            binance_api_key VARCHAR(255),
+            binance_api_secret VARCHAR(255),
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
@@ -63,44 +65,74 @@ export async function POST(req) {
       { status: 400 }
     );
   }
-  const result = await query(
-    "INSERT INTO wallets (email, wallet_provider, merchant_number, api_key, api_secret, username, password, environment) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
-    [
-      email,
-      data?.walletProvider,
-      data?.merchantNumber,
-      data?.apiKey,
-      data?.apiSecret,
-      data?.username,
-      data?.password,
-      data?.environment,
-    ]
-  );
-  return NextResponse.json(
-    { message: "Wallet info saved successfully" },
-    { status: 200 },
-    result
-  );
+  if (type === "mobile") {
+    const result = await query(
+      "INSERT INTO wallets (email, wallet_provider, merchant_number, api_key, api_secret, username, password) VALUES ($1, $2, $3, $4, $5, $6, $7)",
+      [
+        email,
+        data?.walletProvider,
+        data?.merchantNumber,
+        data?.apiKey,
+        data?.apiSecret,
+        data?.username,
+        data?.password,
+      ]
+    );
+    return NextResponse.json(
+      { message: "Wallet info saved successfully" },
+      { status: 200 },
+      result
+    );
+  } else if (type === "netbank") {
+    const result = await query(
+      "INSERT INTO wallets (email, wallet_provider, binance_id, binance_api_key, binance_api_secret) VALUES ($1, $2, $3, $4, $5)",
+      [
+        email,
+        data?.walletProvider,
+        data?.binanceId,
+        data?.binanceApiKey,
+        data?.binanceApiSecret,
+      ]
+    );
+    return NextResponse.json(
+      { message: "Wallet info saved successfully" },
+      { status: 200 },
+      result
+    );
+  }
 }
 
 export async function PUT(req) {
   const { id, ...data } = await req.json();
-  const result = await query(
-    "UPDATE wallets SET merchant_number = $1, api_key = $2, api_secret = $3, username = $4, password = $5, environment = $6 WHERE id = $7",
-    [
-      data?.merchantNumber,
-      data?.apiKey,
-      data?.apiSecret,
-      data?.username,
-      data?.password,
-      data?.environment,
-      id,
-    ]
-  );
 
-  return NextResponse.json(
-    { message: "Wallet info updated successfully" },
-    { status: 200 },
-    result
-  );
+
+  if (data?.type === "mobile") {
+    const result = await query(
+      "UPDATE wallets SET merchant_number = $1, api_key = $2, api_secret = $3, username = $4, password = $5 WHERE id = $6",
+      [
+        data?.merchantNumber,
+        data?.apiKey,
+        data?.apiSecret,
+        data?.username,
+        data?.password,
+        id,
+      ]
+    );
+
+    return NextResponse.json(
+      { message: "Wallet info updated successfully" },
+      { status: 200 },
+      result
+    );
+  } else if (data?.type === "netbank") {
+    const result = await query(
+      "UPDATE wallets SET binance_id = $1, binance_api_key = $2, binance_api_secret = $3 WHERE id = $4",
+      [data?.binanceId, data?.binanceApiKey, data?.binanceApiSecret, id]
+    );
+    return NextResponse.json(
+      { message: "Wallet info updated successfully" },
+      { status: 200 },
+      result
+    );
+  }
 }

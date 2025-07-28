@@ -80,7 +80,7 @@ export default function Transactions() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredTransactions?.map((transaction) => (
+              {filteredTransactions?.length> 0 ? filteredTransactions?.map((transaction) => (
                 <TableRow key={transaction?.id}>
                   <TableCell className="">
                     {transaction?.created_at.split("T")[0]}
@@ -110,7 +110,7 @@ export default function Transactions() {
                     {transaction?.status}
                   </TableCell>
                 </TableRow>
-              ))}
+              )): <h1 className="text-center text-lg font-bold mt-5">No Transaction Found</h1>}
             </TableBody>
           </Table>
         </div>
