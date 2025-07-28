@@ -33,7 +33,7 @@ export default function Wallet() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingId, setEditingId] = useState(null);
-  const [activeTab, setActiveTab] = useState("mobile"); // Only mobile banking enabled
+  const [activeTab, setActiveTab] = useState("mobile");
 
   const [walletProvider, setWalletProvider] = useState("");
 
@@ -43,7 +43,13 @@ export default function Wallet() {
   const [apiSecret, setApiSecret] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [environment, setEnvironment] = useState("");
+
+  // Add new state for Binance fields
+  const [binanceProvider, setBinanceProvider] = useState("Binance");
+  const [binanceId, setBinanceId] = useState("");
+  const [binanceApiKey, setBinanceApiKey] = useState("");
+  const [binanceApiSecret, setBinanceApiSecret] = useState("");
+
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["wallet"],
     queryFn: () =>
@@ -62,13 +68,19 @@ export default function Wallet() {
   const mobileData =
     wallet?.filter((item) => item.wallet_provider === "bKash") || [];
 
+  const netBankingData =
+    wallet?.filter((item) => item.wallet_provider === "Binance") || [];
+
   const resetForm = () => {
     setMerchantNumber("");
     setApiKey("");
     setApiSecret("");
     setUsername("");
     setPassword("");
-    setEnvironment("");
+    setBinanceProvider("Binance");
+    setBinanceId("");
+    setBinanceApiKey("");
+    setBinanceApiSecret("");
     setIsEditMode(false);
     setEditingId(null);
   };
@@ -77,20 +89,28 @@ export default function Wallet() {
     setIsEditMode(true);
     setEditingId(item.id);
 
-    setWalletProvider(item.wallet_provider || "bKash");
-    setMerchantNumber(item.merchant_number || "");
-    setApiKey(item.api_key || "");
-    setApiSecret(item.api_secret || "");
-    setUsername(item.username || "");
-    setPassword(item.password || "");
-    setEnvironment(item.environment || "");
+    if (item.wallet_provider === "bKash") {
+      setActiveTab("mobile");
+      setWalletProvider(item.wallet_provider || "bKash");
+      setMerchantNumber(item.merchant_number || "");
+      setApiKey(item.api_key || "");
+      setApiSecret(item.api_secret || "");
+      setUsername(item.username || "");
+      setPassword(item.password || "");
+    } else if (item.wallet_provider === "Binance") {
+      setActiveTab("netbank");
+      setBinanceProvider(item.wallet_provider || "Binance");
+      setBinanceId(item.binance_id || "");
+      setBinanceApiKey(item.binance_api_key || "");
+      setBinanceApiSecret(item.binance_api_secret || "");
+    }
 
     setIsDialogOpen(true);
   };
 
   const handleAddNew = () => {
     resetForm();
-    setActiveTab("mobile"); // Only mobile banking enabled
+    setActiveTab("mobile");
     setIsDialogOpen(true);
   };
 
@@ -100,21 +120,16 @@ export default function Wallet() {
       return;
     }
     if (type === "mobile") {
-      if (
-        !merchantNumber ||
-        !apiKey ||
-        !apiSecret ||
-        !username ||
-        !password ||
-        !environment
-      ) {
+      if (!merchantNumber || !apiKey || !apiSecret || !username || !password) {
         toast.error("Please fill all the fields");
         return;
       }
     }
     if (type === "netbank") {
-      toast.error("Net Banking is disabled");
-      return;
+      if (!binanceId || !binanceApiKey || !binanceApiSecret) {
+        toast.error("Please fill all the fields");
+        return;
+      }
     }
 
     try {
@@ -176,13 +191,13 @@ export default function Wallet() {
                     : "Add Wallet Information"}
                 </DialogTitle>
                 <DialogDescription>
-                  Only Mobile Banking (bKash) is available for now.
+                  Add your payment method information
                 </DialogDescription>
               </DialogHeader>
 
               <Tabs
                 value={activeTab}
-                onValueChange={() => {}}
+                onValueChange={setActiveTab}
                 className="w-full"
               >
                 <TabsList className="grid w-full grid-cols-3">
@@ -190,9 +205,7 @@ export default function Wallet() {
                     Card
                   </TabsTrigger>
                   <TabsTrigger value="mobile">Mobile Banking</TabsTrigger>
-                  <TabsTrigger value="netbank" disabled>
-                    Net Banking
-                  </TabsTrigger>
+                  <TabsTrigger value="netbank">Net Banking</TabsTrigger>
                 </TabsList>
 
                 {/* Mobile Banking Section */}
@@ -248,15 +261,6 @@ export default function Wallet() {
                         type="password"
                       />
                     </div>
-                    <div>
-                      <Label>Environment</Label>
-                      <Input
-                        value={environment}
-                        required
-                        onChange={(e) => setEnvironment(e.target.value)}
-                        placeholder="Live"
-                      />
-                    </div>
 
                     <Button
                       variant="primary"
@@ -270,9 +274,64 @@ export default function Wallet() {
                             apiSecret,
                             username,
                             password,
-                            environment,
                           },
                           "mobile"
+                        )
+                      }
+                    >
+                      {isEditMode ? "Update Wallet Info" : "Save Wallet Info"}
+                    </Button>
+                  </div>
+                </TabsContent>
+
+                {/* Net Banking Section */}
+                <TabsContent value="netbank">
+                  <div className="space-y-4">
+                    <div>
+                      <Label>Provider</Label>
+                      <Input value="Binance" disabled />
+                    </div>
+                    <div>
+                      <Label>Binance ID</Label>
+                      <Input
+                        value={binanceId}
+                        required
+                        onChange={(e) => setBinanceId(e.target.value)}
+                        placeholder="Binance ID"
+                      />
+                    </div>
+                    <div>
+                      <Label>Binance API Key</Label>
+                      <Input
+                        value={binanceApiKey}
+                        required
+                        onChange={(e) => setBinanceApiKey(e.target.value)}
+                        placeholder="Binance API Key"
+                      />
+                    </div>
+                    <div>
+                      <Label>Binance API Secret</Label>
+                      <Input
+                        value={binanceApiSecret}
+                        required
+                        onChange={(e) => setBinanceApiSecret(e.target.value)}
+                        placeholder="Binance API Secret"
+                        type="password"
+                      />
+                    </div>
+
+                    <Button
+                      variant="primary"
+                      className="w-full mt-2"
+                      onClick={() =>
+                        handleSubmit(
+                          {
+                            walletProvider: "Binance",
+                            binanceId,
+                            binanceApiKey,
+                            binanceApiSecret,
+                          },
+                          "netbank"
                         )
                       }
                     >
@@ -321,6 +380,57 @@ export default function Wallet() {
                           <TableCell>{item.wallet_provider}</TableCell>
                           <TableCell>{item.merchant_number}</TableCell>
                           <TableCell>{item.api_key}</TableCell>
+
+                          <TableCell>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleEdit(item)}
+                            >
+                              <FaEdit className="text-green-500" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Net Banking Table */}
+          <div>
+            <h2 className="text-lg font-semibold mb-3">Net Banking</h2>
+            <Card>
+              <CardContent className="p-0">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Provider</TableHead>
+                      <TableHead>Binance ID</TableHead>
+                      <TableHead>Binance API Key</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {netBankingData.length === 0 ? (
+                      <TableRow>
+                        <TableCell
+                          colSpan={10}
+                          className="text-center text-gray-500"
+                        >
+                          No net banking information found
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      netBankingData.map((item) => (
+                        <TableRow key={item.id}>
+                          <TableCell>{item.email}</TableCell>
+                          <TableCell>{item.wallet_provider}</TableCell>
+                          <TableCell>{item.binance_id}</TableCell>
+                          <TableCell>{item.binance_api_key}</TableCell>
 
                           <TableCell>
                             <Button

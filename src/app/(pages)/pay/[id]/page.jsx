@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -17,45 +17,60 @@ import { useParams, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import Loading from "@/components/Loading/Loading";
 import Image from "next/image";
-import react from "@heroicons/react";
+import toast from "react-hot-toast";
+import BinancePay from "@/components/BinancePay/BinancePay";
 
 export default function Checkout() {
   const router = useRouter();
   const params = useParams();
   const [loading, setLoading] = useState(false);
+  const [showBinanceDialog, setShowBinanceDialog] = useState(false);
 
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null);
   const [activeTab, setActiveTab] = useState("mobile");
 
   const handlePayNow = async () => {
     // router.push(paymentInfo?.bkashURL);
-
-    try {
-      setLoading(true);
-      const response = await fetch(`/api/user/bkash/payment-create`, {
-        method: "POST",
-        body: JSON.stringify({
-          email: info?.customer_email,
-          amount: info?.amount,
-          currency: info?.currency,
-          apiKey: walletInfo?.api_key,
-          apiSecret: walletInfo?.api_secret,
-          username: walletInfo?.username,
-          password: walletInfo?.password,
-          environment: walletInfo?.environment,
-          marchant_number: walletInfo?.merchant_number,
-          p_id: params?.id,
-        }),
-      });
-      if (response.ok) {
-        const url = await response.json();
-        setLoading(false);
-        router.push(url);
-      } else {
-        toast.error("Payment failed");
+    if (selectedPaymentMethod === "Bkash") {
+      if (info.currency === "USDT" || info.currency === "USD") {
+        toast.error("Bkash is not available for USDT payment");
+        return;
       }
-    } catch (error) {
-      toast.error("Payment failed");
+      const bkashWallet = walletInfo.find((w) => w.wallet_provider == "bKash");
+      try {
+        setLoading(true);
+        const response = await fetch(`/api/user/bkash/payment-create`, {
+          method: "POST",
+          body: JSON.stringify({
+            email: info?.customer_email,
+            amount: info?.amount,
+            currency: info?.currency,
+            apiKey: bkashWallet?.api_key,
+            apiSecret: bkashWallet?.api_secret,
+            username: bkashWallet?.username,
+            password: bkashWallet?.password,
+            marchant_number: bkashWallet?.merchant_number,
+            p_id: params?.id,
+          }),
+        });
+        if (response.ok) {
+          const url = await response.json();
+          setLoading(false);
+          router.push(url);
+        } else {
+          toast.error("Payment failed");
+        }
+      } catch (error) {
+        toast.error("Payment failed");
+      } finally {
+        setLoading(false);
+      }
+    } else if (selectedPaymentMethod === "Binance") {
+      if (info.currency === "BDT") {
+        toast.error("Binance is not available for BDT payment");
+        return;
+      }
+      setShowBinanceDialog(true);
     }
   };
 
@@ -81,17 +96,27 @@ export default function Checkout() {
   }
   const { brand: paymentInfo, info, paymentMethods, walletInfo } = data || {};
 
-  const mobilePayments = paymentMethods.map((method) => ({
-    id: method.id,
-    name: method.method_name,
-    logo: method.method_logo,
-  }));
+  const mobilePayments = paymentMethods
+    .filter((method) => method.method_type === "Mobile Banking")
+    .map((method) => ({
+      id: method.id,
+      name: method.method_name,
+      logo: method.method_logo,
+    }));
+
+  const netBanking = paymentMethods
+    .filter((method) => method.method_type === "Net Banking")
+    .map((method) => ({
+      id: method.id,
+      name: method.method_name,
+      logo: method.method_logo,
+    }));
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 ">
+    <div className="min-h-screen flex items-center justify-center bg-white">
       <div className="max-w-3xl mx-auto">
         {/* Main Card */}
-        <Card className="w-full shadow-lg">
+        <Card className="w-full shadow-lg  border border-gray-300">
           <CardHeader>
             <CardTitle className=" text-center flex items-center justify-center gap-5 mb-3">
               <Image
@@ -134,7 +159,6 @@ export default function Checkout() {
                 </TabsTrigger>
                 <TabsTrigger
                   value="netbanking"
-                  disabled
                   className={`flex items-center gap-2 ${
                     activeTab === "netbanking"
                       ? "bg-green-500 text-red-500"
@@ -181,12 +205,12 @@ export default function Checkout() {
                     <div
                       key={payment.id}
                       className={`p-4 border rounded-lg cursor-pointer transition-all flex items-center gap-3 ${
-                        selectedPaymentMethod === `mobile-${payment.id}`
+                        selectedPaymentMethod === `${payment.name}`
                           ? "border-green-500 bg-green-50"
                           : "border-gray-200 hover:border-green-300"
                       }`}
                       onClick={() =>
-                        setSelectedPaymentMethod(`mobile-${payment.id}`)
+                        setSelectedPaymentMethod(`${payment.name}`)
                       }
                     >
                       <div className="w-12 h-12 flex items-center justify-center">
@@ -205,32 +229,36 @@ export default function Checkout() {
               </TabsContent>
 
               {/* Net Banking Tab */}
-              {/* <TabsContent value="netbanking">
+              <TabsContent value="netbanking">
                 <div className="grid grid-cols-3 gap-4">
-                  {netBanking.map((bank) => (
-                    <div
-                      key={bank.id}
-                      className={`p-4 border rounded-lg cursor-pointer transition-all flex items-center gap-3 ${
-                        selectedPaymentMethod === `bank-${bank.id}`
-                          ? "border-green-500 bg-green-50"
-                          : "border-gray-200 hover:border-green-300"
-                      }`}
-                      onClick={() =>
-                        setSelectedPaymentMethod(`bank-${bank.id}`)
-                      }
-                    >
-                      <div className="w-12 h-12 flex items-center justify-center">
-                        <img
-                          src={bank.logo}
-                          alt={bank.name}
-                          className="object-contain"
-                        />
+                  {netBanking?.length > 0 ? (
+                    netBanking?.map((bank) => (
+                      <div
+                        key={bank.id}
+                        className={`p-4 border rounded-lg cursor-pointer transition-all flex items-center gap-3 ${
+                          selectedPaymentMethod === `${bank.name}`
+                            ? "border-green-500 bg-green-50"
+                            : "border-gray-200 hover:border-green-300"
+                        }`}
+                        onClick={() => setSelectedPaymentMethod(`${bank.name}`)}
+                      >
+                        <div className="w-12 h-12 flex items-center justify-center">
+                          <img
+                            src={bank.logo}
+                            alt={bank.name}
+                            className="object-contain"
+                          />
+                        </div>
+                        <div className="font-medium">{bank.name}</div>
                       </div>
-                      <div className="font-medium">{bank.name}</div>
-                    </div>
-                  ))}
+                    ))
+                  ) : (
+                    <h1 className="text-center text-lg font-bold mt-5">
+                      No Net Banking Found
+                    </h1>
+                  )}
                 </div>
-              </TabsContent> */}
+              </TabsContent>
             </Tabs>
 
             {/* Pay Button */}
@@ -277,6 +305,12 @@ export default function Checkout() {
           </CardContent>
         </Card>
       </div>
+      <BinancePay
+        isOpen={showBinanceDialog}
+        onClose={() => setShowBinanceDialog(false)}
+        walletInfo={walletInfo}
+        info={info}
+      />
     </div>
   );
 }
