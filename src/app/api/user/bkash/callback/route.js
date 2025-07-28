@@ -31,9 +31,9 @@ export async function GET(req) {
     const redirect_success_url = userInfo.rows[0].redirect_success_url;
     const redirect_failed_url = userInfo.rows[0].redirect_failed_url;
 
-    const wallet = walletInfo.rows[0];
+    const wallet = walletInfo?.rows?.find((w) => w.wallet_provider === "bKash");
 
-    const BKASH_BASE_URL = wallet?.environment;
+    const BKASH_BASE_URL = process.env.BKASH_BASE_URL;
     const BKASH_APP_KEY = wallet?.api_key;
 
     const payment = await fetch(

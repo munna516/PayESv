@@ -2,14 +2,10 @@ import { query } from "@/lib/db";
 import { NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid";
 
-const getToken = async (
-  environment,
-  username,
-  password,
-  app_key,
-  app_secret
-) => {
-  const BKASH_BASE_URL = environment;
+const BKASH_BASE_URL = process.env.BKASH_BASE_URL;
+
+const getToken = async (username, password, app_key, app_secret) => {
+  const BKASH_BASE_URL = process.env.BKASH_BASE_URL;
   const BKASH_APP_KEY = app_key;
   const BKASH_APP_SECRET = app_secret;
   const BKASH_USERNAME = username;
@@ -65,14 +61,13 @@ export async function POST(req) {
     apiSecret,
     username,
     password,
-    environment,
     marchant_number,
     p_id,
   } = await req.json();
 
-  const id = await getToken(environment, username, password, apiKey, apiSecret);
+  const id = await getToken(username, password, apiKey, apiSecret);
 
-  const payment = await fetch(`${environment}/tokenized/checkout/create`, {
+  const payment = await fetch(`${BKASH_BASE_URL}/tokenized/checkout/create`, {
     method: "POST",
     headers: {
       authorization: `${id}`,

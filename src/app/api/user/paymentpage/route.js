@@ -25,12 +25,13 @@ export async function GET(req) {
   const wallet = await query("SELECT * FROM wallets WHERE email = $1", [
     url?.merchant_email,
   ]);
-  const walletInfo = wallet.rows[0];
 
-  const filteredPaymentMethods = paymentMethods.filter(
-    (method) =>
-      method.method_name.toLowerCase() ===
-      walletInfo?.wallet_provider?.toLowerCase()
+  const walletInfo = wallet.rows.map((wallet) =>
+    wallet.wallet_provider?.toLowerCase()
+  );
+
+  const filteredPaymentMethods = paymentMethods.filter((method) =>
+    walletInfo.includes(method.method_name?.toLowerCase())
   );
 
   // ✅ Extract base URL
@@ -50,7 +51,7 @@ export async function GET(req) {
     brand: brand,
     paymentMethods: filteredPaymentMethods,
     info: info.rows[0],
-    walletInfo: walletInfo,
+    walletInfo: wallet.rows,
   };
 
   return NextResponse.json(data, { status: 200 });
