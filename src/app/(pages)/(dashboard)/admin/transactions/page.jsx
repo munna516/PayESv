@@ -140,7 +140,7 @@ export default function Transactions() {
                     </TableCell>
                     <TableCell className="hidden md:table-cell">
                       <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
-                        {transaction?.transactionid ? "bKash" : "Binance"}
+                        {transaction?.currency=== "BDT" ? "Bkash" : "Binance"}
                       </span>
                     </TableCell>
                     <TableCell>
