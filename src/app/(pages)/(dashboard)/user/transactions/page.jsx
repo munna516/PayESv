@@ -17,7 +17,7 @@ import { useState, useMemo } from "react";
 export default function Transactions() {
   const { data: session } = useSession();
   const [searchTerm, setSearchTerm] = useState("");
-  
+
   const { data: transactions, isLoading } = useQuery({
     queryKey: ["user_transactions"],
     queryFn: async () => {
@@ -57,9 +57,9 @@ export default function Transactions() {
           Transactions
         </CardTitle>
         <div>
-          <Input 
-            type="text" 
-            placeholder="Search by amount, customer name, or status..." 
+          <Input
+            type="text"
+            placeholder="Search by amount, customer name, or status..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -80,37 +80,47 @@ export default function Transactions() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredTransactions?.length> 0 ? filteredTransactions?.map((transaction) => (
-                <TableRow key={transaction?.id}>
-                  <TableCell className="">
-                    {transaction?.created_at.split("T")[0]}
-                  </TableCell>
-                  <TableCell className=""> ৳ {transaction?.amount}</TableCell>
-                  <TableCell className="">
-                    {transaction.created_at.split("T")[1].split(".")[0]}
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell">
-                    {transaction?.customer_name}
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell">
-                    {transaction?.merchant_email}
-                  </TableCell>
-                  <TableCell className="">
-                    {transaction.transaction_id || "-------------"}
-                  </TableCell>
-                  <TableCell
-                    className={`${
-                      transaction?.status == "success"
-                        ? "text-green-500 font-bold"
-                        : transaction?.status === "pending"
-                        ? "text-yellow-500 font-bold"
-                        : "text-red-500 font-bold"
-                    }`}
-                  >
-                    {transaction?.status}
+              {filteredTransactions?.length > 0 ? (
+                filteredTransactions?.map((transaction) => (
+                  <TableRow key={transaction?.id}>
+                    <TableCell className="">
+                      {transaction?.created_at.split("T")[0]}
+                    </TableCell>
+                    <TableCell className=""> ৳ {transaction?.amount}</TableCell>
+                    <TableCell className="">
+                      {transaction.created_at.split("T")[1].split(".")[0]}
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      {transaction?.customer_name}
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      {transaction?.merchant_email}
+                    </TableCell>
+                    <TableCell className="">
+                      {transaction.transaction_id || "-------------"}
+                    </TableCell>
+                    <TableCell
+                      className={`${
+                        transaction?.status == "success"
+                          ? "text-green-500 font-bold"
+                          : transaction?.status === "pending"
+                          ? "text-yellow-500 font-bold"
+                          : "text-red-500 font-bold"
+                      }`}
+                    >
+                      {transaction?.status}
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center">
+                    <span className="text-lg font-bold">
+                      No Transaction Found
+                    </span>
                   </TableCell>
                 </TableRow>
-              )): <h1 className="text-center text-lg font-bold mt-5">No Transaction Found</h1>}
+              )}
             </TableBody>
           </Table>
         </div>

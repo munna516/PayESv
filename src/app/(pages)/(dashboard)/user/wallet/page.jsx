@@ -167,7 +167,7 @@ export default function Wallet() {
   };
 
   return (
-    <Card className="mb-20">
+    <Card className="mb-20 dark:bg-slate-700">
       <CardContent className="p-6">
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -178,11 +178,15 @@ export default function Wallet() {
           </div>
 
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button variant="primary" onClick={handleAddNew}>
-                + Add Wallet Info
-              </Button>
-            </DialogTrigger>
+            {
+              (session?.plan == "1" || session?.plan == "2") && (
+                <DialogTrigger asChild>
+                  <Button variant="primary" onClick={handleAddNew}>
+                    + Add Wallet Info
+                  </Button>
+                </DialogTrigger>
+              )
+            }
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>
@@ -351,7 +355,7 @@ export default function Wallet() {
           {/* Mobile Banking Table */}
           <div>
             <h2 className="text-lg font-semibold mb-3">Mobile Banking</h2>
-            <Card>
+            <Card  className="dark:bg-slate-700">
               <CardContent className="p-0">
                 <Table>
                   <TableHeader>
@@ -402,7 +406,7 @@ export default function Wallet() {
           {/* Net Banking Table */}
           <div>
             <h2 className="text-lg font-semibold mb-3">Net Banking</h2>
-            <Card>
+            <Card className="dark:bg-slate-700">
               <CardContent className="p-0">
                 <Table>
                   <TableHeader>

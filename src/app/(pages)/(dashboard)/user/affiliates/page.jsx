@@ -3,13 +3,9 @@
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+
 import {
   Copy,
-  Users,
-  UserCircle,
-  ChevronDown,
-  ChevronUp,
   Link,
   Percent,
   Wallet,
@@ -53,43 +49,43 @@ export default function Affiliates() {
     },
     {
       title: "Minimum Payout",
-      value: "$50",
+      value: "1000 BDT",
       icon: Wallet,
     },
     {
       title: "Visits",
-      value: "1,234",
+      value: "0",
       icon: Eye,
     },
     {
       title: "Registrations",
-      value: "56",
+      value: "0",
       icon: UserPlus,
     },
     {
       title: "Referrals",
-      value: "23",
+      value: "0",
       icon: Users2,
     },
     {
       title: "Conversion Rate",
-      value: "4.5%",
+      value: "3.2%",
       icon: TrendingUp,
     },
     {
       title: "Total Earnings",
-      value: "$1,234",
+      value: "0 BDT",
       icon: DollarSign,
     },
     {
       title: "Available Earnings",
-      value: "$567",
+      value: "0 BDT",
       icon: CreditCard,
     },
   ];
 
   return (
-    <Card className="p-6">
+    <Card className="p-6 dark:bg-gray-800">
       <CardHeader>
         <CardTitle className="text-3xl font-bold tracking-tight">
           Affiliates
@@ -106,7 +102,7 @@ export default function Affiliates() {
                 <stat.icon className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{stat.value}</div>
+                <div className="text-xl font-bold">{stat.value}</div>
                 {stat.action && <div className="mt-4">{stat.action}</div>}
               </CardContent>
             </Card>
