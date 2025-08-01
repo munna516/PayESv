@@ -43,7 +43,7 @@ const navMain = [
     href: "/user/bank-transactions",
   },
   { label: "Invoices", icon: FileText, href: "/user/invoice" },
-  { label: "Add Invoice", icon: PlusSquare, href: "/user/add-invoice" },
+  // { label: "Add Invoice", icon: PlusSquare, href: "/user/add-invoice" },
   { label: "Stored Data", icon: Database, href: "/user/stored-data" },
   { label: "Brand", icon: Building, href: "/user/brand" },
   { label: "Device", icon: Smartphone, href: "/user/device" },
