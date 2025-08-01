@@ -6,6 +6,14 @@ export const POST = async (request) => {
   try {
     const { email, password } = await request.json();
 
+    // check user status is active or not
+    const userStatus = await query("SELECT * FROM users WHERE email = $1 AND status = 'active'", [
+      email,
+    ]);
+    if (userStatus.rowCount === 0) { 
+      return NextResponse.json({ error: "User is not active" }, { status: 401 });
+    }
+
     // Check if user already exists
     const userExists = await query("SELECT * FROM users WHERE email = $1", [
       email,
