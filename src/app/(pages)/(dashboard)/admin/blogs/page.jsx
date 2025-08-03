@@ -54,8 +54,7 @@ export default function Blogs() {
     status: "active",
   });
   if (isLoading) return <Loading />;
-  const blogs = data?.rows;
-
+  const blogs = data?.rows || [];
 
   const filteredBlogs = blogs
     ?.filter((blog) => {

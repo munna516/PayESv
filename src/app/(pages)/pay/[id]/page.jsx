@@ -19,6 +19,9 @@ import Loading from "@/components/Loading/Loading";
 import Image from "next/image";
 import toast from "react-hot-toast";
 import BinancePay from "@/components/BinancePay/BinancePay";
+import Link from "next/link";
+const whatsappNumber = "+8801977693977";
+const whatsappUrl = `https://wa.me/${whatsappNumber}`;
 
 export default function Checkout() {
   const router = useRouter();
@@ -290,14 +293,11 @@ export default function Checkout() {
                     <DialogTitle>Contact Support</DialogTitle>
                   </DialogHeader>
                   <div className="space-y-4">
+                    <Link href={whatsappUrl} target="_blank">
                     <Button className="w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700">
                       <MessageCircle className="h-4 w-4" />
                       WhatsApp Support
-                    </Button>
-                    <Button className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700">
-                      <Mail className="h-4 w-4" />
-                      Email Support
-                    </Button>
+                    </Button></Link>
                   </div>
                 </DialogContent>
               </Dialog>

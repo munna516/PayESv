@@ -52,8 +52,8 @@ export default function Users() {
     password: "",
     status: "active",
   });
-  if (isLoading) return <Loading />
-  const users = data?.rows;
+  if (isLoading) return <Loading />;
+  const users = data?.rows || [];
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
