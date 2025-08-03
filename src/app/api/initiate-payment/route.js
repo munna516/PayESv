@@ -94,18 +94,16 @@ export async function POST(req) {
 
     return NextResponse.json(
       {
-        message: "Transaction initiated",
+        message: "Payment initiated successfully",
         id,
         redirectGatewayUrl: `https://checkout.payesv.com/pay/${id}`,
       },
       { status: 200 }
     );
   } catch (error) {
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({
+      status: "error",
+      message: "Invalid API Key or API Secret or Brand Key",
+    },{status: 400});
   }
 }
-
-

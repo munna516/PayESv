@@ -63,22 +63,22 @@ const Footer = () => {
                 </a>
               </li>
               <li>
-                <a href="#" className="text-white  text-base">
+                <a href="/resources" className="text-white  text-base">
                   Help & Support
                 </a>
               </li>
               <li>
-                <a href="#" className="text-white  text-base">
+                <a href="/resources" className="text-white  text-base">
                   Developer
                 </a>
               </li>
               <li>
-                <a href="#" className="text-white  text-base">
+                <a href="/resources" className="text-white  text-base">
                   Integration
                 </a>
               </li>
               <li>
-                <a href="#" className="text-white  text-base">
+                <a href="/resources" className="text-white  text-base">
                   Documentations
                 </a>
               </li>
@@ -121,7 +121,7 @@ const Footer = () => {
         {/* Copyright */}
         <div className="border-t border-white mt-12 pt-8 text-center text-white text-base">
           <p>
-            Copyright © 2015 - {new Date().getFullYear()} | All Rights Reserved,
+            Copyright © 2015 - {new Date().getFullYear()} | All Rights Reserved 
             PayESv
           </p>
         </div>
