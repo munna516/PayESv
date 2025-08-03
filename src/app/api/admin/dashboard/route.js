@@ -56,9 +56,12 @@ monthly_revenue AS (
   LEFT JOIN payment_history ph ON TO_CHAR(ph.created_at, 'YYYY-MM') = am.month AND ph.status = 'Success'
   GROUP BY am.month
   ORDER BY am.month
+),
+
+pending_invoices AS (
+    SELECT COUNT(*) AS count FROM transactions WHERE status = 'pending'
 )
-
-
+    
 SELECT
   tu.count AS total_users,
   ps.successful_transactions,
@@ -66,11 +69,13 @@ SELECT
   ps.total_earning_usdt,
   ps.total_earning_bdt,
   pt.count AS pending_tickets,
+  pi.count AS pending_invoices,
   (SELECT json_agg(json_build_object('month', mu.month, 'user_count', mu.user_count) ORDER BY mu.month) FROM monthly_users mu) AS monthly_users,
   (SELECT json_agg(json_build_object('month', mr.month, 'revenue', mr.revenue) ORDER BY mr.month) FROM monthly_revenue mr) AS monthly_revenue
 FROM total_users tu
 CROSS JOIN payment_stats ps
-CROSS JOIN pending_tickets pt;`
+CROSS JOIN pending_tickets pt
+CROSS JOIN pending_invoices pi;`
   );
   return NextResponse.json(dashboardData);
 }

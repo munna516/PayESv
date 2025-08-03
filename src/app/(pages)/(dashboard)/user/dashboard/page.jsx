@@ -25,7 +25,7 @@ export default function Dashboard() {
       ),
     enabled: !!session?.user?.email,
   });
-
+  
   if (isLoading) return <Loading />;
 
   return (
@@ -184,7 +184,7 @@ export default function Dashboard() {
                     <TableCell className="">
                       {transaction.created_at.split("T")[0]}
                     </TableCell>
-                    <TableCell className="">৳ {transaction.amount}</TableCell>
+                    <TableCell className="">{transaction?.currency == "BDT" ? "৳" : "$"} {transaction.amount}</TableCell>
 
                     <TableCell className="">
                       {transaction.created_at.split("T")[1].split(".")[0]}

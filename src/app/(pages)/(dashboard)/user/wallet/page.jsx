@@ -49,6 +49,7 @@ export default function Wallet() {
   const [binanceId, setBinanceId] = useState("");
   const [binanceApiKey, setBinanceApiKey] = useState("");
   const [binanceApiSecret, setBinanceApiSecret] = useState("");
+  const [binanceQrCode, setBinanceQrCode] = useState("");
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["wallet"],
@@ -81,6 +82,7 @@ export default function Wallet() {
     setBinanceId("");
     setBinanceApiKey("");
     setBinanceApiSecret("");
+    setBinanceQrCode("");
     setIsEditMode(false);
     setEditingId(null);
   };
@@ -103,6 +105,7 @@ export default function Wallet() {
       setBinanceId(item.binance_id || "");
       setBinanceApiKey(item.binance_api_key || "");
       setBinanceApiSecret(item.binance_api_secret || "");
+      setBinanceQrCode(item.binance_qr_code || "");
     }
 
     setIsDialogOpen(true);
@@ -126,7 +129,7 @@ export default function Wallet() {
       }
     }
     if (type === "netbank") {
-      if (!binanceId || !binanceApiKey || !binanceApiSecret) {
+      if (!binanceId || !binanceApiKey || !binanceApiSecret || !binanceQrCode) {
         toast.error("Please fill all the fields");
         return;
       }
@@ -247,12 +250,12 @@ export default function Wallet() {
                       />
                     </div>
                     <div>
-                      <Label>Username / App Key</Label>
+                      <Label>Username</Label>
                       <Input
                         value={username}
                         required
                         onChange={(e) => setUsername(e.target.value)}
-                        placeholder="Username / App Key"
+                        placeholder="Username"
                       />
                     </div>
                     <div>
@@ -324,6 +327,16 @@ export default function Wallet() {
                       />
                     </div>
 
+                    <div>
+                      <Label>Binance QR Code Link</Label>
+                      <Input
+                        value={binanceQrCode}
+                        required
+                        onChange={(e) => setBinanceQrCode(e.target.value)}
+                        placeholder="Binance QR Code Link"
+                      />
+                    </div>
+
                     <Button
                       variant="primary"
                       className="w-full mt-2"
@@ -334,6 +347,7 @@ export default function Wallet() {
                             binanceId,
                             binanceApiKey,
                             binanceApiSecret,
+                            binanceQrCode,
                           },
                           "netbank"
                         )
@@ -415,6 +429,7 @@ export default function Wallet() {
                       <TableHead>Provider</TableHead>
                       <TableHead>Binance ID</TableHead>
                       <TableHead>Binance API Key</TableHead>
+                      <TableHead>Binance QR Code Link</TableHead>
                       <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -435,6 +450,11 @@ export default function Wallet() {
                           <TableCell>{item.wallet_provider}</TableCell>
                           <TableCell>{item.binance_id}</TableCell>
                           <TableCell>{item.binance_api_key}</TableCell>
+                          <TableCell>
+                            <a href={item.binance_qr_code} target="_blank" className="text-blue-600 font-bold hover:underline">
+                              Link
+                            </a>
+                          </TableCell>
 
                           <TableCell>
                             <Button

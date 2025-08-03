@@ -55,7 +55,7 @@ export default function Staff() {
   });
 
   if (isLoading) return <Loading />;
-  const staffs = data?.rows;
+  const staffs = data?.rows||[];
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;

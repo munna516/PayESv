@@ -26,6 +26,7 @@ export async function GET(req) {
             binance_id VARCHAR(255),
             binance_api_key VARCHAR(255),
             binance_api_secret VARCHAR(255),
+            binance_qr_code VARCHAR(255),
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
@@ -85,13 +86,14 @@ export async function POST(req) {
     );
   } else if (type === "netbank") {
     const result = await query(
-      "INSERT INTO wallets (email, wallet_provider, binance_id, binance_api_key, binance_api_secret) VALUES ($1, $2, $3, $4, $5)",
+      "INSERT INTO wallets (email, wallet_provider, binance_id, binance_api_key, binance_api_secret, binance_qr_code) VALUES ($1, $2, $3, $4, $5, $6)",
       [
         email,
         data?.walletProvider,
         data?.binanceId,
         data?.binanceApiKey,
         data?.binanceApiSecret,
+        data?.binanceQrCode,
       ]
     );
     return NextResponse.json(
@@ -126,8 +128,14 @@ export async function PUT(req) {
     );
   } else if (data?.type === "netbank") {
     const result = await query(
-      "UPDATE wallets SET binance_id = $1, binance_api_key = $2, binance_api_secret = $3 WHERE id = $4",
-      [data?.binanceId, data?.binanceApiKey, data?.binanceApiSecret, id]
+      "UPDATE wallets SET binance_id = $1, binance_api_key = $2, binance_api_secret = $3, binance_qr_code = $4 WHERE id = $5",
+      [
+        data?.binanceId,
+        data?.binanceApiKey,
+        data?.binanceApiSecret,
+        data?.binanceQrCode,
+        id,
+      ]
     );
     return NextResponse.json(
       { message: "Wallet info updated successfully" },

@@ -34,7 +34,7 @@ export default function UserPlans() {
 
   if (isLoading) return <Loading />;
 
-  const userPlans = data?.rows;
+  const userPlans = data?.rows||[];
 
   const handleEditPlan = (plan) => {
     setEditingPlan(plan);
