@@ -29,7 +29,7 @@ export default function Tickets() {
   });
 
   if (isLoading) return <Loading />;
-  const tickets = data?.rows;
+  const tickets = data?.rows||[];
 
   const filteredTickets = tickets?.filter((ticket) => {
     const matchesSearch =

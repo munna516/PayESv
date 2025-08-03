@@ -16,14 +16,25 @@ export async function GET(req) {
 
       const transactions = data?.rows;
 
-      //   here transaction ammount ans status has "success" , "failed","pending"
       const pendingAmount = transactions
         .filter((transaction) => transaction.status === "pending")
-        .reduce((total, transaction) => total + Number(transaction.amount), 0);
+        .reduce((total, transaction) => {
+          const amountInBDT =
+            transaction.currency === "USD"
+              ? Number(transaction.amount) * 123
+              : Number(transaction.amount);
+          return total + amountInBDT;
+        }, 0);
 
       const successAmount = transactions
         .filter((transaction) => transaction.status === "success")
-        .reduce((total, transaction) => total + Number(transaction.amount), 0);
+        .reduce((total, transaction) => {
+          const amountInBDT =
+            transaction.currency === "USD"
+              ? Number(transaction.amount) * 123
+              : Number(transaction.amount);
+          return total + amountInBDT;
+        }, 0);
 
       const allPayments = successAmount + pendingAmount;
 
@@ -83,18 +94,40 @@ export async function GET(req) {
         ),
       ]);
 
+      const convertToBDT = (amount, currency) =>
+        currency === "USD" ? Number(amount) * 123 : Number(amount);
+
       const todayAmount = todayRes?.rows
         ?.filter((transaction) => transaction.status === "success")
-        .reduce((total, transaction) => total + Number(transaction.amount), 0);
+        .reduce(
+          (total, transaction) =>
+            total + convertToBDT(transaction.amount, transaction.currency),
+          0
+        );
+
       const yesterdayAmount = yesterdayRes?.rows
         ?.filter((transaction) => transaction.status === "success")
-        .reduce((total, transaction) => total + Number(transaction.amount), 0);
+        .reduce(
+          (total, transaction) =>
+            total + convertToBDT(transaction.amount, transaction.currency),
+          0
+        );
+
       const last7DaysAmount = last7Res?.rows
         ?.filter((transaction) => transaction.status === "success")
-        .reduce((total, transaction) => total + Number(transaction.amount), 0);
+        .reduce(
+          (total, transaction) =>
+            total + convertToBDT(transaction.amount, transaction.currency),
+          0
+        );
+
       const last30DaysAmount = last30Res?.rows
         ?.filter((transaction) => transaction.status === "success")
-        .reduce((total, transaction) => total + Number(transaction.amount), 0);
+        .reduce(
+          (total, transaction) =>
+            total + convertToBDT(transaction.amount, transaction.currency),
+          0
+        );
 
       const transactions = await query(
         `SELECT * FROM transactions WHERE merchant_email = $1`,

@@ -45,7 +45,7 @@ export default function Brand() {
     status: "",
   });
   if (isLoading) return <Loading />;
-  const brands = data?.rows;
+  const brands = data?.rows||[];
   const filteredBrands = brands.filter((brand) =>
     Object.values(brand).some((value) =>
       value.toString().toLowerCase().includes(searchQuery.toLowerCase())

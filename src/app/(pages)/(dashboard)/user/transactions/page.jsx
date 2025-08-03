@@ -86,7 +86,7 @@ export default function Transactions() {
                     <TableCell className="">
                       {transaction?.created_at.split("T")[0]}
                     </TableCell>
-                    <TableCell className=""> ৳ {transaction?.amount}</TableCell>
+                    <TableCell className=""> {transaction?.currency == "BDT" ? "৳" : "$"} {transaction?.amount}</TableCell>
                     <TableCell className="">
                       {transaction.created_at.split("T")[1].split(".")[0]}
                     </TableCell>

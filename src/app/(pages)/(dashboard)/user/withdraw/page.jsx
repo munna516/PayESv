@@ -29,44 +29,12 @@ export default function Withdraw() {
   const [isProcessing, setIsProcessing] = useState(false);
 
   // Mock data - replace with actual data from your backend
-  const availableBalance = 2500.0;
+  const availableBalance = 0;
   const accounts = [
     { id: 1, name: "Bkash", number: "01XXXXXXXXX", type: "Mobile Banking" },
-    { id: 2, name: "Nagad", number: "01XXXXXXXXX", type: "Mobile Banking" },
-    {
-      id: 3,
-      name: "DBBL Bank",
-      number: "XXXX-XXXX-XXXX-1234",
-      type: "Bank Account",
-    },
   ];
 
-  const withdrawalHistory = [
-    {
-      id: 1,
-      date: "2024-03-20",
-      amount: 500.0,
-      account: "Bkash",
-      status: "Completed",
-      transactionId: "TRX-123456",
-    },
-    {
-      id: 2,
-      date: "2024-03-15",
-      amount: 1000.0,
-      account: "DBBL Bank",
-      status: "Completed",
-      transactionId: "TRX-789012",
-    },
-    {
-      id: 3,
-      date: "2024-03-10",
-      amount: 750.0,
-      account: "Nagad",
-      status: "Processing",
-      transactionId: "TRX-345678",
-    },
-  ];
+  const withdrawalHistory = [];
 
   const handleWithdraw = () => {
     if (!amount || !selectedAccount) {
@@ -89,7 +57,7 @@ export default function Withdraw() {
     // Simulate API call
     setTimeout(() => {
       setIsProcessing(false);
-      toast.success("Withdrawal request submitted successfully!");
+      toast.success("Please contact with admin for withdrawal");
       setAmount("");
       setSelectedAccount("");
     }, 1500);

@@ -40,7 +40,7 @@ export default function Transactions() {
   if (isLoading) {
     return <Loading />;
   }
-  const filteredTransactions = transactions.filter((transaction) => {
+  const filteredTransactions = transactions?.filter((transaction) => {
     const matchesType =
       transactionType === "all" || transaction.status === transactionType;
   
@@ -146,7 +146,7 @@ export default function Transactions() {
                     <TableCell>
                       {transaction.transactionid || "--------------"}
                     </TableCell>
-                    <TableCell>৳{transaction.amount}</TableCell>
+                    <TableCell>{transaction?.currency === "BDT" ? "৳" : "$"} {" "} {transaction.amount}</TableCell>
                     <TableCell>
                       <span
                         className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${

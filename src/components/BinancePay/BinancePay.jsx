@@ -7,6 +7,7 @@ import { Label } from "../ui/label";
 import { Copy, Check } from "lucide-react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import Image from "next/image";
 
 export default function BinancePay({ isOpen, onClose, walletInfo, info }) {
   const [binanceOrderId, setBinanceOrderId] = useState("");
@@ -34,6 +35,13 @@ export default function BinancePay({ isOpen, onClose, walletInfo, info }) {
     } catch (err) {
       toast.error("Failed to copy ID");
     }
+  };
+
+  const handleCopyAmount = async () => {
+    await navigator.clipboard.writeText(info?.amount);
+    setCopied(true);
+    toast.success("Amount copied to clipboard!");
+    setTimeout(() => setCopied(false), 2000);
   };
 
   const handleVerifyPayment = async () => {
@@ -79,15 +87,28 @@ export default function BinancePay({ isOpen, onClose, walletInfo, info }) {
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6 py-4">
+        <div className="space-y-2">
           {/* Amount Display */}
-          <div className="text-center p-4 bg-gray-50 dark:bg-slate-800 rounded-lg">
+          <div className="flex items-center justify-center text-center gap-8  rounded-lg">
             <p className="text-sm text-gray-600 dark:text-gray-400">
               Amount to Pay
             </p>
             <p className="text-2xl font-bold text-green-600 dark:text-green-400">
               ${info?.amount} {info?.currency.toUpperCase()}
             </p>
+            <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleCopyAmount}
+                className="px-3"
+              >
+                {copied ? (
+                  <Check className="h-4 w-4 text-green-600" />
+                ) : (
+                  <Copy className="h-4 w-4" />
+                )}
+              </Button>
           </div>
 
           {/* Send to Binance ID */}
@@ -118,6 +139,21 @@ export default function BinancePay({ isOpen, onClose, walletInfo, info }) {
             </div>
           </div>
 
+          <div className="flex flex-col items-center justify-center gap-2 bg-white dark:bg-slate-700 rounded-lg p-2">
+            <Image
+              src={binanceWallet?.binance_qr_code}
+              alt="Binance Pay"
+              width={250}
+              height={250}
+              className="rounded-lg"
+            />
+            <p className="text-sm text-gray-900 dark:text-gray-400">
+              1. Scan the QR using Binance App and send fund by Binance ID
+            </p>
+            <p className="text-sm text-gray-900 dark:text-gray-400">
+              2. Enter your Binance Order ID and click on Verify Payment
+            </p>
+          </div>
           {/* Enter Binance Order ID */}
           <div className="space-y-2">
             <Label htmlFor="order-id" className="text-sm font-medium">

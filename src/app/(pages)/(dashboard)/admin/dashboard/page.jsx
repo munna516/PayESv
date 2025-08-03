@@ -44,7 +44,7 @@ function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-xl sm:text-2xl font-bold text-green-600 dark:text-green-400">
-              {dashboardData.total_users}
+              {dashboardData?.total_users}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               Registered users
@@ -61,7 +61,7 @@ function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400">
-              {dashboardData.successful_transactions}
+              {dashboardData?.successful_transactions}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               Completed transactions
@@ -78,7 +78,7 @@ function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
-              {dashboardData.unsuccessful_transactions}
+              {dashboardData?.unsuccessful_transactions}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               Awaiting confirmation
@@ -96,8 +96,8 @@ function AdminDashboard() {
           <CardContent>
             <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
               ৳{" "}
-              {parseFloat(dashboardData.total_earning_usdt || 0) * 125 +
-                parseFloat(dashboardData.total_earning_bdt || 0)}
+              {parseFloat(dashboardData?.total_earning_usdt || 0) * 123 +
+                parseFloat(dashboardData?.total_earning_bdt || 0)}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               System earnings
@@ -114,7 +114,7 @@ function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-600 dark:text-red-400">
-              {dashboardData.pending_tickets}
+              {dashboardData?.pending_tickets}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               Support tickets
@@ -131,7 +131,7 @@ function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
-              {dashboardData.pending_invoices || 0}
+              {dashboardData?.pending_invoices || 0}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               Unpaid invoices
