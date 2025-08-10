@@ -1,14 +1,13 @@
 import { NextResponse } from "next/server";
 import { query } from "@/lib/db";
 import crypto from "crypto";
-import { v4 as uuidv4 } from "uuid";
 
 export async function POST(req) {
   const { binanceWallet, info, binanceOrderId } = await req.json();
   try {
     // Check PAYMENT HISTORY (not deposits)
     const queryParams = new URLSearchParams({
-      startTime: String(Date.now() - 15 * 60 * 1000), // Last 1 minute
+      startTime: String(Date.now() - 15 * 60 * 1000), // Last 15 minute
       endTime: String(Date.now()),
       timestamp: String(Date.now()),
     });
@@ -29,7 +28,7 @@ export async function POST(req) {
     const payments = await response.json();
 
     const matchingPayment = payments?.data?.find(
-      (p) => p.orderId == binanceOrderId
+      (p) => p.orderId == binanceOrderId && p.amount == info?.amount
     );
 
     if (!matchingPayment) {

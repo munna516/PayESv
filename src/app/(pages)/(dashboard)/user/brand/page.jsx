@@ -48,6 +48,8 @@ export default function Transactions() {
   const [selectedBrand, setSelectedBrand] = useState(null);
   const [copiedField, setCopiedField] = useState(null);
 
+  console.log(session);
+
   const fetchBrands = async (email) => {
     const res = await fetch(`/api/user/brand?email=${email}`);
     const data = await res.json();
@@ -61,6 +63,7 @@ export default function Transactions() {
   } = useQuery({
     queryKey: ["brands"],
     queryFn: () => fetchBrands(session?.user?.email),
+    enabled: !!session?.user?.email,
   });
 
   const fetchPlan = async () => {
@@ -79,6 +82,8 @@ export default function Transactions() {
     }
   }, [session]);
   if (isLoading || isBrandsLoading) return <Loading />;
+
+  console.log(data);
 
   // Handler to open edit modal with brand data
   const handleEdit = (brand) => {
@@ -106,7 +111,7 @@ export default function Transactions() {
 
   const handleAddBrand = async (e) => {
     e.preventDefault();
-    
+
     const res = await fetch("/api/user/brand", {
       method: "POST",
       body: JSON.stringify({
@@ -173,7 +178,16 @@ export default function Transactions() {
             Brands
           </CardTitle>
           <Dialog open={open} onOpenChange={setOpen}>
-            {data && (data?.plan == "1" || data.plan == "2") && (
+            {data &&
+              data?.plan == "1" &&
+              brands?.length < data?.websitequantity && (
+                <DialogTrigger asChild>
+                  <Button variant="primary" onClick={() => setOpen(true)}>
+                    Add Brand
+                  </Button>
+                </DialogTrigger>
+              )}
+            {data && data?.plan == "2" && (
               <DialogTrigger asChild>
                 <Button variant="primary" onClick={() => setOpen(true)}>
                   Add Brand
@@ -313,7 +327,9 @@ export default function Transactions() {
             </div>
           ) : (
             <div className="text-center text-sm text-gray-500">
-              No brands found
+              {session?.plan == "0"
+                ? "Upgrade your plan to add  brands"
+                : "No brands found"}
             </div>
           )}
         </CardContent>

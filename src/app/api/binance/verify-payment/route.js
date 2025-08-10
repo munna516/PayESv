@@ -13,7 +13,7 @@ export async function POST(req) {
   try {
     // Check PAYMENT HISTORY (not deposits)
     const queryParams = new URLSearchParams({
-      startTime: String(Date.now() - 7 * 24 * 60 * 60 * 1000), // Last 7 days
+      startTime: String(Date.now() - 15 * 60 * 1000), // Last 7 days
       endTime: String(Date.now()),
       timestamp: String(Date.now()),
     });
@@ -32,17 +32,27 @@ export async function POST(req) {
     const payments = await response.json();
 
     const matchingPayment = payments?.data?.find(
-      (p) => p.orderId === orderId && p.currency === currency
+      (p) => p.orderId === orderId && p.currency === currency && p.amount == amount
     );
 
     if (!matchingPayment) {
       return NextResponse.json({
         verified: false,
         message:
-          "Payment not found. Please try again or contact support for manual verification.",
+          "Payment not found.",
       });
     }
+    const alreadySuccess = await query(
+      "SELECT * FROM payment_history WHERE id = $1 AND status = 'Success'",
+      [orderId]
+    );
 
+    if (alreadySuccess.rowCount > 0) {
+      return NextResponse.json({
+        verified: true,
+        message: "Payment already verified with this OrderId",
+      });
+    }
     const merchantInvoiceNumber = "Inv" + uuidv4().substring(0, 10);
 
     // save payment to
