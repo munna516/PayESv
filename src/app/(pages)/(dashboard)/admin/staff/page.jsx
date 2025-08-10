@@ -51,11 +51,11 @@ export default function Staff() {
     phone: "",
     password: "",
     status: "active",
-    role: "support operator",
+    role: "admin",
   });
 
   if (isLoading) return <Loading />;
-  const staffs = data?.rows||[];
+  const staffs = data?.rows || [];
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -90,7 +90,7 @@ export default function Staff() {
       phone: "",
       password: "",
       status: "active",
-      role: "support operator",
+      role: "admin",
     });
     setIsDialogOpen(true);
   };
@@ -295,9 +295,9 @@ export default function Staff() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="admin">Admin</SelectItem>
-                        <SelectItem value="support operator">
+                        {/* <SelectItem value="support operator">
                           Support Operator
-                        </SelectItem>
+                        </SelectItem> */}
                       </SelectContent>
                     </Select>
                   </div>
