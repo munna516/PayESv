@@ -141,7 +141,7 @@ export default function PersonalPriceCard({ yearly }) {
       <BkashPayDialog
         isOpen={showBkashDialog}
         onClose={() => setShowBkashDialog(false)}
-        amount={calculateTotal() * 120 * (yearly ? 10 : 1)}
+        amount={calculateTotal() * 1 * (yearly ? 10 : 1)}
         currency={currency}
         yearly={yearly}
         plan={1}
