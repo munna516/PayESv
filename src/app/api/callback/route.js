@@ -45,30 +45,20 @@ export async function GET(req) {
       await query(updatePaymentHistoryQuery, [data?.trxID, paymentId]);
 
       // Step 2: Retrieve userID and plan from payment_history
-      const getUserPlanQuery = `
-SELECT email, plan 
-FROM payment_history 
-WHERE paymentID = $1
-`;
+      const getUserPlanQuery = `SELECT email, plan FROM payment_history WHERE paymentID = $1`;
       const result = await query(getUserPlanQuery, [paymentId]);
 
       if (result.rows.length > 0) {
-        const { email } = result.rows[0];
+        const { email, plan } = result.rows[0];
 
-        const updateUserPlanQuery = `
-  UPDATE user_plan 
-  SET status = 'Active' 
-  WHERE email = $1
-`;
+        const updateUserPlanQuery = `UPDATE user_plan SET status = 'Active' WHERE email = $1`;
         await query(updateUserPlanQuery, [email]);
+
+        // update user plan
+        const updateUserPlan = `UPDATE users SET plan = $1 WHERE email = $2`;
+        await query(updateUserPlan, [plan, email]);
       }
 
-      // update user plan
-      const updateUserPlanQuery = `
-        UPDATE users SET plan = $1 WHERE email = $2
-      `;
-      await query(updateUserPlanQuery, [plan, email]);
-      console.log(updated);
       return NextResponse.redirect(
         `${process.env.NEXT_PUBLIC_APP_URL}/payment/status?status=success`
       );
