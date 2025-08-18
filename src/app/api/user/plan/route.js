@@ -8,7 +8,6 @@ export const GET = async (req) => {
     "SELECT * FROM user_plan WHERE email = $1 AND status = 'Active' ORDER BY id DESC LIMIT 1",
     [email]
   );
-
   if (user.rowCount > 0) {
     const userData = user.rows[0];
     return NextResponse.json(userData);

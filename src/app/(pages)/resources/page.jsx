@@ -1,4 +1,5 @@
-import React from "react";
+"use client";
+import React, { useState } from "react";
 import {
   Card,
   CardContent,
@@ -9,73 +10,48 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
+import { Copy, Check } from "lucide-react";
+import toast from "react-hot-toast";
 
 export default function Resources() {
-  return (
-    <div className="mt-28">
-      <div className="">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4 dark:text-white">
-            Developer Tools
-          </h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Integrate our payment gateway into your application with our
-            comprehensive API documentation and code examples.
-          </p>
-        </div>
+  const CodeBlock = ({ code, className = "" }) => {
+    const [copied, setCopied] = useState(false);
+    const handleCopy = async () => {
+      try {
+        await navigator.clipboard.writeText(code);
+        setCopied(true);
+        toast.success("Code copied");
+        setTimeout(() => setCopied(false), 1500);
+      } catch (e) {
+        toast.error("Failed to copy");
+      }
+    };
+    return (
+      <div className="relative">
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          onClick={handleCopy}
+          className="absolute right-2 top-2 z-10"
+        >
+          {copied ? (
+            <Check className="h-4 w-4" />
+          ) : (
+            <Copy className="h-4 w-4" />
+          )}
+        </Button>
+        <pre
+          className={`bg-gray-900 p-4 rounded-lg overflow-x-auto text-sm ${className}`}
+        >
+          {code}
+        </pre>
+      </div>
+    );
+  };
 
-        {/* API Overview */}
-        <Card className="mb-8 dark:bg-slate-700">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Badge variant="secondary">API</Badge>
-              API Overview
-            </CardTitle>
-            <CardDescription>
-              Learn how to integrate our payment gateway using REST API
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-6">
-              <div>
-                <h3 className="text-lg font-semibold mb-2">Base URL</h3>
-                <code className="bg-gray-100 px-3 py-2 rounded text-sm dark:bg-slate-700">
-                  https://www.payesv.com/api/initiate-payment
-                </code>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-semibold mb-2">Required Headers</h3>
-                <div className="bg-gray-50 dark:bg-slate-700 p-4 rounded-lg">
-                  <div className="space-y-2">
-                    <div>
-                      <code className="text-sm">x-api-key: YOUR_API_KEY</code>
-                    </div>
-                    <div>
-                      <code className="text-sm">
-                        x-brand-key: YOUR_BRAND_KEY
-                      </code>
-                    </div>
-                    <div>
-                      <code className="text-sm">
-                        x-api-secret: YOUR_API_SECRET
-                      </code>
-                    </div>
-                    <div>
-                      <code className="text-sm">
-                        Content-Type: application/json
-                      </code>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-semibold mb-2">
-                  Request Body Format (Example)
-                </h3>
-                <pre className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm">
-                  {`{
+  const requestBodyCode = `{
   "amount": "100",
   "currency": "BDT/USD",
   "customer": {
@@ -88,40 +64,9 @@ export default function Resources() {
     "success": "https://www.your-domain.com/success",
     "failed": "https://www.your-domain.com/failed"
   }
-}`}
-                </pre>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+}`;
 
-        {/* Code Examples */}
-        <Card className="dark:bg-slate-700">
-          <CardHeader>
-            <CardTitle>Integration Examples</CardTitle>
-            <CardDescription>
-              Choose your preferred programming language to see implementation
-              examples
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="php" className="w-full">
-              <TabsList className="grid w-full grid-cols-5">
-                <TabsTrigger value="php">PHP</TabsTrigger>
-                <TabsTrigger value="nodejs">Node.js</TabsTrigger>
-                <TabsTrigger value="wordpress">WordPress</TabsTrigger>
-                <TabsTrigger value="python">Python</TabsTrigger>
-                <TabsTrigger value="java">Java</TabsTrigger>
-              </TabsList>
-
-              {/* PHP Example */}
-              <TabsContent value="php" className="space-y-4">
-                <div>
-                  <h3 className="text-lg font-semibold mb-2">
-                    PHP Integration
-                  </h3>
-                  <pre className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm">
-                    {`<?php
+  const phpCode = `<?php
 // Payment Gateway Integration - PHP
 class PaymentGateway {
     private $apiKey = 'YOUR_API_KEY';
@@ -191,19 +136,9 @@ $redirectUrls = [
 
 $result = $paymentGateway->createPayment('100', $customer, 'ord17238', $redirectUrls);
 echo json_encode($result, JSON_PRETTY_PRINT);
-?>`}
-                  </pre>
-                </div>
-              </TabsContent>
+?>`;
 
-              {/* Node.js Example */}
-              <TabsContent value="nodejs" className="space-y-4">
-                <div>
-                  <h3 className="text-lg font-semibold mb-2">
-                    Node.js Integration
-                  </h3>
-                  <pre className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm">
-                    {`// Payment Gateway Integration - Node.js
+  const nodeCode = `// Payment Gateway Integration - Node.js
 const axios = require('axios');
 
 class PaymentGateway {
@@ -271,19 +206,9 @@ async function processPayment() {
     }
 }
 
-processPayment();`}
-                  </pre>
-                </div>
-              </TabsContent>
+processPayment();`;
 
-              {/* WordPress Example */}
-              <TabsContent value="wordpress" className="space-y-4">
-                <div>
-                  <h3 className="text-lg font-semibold mb-2">
-                    WordPress Integration
-                  </h3>
-                  <pre className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm">
-                    {`<?php
+  const wordpressCode = `<?php
 // WordPress Payment Gateway Integration
 // Add this to your theme's functions.php or create a custom plugin
 
@@ -393,19 +318,9 @@ jQuery(document).ready(function($) {
     });
 });
 */
-?>`}
-                  </pre>
-                </div>
-              </TabsContent>
+?>`;
 
-              {/* Python Example */}
-              <TabsContent value="python" className="space-y-4">
-                <div>
-                  <h3 className="text-lg font-semibold mb-2">
-                    Python Integration
-                  </h3>
-                  <pre className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm">
-                    {`# Payment Gateway Integration - Python
+  const pythonCode = `# Payment Gateway Integration - Python
 import requests
 import json
 
@@ -523,19 +438,9 @@ def create_payment():
 
 if __name__ == '__main__':
     app.run(debug=True)
-"""`}
-                  </pre>
-                </div>
-              </TabsContent>
+"""`;
 
-              {/* Java Example */}
-              <TabsContent value="java" className="space-y-4">
-                <div>
-                  <h3 className="text-lg font-semibold mb-2">
-                    Java Integration
-                  </h3>
-                  <pre className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm">
-                    {`// Payment Gateway Integration - Java
+  const javaCode = `// Payment Gateway Integration - Java
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -737,8 +642,154 @@ public class PaymentController {
         }
     }
 }
-*/`}
-                  </pre>
+*/`;
+
+  const successResponseCode = `{
+  "message": "Payment initiated successfully",
+  "id": "transaction_id_here",
+  "redirectGatewayUrl": "https://checkout.payesv.com/pay/transaction_id_here"
+}`;
+
+  const errorResponseCode = `{
+  "status": "error",
+  "message": "Invalid API Key or API Secret or Brand Key"
+}`;
+
+  return (
+    <div className="mt-28">
+      <div className="">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4 dark:text-white">
+            Developer Tools
+          </h1>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            Integrate our payment gateway into your application with our
+            comprehensive API documentation and code examples.
+          </p>
+        </div>
+
+        {/* API Overview */}
+        <Card className="mb-8 dark:bg-slate-700">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Badge variant="secondary">API</Badge>
+              API Overview
+            </CardTitle>
+            <CardDescription>
+              Learn how to integrate our payment gateway using REST API
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-lg font-semibold mb-2">Base URL</h3>
+                <code className="bg-gray-100 px-3 py-2 rounded text-sm dark:bg-slate-700">
+                  https://www.payesv.com/api/initiate-payment
+                </code>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold mb-2">Required Headers</h3>
+                <div className="bg-gray-50 dark:bg-slate-700 p-4 rounded-lg">
+                  <div className="space-y-2">
+                    <div>
+                      <code className="text-sm">x-api-key: YOUR_API_KEY</code>
+                    </div>
+                    <div>
+                      <code className="text-sm">
+                        x-brand-key: YOUR_BRAND_KEY
+                      </code>
+                    </div>
+                    <div>
+                      <code className="text-sm">
+                        x-api-secret: YOUR_API_SECRET
+                      </code>
+                    </div>
+                    <div>
+                      <code className="text-sm">
+                        Content-Type: application/json
+                      </code>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold mb-2">
+                  Request Body Format (Example)
+                </h3>
+                <CodeBlock code={requestBodyCode} className="text-green-400" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Code Examples */}
+        <Card className="dark:bg-slate-700">
+          <CardHeader>
+            <CardTitle>Integration Examples</CardTitle>
+            <CardDescription>
+              Choose your preferred programming language to see implementation
+              examples
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Tabs defaultValue="php" className="w-full">
+              <TabsList className="grid w-full grid-cols-5">
+                <TabsTrigger value="php">PHP</TabsTrigger>
+                <TabsTrigger value="nodejs">Node.js</TabsTrigger>
+                <TabsTrigger value="wordpress">WordPress</TabsTrigger>
+                <TabsTrigger value="python">Python</TabsTrigger>
+                <TabsTrigger value="java">Java</TabsTrigger>
+              </TabsList>
+
+              {/* PHP Example */}
+              <TabsContent value="php" className="space-y-4">
+                <div>
+                  <h3 className="text-lg font-semibold mb-2">
+                    PHP Integration
+                  </h3>
+                  <CodeBlock code={phpCode} className="text-green-400" />
+                </div>
+              </TabsContent>
+
+              {/* Node.js Example */}
+              <TabsContent value="nodejs" className="space-y-4">
+                <div>
+                  <h3 className="text-lg font-semibold mb-2">
+                    Node.js Integration
+                  </h3>
+                  <CodeBlock code={nodeCode} className="text-green-400" />
+                </div>
+              </TabsContent>
+
+              {/* WordPress Example */}
+              <TabsContent value="wordpress" className="space-y-4">
+                <div>
+                  <h3 className="text-lg font-semibold mb-2">
+                    WordPress Integration
+                  </h3>
+                  <CodeBlock code={wordpressCode} className="text-green-400" />
+                </div>
+              </TabsContent>
+
+              {/* Python Example */}
+              <TabsContent value="python" className="space-y-4">
+                <div>
+                  <h3 className="text-lg font-semibold mb-2">
+                    Python Integration
+                  </h3>
+                  <CodeBlock code={pythonCode} className="text-green-400" />
+                </div>
+              </TabsContent>
+
+              {/* Java Example */}
+              <TabsContent value="java" className="space-y-4">
+                <div>
+                  <h3 className="text-lg font-semibold mb-2">
+                    Java Integration
+                  </h3>
+                  <CodeBlock code={javaCode} className="text-green-400" />
                 </div>
               </TabsContent>
             </Tabs>
@@ -752,13 +803,10 @@ public class PaymentController {
               <CardTitle>Success Response</CardTitle>
             </CardHeader>
             <CardContent>
-              <pre className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm">
-                {`{
-  "message": "Payment initiated successfully",
-  "id": "transaction_id_here",
-  "redirectGatewayUrl": "https://checkout.payesv.com/pay/transaction_id_here"
-}`}
-              </pre>
+              <CodeBlock
+                code={successResponseCode}
+                className="text-green-400"
+              />
             </CardContent>
           </Card>
 
@@ -767,12 +815,7 @@ public class PaymentController {
               <CardTitle>Error Response</CardTitle>
             </CardHeader>
             <CardContent>
-              <pre className="bg-gray-900 text-red-400 p-4 rounded-lg overflow-x-auto text-sm">
-                {`{
-  "status": "error",
-  "message": "Invalid API Key or API Secret or Brand Key"
-}`}
-              </pre>
+              <CodeBlock code={errorResponseCode} className="text-red-400" />
             </CardContent>
           </Card>
         </div>
