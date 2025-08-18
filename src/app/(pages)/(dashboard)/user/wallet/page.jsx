@@ -428,7 +428,7 @@ export default function Wallet() {
                       <TableHead>Email</TableHead>
                       <TableHead>Provider</TableHead>
                       <TableHead>Binance ID</TableHead>
-                      <TableHead>Binance API Key</TableHead>
+                      
                       <TableHead>Binance QR Code Link</TableHead>
                       <TableHead>Actions</TableHead>
                     </TableRow>
@@ -449,7 +449,7 @@ export default function Wallet() {
                           <TableCell>{item.email}</TableCell>
                           <TableCell>{item.wallet_provider}</TableCell>
                           <TableCell>{item.binance_id}</TableCell>
-                          <TableCell>{item.binance_api_key}</TableCell>
+                          
                           <TableCell>
                             <a href={item.binance_qr_code} target="_blank" className="text-blue-600 font-bold hover:underline">
                               Link
