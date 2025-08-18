@@ -36,7 +36,7 @@ export async function GET(req) {
       }
     );
     const data = await payment.json();
-
+    console.log("This is from callback data", data);
     if (data?.statusCode === "0000") {
       // update payment history status to success
       const updatePaymentHistoryQuery = `
@@ -68,7 +68,7 @@ WHERE paymentID = $1
         UPDATE users SET plan = $1 WHERE email = $2
       `;
       await query(updateUserPlanQuery, [plan, email]);
-
+      console.log(updated);
       return NextResponse.redirect(
         `${process.env.NEXT_PUBLIC_APP_URL}/payment/status?status=success`
       );

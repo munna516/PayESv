@@ -54,7 +54,7 @@ export default function PersonalPriceCard({ yearly }) {
               {currency === "bdt" ? "৳" : "$"}{" "}
               {calculateTotal
                 ? currency === "bdt"
-                  ? calculateTotal() * 120 * (yearly ? 10 : 1)
+                  ? calculateTotal() * 1 * (yearly ? 10 : 1)
                   : calculateTotal() * (yearly ? 10 : 1)
                 : basePrice}
               <span className="text-sm font-normal ml-1">
