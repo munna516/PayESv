@@ -36,7 +36,6 @@ export async function GET(req) {
       }
     );
     const data = await payment.json();
-    console.log("This is from callback data", data);
     if (data?.statusCode === "0000") {
       // update payment history status to success
       const updatePaymentHistoryQuery = `
