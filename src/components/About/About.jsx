@@ -4,12 +4,14 @@ import { Button } from "../ui/button";
 import Image from "next/image";
 import aboutImg from "@/../public/assets/images/aboutImg.jpg";
 import { motion } from "framer-motion";
-
+import Link from "next/link";
 
 export default function About() {
-
   return (
-    <section id="about" className="grid lg:grid-cols-2 items-center gap-7 lg:gap-10 mt-10 scroll-mt-24">
+    <section
+      id="about"
+      className="grid lg:grid-cols-2 items-center gap-7 lg:gap-10 mt-10 scroll-mt-24"
+    >
       <motion.div
         animate={{ y: [0, 50, 0] }}
         transition={{ duration: 5, repeat: Infinity }}
@@ -51,7 +53,9 @@ export default function About() {
           or technical concerns, ensuring your experience with PayESv is smooth
           and worry-free.
         </p>
-        <Button  variant="primary">Get Demo</Button>
+        <Link href="#pricing">
+          <Button variant="primary">Get Now</Button>
+        </Link>
       </div>
     </section>
   );
