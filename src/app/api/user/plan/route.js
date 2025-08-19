@@ -10,6 +10,13 @@ export const GET = async (req) => {
   );
   if (user.rowCount > 0) {
     const userData = user.rows[0];
+    if (new Date(userData?.expires_at) < new Date()) {
+      const updateUser = await query(
+        "UPDATE user_plan SET status = 'Expired' WHERE id = $1",
+        [userData.id]
+      );
+      return NextResponse.json([], { status: 200 });
+    }
     return NextResponse.json(userData);
   } else {
     const userData = user.rows;
