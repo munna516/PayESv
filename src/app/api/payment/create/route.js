@@ -177,7 +177,7 @@ export async function POST(req) {
     expires_at = new Date(new Date().setMonth(new Date().getMonth() + 1));
   } else if (plan === 2) {
     expires_at = new Date(
-      new Date().setFullYear(new Date().getFullYear() + 100)
+      new Date().setFullYear(new Date().getFullYear() + 10)
     );
   }
   // insert user plan
