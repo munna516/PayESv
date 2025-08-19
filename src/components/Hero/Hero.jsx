@@ -2,11 +2,14 @@
 import HeroImage from "./HeroImage";
 import { Button } from "../ui/button";
 import { Typewriter } from "react-simple-typewriter";
+import Link from "next/link";
 
 export default function Hero() {
-
   return (
-    <section id="home" className="flex flex-col md:flex-row items-center justify-between mt-24 md:mt-24 lg:mt-10">
+    <section
+      id="home"
+      className="flex flex-col md:flex-row items-center justify-between mt-24 md:mt-24 lg:mt-10"
+    >
       {/* Left Side: Text Content */}
       <div className="md:w-1/2 mb-10 md:mb-0">
         <h1 className="text-2xl md:text-3xl lg:text-4xl dark:text-white font-bold mb-4">
@@ -38,12 +41,11 @@ export default function Hero() {
           subscription service or digital platform.Lets Empower your business
           with Payesv.
         </p>
-        <Button
-         variant="primary"
-          size="xl"
-        >
-          Start For Free demo
-        </Button>
+        <Link href="#pricing">
+          <Button variant="primary" size="xl">
+            Start Now
+          </Button>
+        </Link>
       </div>
 
       {/* Right Side: Image */}

@@ -9,7 +9,7 @@ export async function middleware(request) {
 
     // If no token, redirect to login
     if (!token) {
-      return NextResponse.redirect(new URL("/auth/login", request.url));
+      return NextResponse.redirect(new URL("/login", request.url));
     }
     // Check if user is trying to access admin routes
     if (isAdminRoute) {
@@ -32,7 +32,7 @@ export async function middleware(request) {
     return NextResponse.next();
   } catch (error) {
     // If there's any error, redirect to login
-    return NextResponse.redirect(new URL("/auth/login", request.url));
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 }
 
