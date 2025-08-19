@@ -32,6 +32,14 @@ export default function Plans() {
 
   return data && data?.length == 0 ? (
     <div className="mb-20">
+      <h1 className="text-3xl font-bold text-center mb-2 text-red-500">
+        Your Plan is Expired
+      </h1>
+      <div className="text-center mb-8">
+        <p className="text-muted-foreground  mb-6 md:w-1/2 w-full mx-auto">
+          Your plan has expired. Please upgrade to continue using our services.
+        </p>
+      </div>
       <div className="text-center mb-8">
         <h2 className="text-2xl md:text-3xl lg:text-4xl dark:text-white font-bold mb-4">
           Check Our Pricing
@@ -84,7 +92,7 @@ export default function Plans() {
         </div>
       </div>
     </div>
-  ) : (
+  ) : session?.plan == 1 ? (
     <div className="mb-20">
       <PlanTable data={data} />
       <h1 className="mb-8 mt-20 text-3xl font-bold text-center">
@@ -127,17 +135,19 @@ export default function Plans() {
           {option === "monthly" && (
             <>
               <PersonalPriceCard yearly={0} />
-              <ReadyPriceCard />
             </>
           )}
           {option === "yearly" && (
             <>
               <PersonalPriceCard yearly={1} />
-              <ReadyPriceCard />
             </>
           )}
         </div>
       </div>
+    </div>
+  ) : (
+    <div className="mb-20">
+      <PlanTable data={data} />
     </div>
   );
 }

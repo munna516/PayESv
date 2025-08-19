@@ -50,7 +50,7 @@ export async function GET(req) {
       if (result.rows.length > 0) {
         const { email, plan } = result.rows[0];
 
-        const updateUserPlanQuery = `UPDATE user_plan SET status = 'Active' WHERE email = $1`;
+        const updateUserPlanQuery = `UPDATE user_plan SET status = 'Active' WHERE email = $1 AND id = (    SELECT id FROM user_plan WHERE email = $1 ORDER BY id DESC LIMIT 1);`;
         await query(updateUserPlanQuery, [email]);
 
         // update user plan

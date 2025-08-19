@@ -36,7 +36,7 @@ import toast from "react-hot-toast";
 const navMain = [
   { label: "Dashboard", icon: LayoutDashboard, href: "/user/dashboard" },
   { label: "Transactions", icon: CreditCard, href: "/user/transactions" },
-  { label: "Withdraw", icon: ArrowUpRight, href: "/user/withdraw", plan: 1 },
+  { label: "Withdraw", icon: ArrowUpRight, href: "/user/withdraw" },
   {
     label: "Bank Transactions",
     icon: Banknote,
@@ -65,7 +65,6 @@ export default function Sidebar({
 }) {
   const { data: session } = useSession();
 
-  
   const pathname = usePathname();
 
   const handleSignOut = () => {
@@ -125,6 +124,15 @@ export default function Sidebar({
             if (item.label === "Withdraw" && session?.plan !== "2") {
               return null;
             }
+            if (item.label === "Stored Data" && session?.plan == "2") {
+              return null;
+            }
+            if (item.label === "Brand" && session?.plan == "2") {
+              return null;
+            }
+            if (item.label === "Wallet" && session?.plan == "2") {
+              return null;
+            }
             return (
               <Link
                 key={item.label}
@@ -148,7 +156,6 @@ export default function Sidebar({
               </Link>
             );
           })}
-          
         </nav>
       </div>
       {/* Others Navigation */}

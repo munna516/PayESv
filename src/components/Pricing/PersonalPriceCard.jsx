@@ -11,7 +11,7 @@ import {
 } from "../ui/select";
 import { Button } from "../ui/button";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import BinancePayDialog from "./BinancePayDialog";
 import BkashPayDialog from "./BkashPayDialog";
@@ -28,9 +28,13 @@ export default function PersonalPriceCard({ yearly }) {
   };
   const [currency, setCurrency] = useState("bdt");
 
+  const pathName = usePathname();
+
   const handleBuyNow = async () => {
     if (status === "authenticated") {
-      if (currency === "bdt") {
+      if (pathName !== "/user/plans") {
+        router.push(`/user/plans`);
+      } else if (currency === "bdt") {
         setShowBkashDialog(true);
       } else {
         // Open Binance Pay dialog
@@ -38,7 +42,7 @@ export default function PersonalPriceCard({ yearly }) {
       }
     } else {
       toast.error("Please login first!");
-      router.push(`/login?callbackUrl=${encodeURIComponent("/user/plans")}`);
+      router.push(`/login`);
     }
   };
 
