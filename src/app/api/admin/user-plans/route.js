@@ -87,17 +87,15 @@ export async function PUT(req) {
       ":" +
       String(date.getSeconds()).padStart(2, "0") +
       "." +
-      Math.floor(date.getMilliseconds() / 100); 
+      Math.floor(date.getMilliseconds() / 100);
 
     if (plan == 1) {
-      console.log(plan, websitequantity, expires_at);
       const updateUserPlan = await query(
         `UPDATE user_plan SET websitequantity = $1, expires_at = $2 WHERE id = $3`,
         [websitequantity, formatted, id]
       );
       return NextResponse.json({ message: "User plan updated successfully" });
     } else if (plan == 2) {
-      console.log(plan, expires_at);
       const updateUserPlan = await query(
         `UPDATE user_plan SET expires_at = $1 WHERE id = $2`,
         [formatted, id]
