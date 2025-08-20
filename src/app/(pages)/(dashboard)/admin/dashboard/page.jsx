@@ -12,8 +12,14 @@ import {
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import Loading from "@/components/Loading/Loading";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 function AdminDashboard() {
+  const [currency, setCurrency] = useState("BDT");
+  const handleCurrencyChange = (value) => {
+    setCurrency(value);
+  };
   const { data, isLoading, error } = useQuery({
     queryKey: ["dashboardData"],
     queryFn: () => fetch("/api/admin/dashboard").then((res) => res.json()),
@@ -33,6 +39,27 @@ function AdminDashboard() {
 
   return (
     <div className="space-y-6 mb-14">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+        </div>
+        <div className="">
+          <Label htmlFor="account">Select Currency</Label>
+          <Select value={currency} onValueChange={handleCurrencyChange}>
+            <SelectTrigger className="w-48">
+              <SelectValue placeholder="Currency" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="BDT" className="font-bold">
+                ৳ BDT
+              </SelectItem>
+              <SelectItem value="USD" className="font-bold">
+                $ USD
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
       {/* Stats Cards */}
       <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 p-4 sm:p-6">
@@ -61,7 +88,10 @@ function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400">
-              {dashboardData?.successful_transactions}
+          
+              {currency === "BDT"
+                ? dashboardData?.successful_transactions_bdt
+                : dashboardData?.successful_transactions_usd}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               Completed transactions
@@ -78,7 +108,9 @@ function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
-              {dashboardData?.unsuccessful_transactions}
+              {currency === "BDT"
+                ? dashboardData?.unsuccessful_transactions_bdt
+                : dashboardData?.unsuccessful_transactions_usd}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               Awaiting confirmation
@@ -95,9 +127,12 @@ function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-              ৳{" "}
-              {parseFloat(dashboardData?.total_earning_usdt || 0) * 123 +
-                parseFloat(dashboardData?.total_earning_bdt || 0)}
+              {currency === "BDT"
+                ? "৳ "
+                : "$ "}
+              {currency === "BDT"
+                ? dashboardData?.total_earning_bdt
+                : dashboardData?.total_earning_usd}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               System earnings
