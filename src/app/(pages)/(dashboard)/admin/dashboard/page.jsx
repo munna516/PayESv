@@ -13,7 +13,14 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import Loading from "@/components/Loading/Loading";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 function AdminDashboard() {
   const [currency, setCurrency] = useState("BDT");
@@ -44,20 +51,29 @@ function AdminDashboard() {
           <h1 className="text-2xl font-bold">Admin Dashboard</h1>
         </div>
         <div className="">
-          <Label htmlFor="account">Select Currency</Label>
-          <Select value={currency} onValueChange={handleCurrencyChange}>
-            <SelectTrigger className="w-48">
-              <SelectValue placeholder="Currency" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="BDT" className="font-bold">
-                ৳ BDT
-              </SelectItem>
-              <SelectItem value="USD" className="font-bold">
-                $ USD
-              </SelectItem>
-            </SelectContent>
-          </Select>
+          <ToggleGroup
+            type="single"
+            value={currency}
+            onValueChange={(val) => setCurrency(val)}
+            className={`rounded-full p-1 gap-3 border-2  mb-3`}
+          >
+            <ToggleGroupItem
+              value="BDT"
+              className={`px-6 py-3 rounded-full ${
+                currency == "BDT" ? "bg-green-500 text-white font-bold" : ""
+              }`}
+            >
+              BDT
+            </ToggleGroupItem>
+            <ToggleGroupItem
+              value="USD"
+              className={`px-6 py-3 rounded-full ${
+                currency == "USD" ? "bg-green-500 text-white font-bold" : ""
+              }`}
+            >
+              USD
+            </ToggleGroupItem>
+          </ToggleGroup>
         </div>
       </div>
       {/* Stats Cards */}
@@ -88,7 +104,6 @@ function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400">
-          
               {currency === "BDT"
                 ? dashboardData?.successful_transactions_bdt
                 : dashboardData?.successful_transactions_usd}
@@ -127,9 +142,7 @@ function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-              {currency === "BDT"
-                ? "৳ "
-                : "$ "}
+              {currency === "BDT" ? "৳ " : "$ "}
               {currency === "BDT"
                 ? dashboardData?.total_earning_bdt
                 : dashboardData?.total_earning_usd}
