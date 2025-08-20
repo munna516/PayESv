@@ -12,11 +12,22 @@ import { Wallet, Clock, CreditCard } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useQuery } from "@tanstack/react-query";
 import Loading from "@/components/Loading/Loading";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useState } from "react";
+import { Label } from "@/components/ui/label";
 
 export default function Dashboard() {
-
   const { data: session } = useSession();
-
+  const [currency, setCurrency] = useState("BDT");
+  const handleCurrencyChange = (value) => {
+    setCurrency(value);
+  };
   const { data: transactions, isLoading } = useQuery({
     queryKey: ["transactions"],
     queryFn: () =>
@@ -25,13 +36,36 @@ export default function Dashboard() {
       ),
     enabled: !!session?.user?.email,
   });
-  
+
   if (isLoading) return <Loading />;
+  console.log(transactions);
 
   return (
-    <div className=" space-y-6 mb-14">
+    <div className="space-y-6 mb-14">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold">User Dashboard</h1>
+        </div>
+        <div className="">
+          <Label htmlFor="account">Select Currency</Label>
+          <Select value={currency} onValueChange={handleCurrencyChange}>
+            <SelectTrigger className="w-48">
+              <SelectValue placeholder="Currency" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="BDT" className="font-bold">
+                ৳ BDT
+              </SelectItem>
+              <SelectItem value="USD" className="font-bold">
+                $ USD
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
       {/* Stats Cards */}
-      {(session?.plan === "0" || session?.plan === "1")  ? (
+      {session?.plan === "0" || session?.plan === "1" ? (
         <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
           <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 p-4 sm:p-6">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-5">
@@ -42,7 +76,10 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-xl sm:text-2xl font-bold text-green-600 dark:text-green-400">
-              ৳ {transactions?.successAmount||0}
+                {currency === "BDT" ? "৳ " : "$ "}
+                {currency === "BDT"
+                  ? transactions?.successAmount?.BDT
+                  : transactions?.successAmount?.USD}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
                 Available for withdrawal
@@ -58,7 +95,10 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-xl sm:text-2xl font-bold text-green-600 dark:text-green-400">
-              ৳ {transactions?.successAmount ||0}
+                {currency === "BDT" ? "৳ " : "$ "}
+                {currency === "BDT"
+                  ? transactions?.successAmount?.BDT
+                  : transactions?.successAmount?.USD}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
                 Total successful transactions
@@ -75,7 +115,10 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
-              ৳ {transactions?.pendingAmount ||0}
+                {currency === "BDT" ? "৳ " : "$ "}
+                {currency === "BDT"
+                  ? transactions?.pendingAmount?.BDT
+                  : transactions?.pendingAmount?.USD}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
                 Awaiting confirmation
@@ -92,7 +135,10 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-              ৳ {transactions?.allPayments ||0}
+                {currency === "BDT" ? "৳ " : "$ "}
+                {currency === "BDT"
+                  ? transactions?.allPayments?.BDT
+                  : transactions?.allPayments?.USD}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
                 Processed payments
@@ -111,7 +157,10 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-xl sm:text-2xl font-bold text-green-600 dark:text-green-400">
-              ৳{transactions?.todayAmount ||0}
+                {currency === "BDT" ? "৳ " : "$ "}
+                {currency === "BDT"
+                  ? transactions?.todayAmount?.BDT
+                  : transactions?.todayAmount?.USD}
               </div>
             </CardContent>
           </Card>
@@ -124,7 +173,10 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-xl sm:text-2xl font-bold text-green-600 dark:text-green-400">
-              ৳{transactions?.yesterdayAmount ||0}
+                {currency === "BDT" ? "৳ " : "$ "}
+                {currency === "BDT"
+                  ? transactions?.yesterdayAmount?.BDT
+                  : transactions?.yesterdayAmount?.USD}
               </div>
             </CardContent>
           </Card>
@@ -138,7 +190,10 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
-              ৳{transactions?.last7DaysAmount ||0}
+                {currency === "BDT" ? "৳ " : "$ "}
+                {currency === "BDT"
+                  ? transactions?.last7DaysAmount?.BDT
+                  : transactions?.last7DaysAmount?.USD}
               </div>
             </CardContent>
           </Card>
@@ -152,7 +207,10 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-              ৳{transactions?.last30DaysAmount ||0}
+                {currency === "BDT" ? "৳ " : "$ "}
+                {currency === "BDT"
+                  ? transactions?.last30DaysAmount?.BDT
+                  : transactions?.last30DaysAmount?.USD}
               </div>
             </CardContent>
           </Card>
@@ -174,6 +232,7 @@ export default function Dashboard() {
                   <TableHead> Time</TableHead>
                   <TableHead className="hidden md:table-cell">From</TableHead>
                   <TableHead className="hidden md:table-cell">To</TableHead>
+                  <TableHead>Currency</TableHead>
                   <TableHead>Reference</TableHead>
                   <TableHead>Status</TableHead>
                 </TableRow>
@@ -184,7 +243,10 @@ export default function Dashboard() {
                     <TableCell className="">
                       {transaction.created_at.split("T")[0]}
                     </TableCell>
-                    <TableCell className="">{transaction?.currency == "BDT" ? "৳" : "$"} {transaction.amount}</TableCell>
+                    <TableCell className="">
+                      {transaction?.currency == "BDT" ? "৳" : "$"}{" "}
+                      {transaction.amount}
+                    </TableCell>
 
                     <TableCell className="">
                       {transaction.created_at.split("T")[1].split(".")[0]}
@@ -195,7 +257,10 @@ export default function Dashboard() {
                     <TableCell className="hidden md:table-cell">
                       {transaction.merchant_email}
                     </TableCell>
-                    <TableCell className="">{transaction.transaction_id || '--------------'}</TableCell>
+                    <TableCell className="">
+                      {transaction.transaction_id || "-----"}
+                    </TableCell>
+                    <TableCell className="">{transaction.currency}</TableCell>
                     <TableCell
                       className={`${
                         transaction.status == "pending"
