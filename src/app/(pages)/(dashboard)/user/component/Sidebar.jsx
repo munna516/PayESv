@@ -127,9 +127,7 @@ export default function Sidebar({
             if (item.label === "Stored Data" && session?.plan == "2") {
               return null;
             }
-            if (item.label === "Brand" && session?.plan == "2") {
-              return null;
-            }
+
             if (item.label === "Wallet" && session?.plan == "2") {
               return null;
             }

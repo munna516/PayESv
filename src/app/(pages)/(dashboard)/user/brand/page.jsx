@@ -48,8 +48,6 @@ export default function Transactions() {
   const [selectedBrand, setSelectedBrand] = useState(null);
   const [copiedField, setCopiedField] = useState(null);
 
-  console.log(session);
-
   const fetchBrands = async (email) => {
     const res = await fetch(`/api/user/brand?email=${email}`);
     const data = await res.json();
@@ -82,8 +80,6 @@ export default function Transactions() {
     }
   }, [session]);
   if (isLoading || isBrandsLoading) return <Loading />;
-
-  console.log(data);
 
   // Handler to open edit modal with brand data
   const handleEdit = (brand) => {

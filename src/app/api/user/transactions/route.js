@@ -16,30 +16,57 @@ export async function GET(req) {
 
       const transactions = data?.rows;
 
-      const pendingAmount = transactions
+      const pendingAmountBDT = transactions
         .filter((transaction) => transaction.status === "pending")
         .reduce((total, transaction) => {
           const amountInBDT =
-            transaction.currency === "USD"
-              ? Number(transaction.amount) * 123
-              : Number(transaction.amount);
+            transaction.currency === "BDT" ? Number(transaction.amount) : "";
           return total + amountInBDT;
         }, 0);
 
-      const successAmount = transactions
+      const pendingAmountUSD = transactions
+        .filter((transaction) => transaction.status === "pending")
+        .reduce((total, transaction) => {
+          const amountInUSD =
+            transaction.currency === "USD" ? Number(transaction.amount) : "";
+          return total + amountInUSD;
+        }, 0);
+
+      const successAmountBDT = transactions
         .filter((transaction) => transaction.status === "success")
         .reduce((total, transaction) => {
           const amountInBDT =
-            transaction.currency === "USD"
-              ? Number(transaction.amount) * 123
-              : Number(transaction.amount);
+            transaction.currency === "BDT" ? Number(transaction.amount) : "";
           return total + amountInBDT;
         }, 0);
 
-      const allPayments = successAmount + pendingAmount;
+      const successAmountUSD = transactions
+        .filter((transaction) => transaction.status === "success")
+        .reduce((total, transaction) => {
+          const amountInUSD =
+            transaction.currency === "USD" ? Number(transaction.amount) : "";
+          return total + amountInUSD;
+        }, 0);
+
+      const allPaymentsBDT = Number(successAmountBDT) + Number(pendingAmountBDT);
+      const allPaymentsUSD = Number(successAmountUSD) + Number(pendingAmountUSD);
 
       return NextResponse.json(
-        { transactions, successAmount, pendingAmount, allPayments },
+        {
+          transactions,
+          successAmount: {
+            BDT: Number(successAmountBDT),
+            USD: Number(successAmountUSD),
+          },
+          pendingAmount: {
+            BDT: Number(pendingAmountBDT),
+            USD: Number(pendingAmountUSD),
+          },
+          allPayments: {
+            BDT: Number(allPaymentsBDT),
+            USD: Number(allPaymentsUSD),
+          },
+        },
         { status: 200 }
       );
     } else {
@@ -94,41 +121,75 @@ export async function GET(req) {
         ),
       ]);
 
-      const convertToBDT = (amount, currency) =>
-        currency === "USD" ? Number(amount) * 123 : Number(amount);
+      const BDTAmount = (amount, currency) =>
+        currency === "BDT" ? Number(amount) : "";
 
-      const todayAmount = todayRes?.rows
+      const USDAmount = (amount, currency) =>
+        currency === "USD" ? Number(amount) : "";
+
+      const todayAmountBDT = todayRes?.rows
         ?.filter((transaction) => transaction.status === "success")
         .reduce(
           (total, transaction) =>
-            total + convertToBDT(transaction.amount, transaction.currency),
+            Number(total) + Number(BDTAmount(transaction.amount, transaction.currency)),
           0
         );
 
-      const yesterdayAmount = yesterdayRes?.rows
+      const todayAmountUSD = todayRes?.rows
         ?.filter((transaction) => transaction.status === "success")
         .reduce(
           (total, transaction) =>
-            total + convertToBDT(transaction.amount, transaction.currency),
+            Number(total) + Number(USDAmount(transaction.amount, transaction.currency)),
           0
         );
 
-      const last7DaysAmount = last7Res?.rows
+      const yesterdayAmountBDT = yesterdayRes?.rows
         ?.filter((transaction) => transaction.status === "success")
         .reduce(
           (total, transaction) =>
-            total + convertToBDT(transaction.amount, transaction.currency),
+            Number(total) + Number(BDTAmount(transaction.amount, transaction.currency)),
           0
         );
 
-      const last30DaysAmount = last30Res?.rows
+      const yesterdayAmountUSD = yesterdayRes?.rows
         ?.filter((transaction) => transaction.status === "success")
         .reduce(
           (total, transaction) =>
-            total + convertToBDT(transaction.amount, transaction.currency),
+            Number(total) + Number(USDAmount(transaction.amount, transaction.currency)),
           0
         );
 
+      const last7DaysAmountBDT = last7Res?.rows
+        ?.filter((transaction) => transaction.status === "success")
+        .reduce(
+          (total, transaction) =>
+            Number(total) + Number(BDTAmount(transaction.amount, transaction.currency)),
+          0
+        );
+
+      const last7DaysAmountUSD = last7Res?.rows
+        ?.filter((transaction) => transaction.status === "success")
+        .reduce(
+          (total, transaction) =>
+            Number(total) + Number(USDAmount(transaction.amount, transaction.currency)),
+          0
+        );
+
+      const last30DaysAmountBDT = last30Res?.rows
+        ?.filter((transaction) => transaction.status === "success")
+        .reduce(
+          (total, transaction) =>
+            Number(total) + Number(BDTAmount(transaction.amount, transaction.currency)),
+          0
+        );
+
+      const last30DaysAmountUSD = last30Res?.rows
+        ?.filter((transaction) => transaction.status === "success")
+        .reduce(
+          (total, transaction) =>
+            Number(total) + Number(USDAmount(transaction.amount, transaction.currency)),
+          0
+        );
       const transactions = await query(
         `SELECT * FROM transactions WHERE merchant_email = $1`,
         [email]
@@ -136,10 +197,22 @@ export async function GET(req) {
 
       return NextResponse.json(
         {
-          todayAmount,
-          yesterdayAmount,
-          last7DaysAmount,
-          last30DaysAmount,
+          todayAmount: {
+            BDT: Number(todayAmountBDT),
+            USD: Number(todayAmountUSD),
+          },
+          yesterdayAmount: {
+            BDT: Number(yesterdayAmountBDT),
+            USD: Number(yesterdayAmountUSD),
+          },
+          last7DaysAmount: {
+            BDT: Number(last7DaysAmountBDT),
+            USD: Number(last7DaysAmountUSD),
+          },
+          last30DaysAmount: {
+            BDT: Number(last30DaysAmountBDT),
+            USD: Number(last30DaysAmountUSD),
+          },
           transactions: transactions?.rows,
         },
         { status: 200 }
