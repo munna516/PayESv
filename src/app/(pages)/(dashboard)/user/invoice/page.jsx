@@ -73,7 +73,6 @@ const downloadInvoice = async (transaction) => {
 
 if(isLoading) return <Loading />;
 
-console.log(transactions);
   return (
     <Card className="w-full dark:bg-slate-700">
       <CardHeader className="flex flex-row items-center justify-between mb-6">

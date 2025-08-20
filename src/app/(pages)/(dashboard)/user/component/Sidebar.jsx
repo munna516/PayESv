@@ -35,8 +35,10 @@ import toast from "react-hot-toast";
 
 const navMain = [
   { label: "Dashboard", icon: LayoutDashboard, href: "/user/dashboard" },
-  { label: "Transactions", icon: CreditCard, href: "/user/transactions" },
+
   { label: "Withdraw", icon: ArrowUpRight, href: "/user/withdraw" },
+  { label: "Withdraw Methods", icon: Banknote, href: "/user/withdraw-methods" },
+  { label: "Transactions", icon: CreditCard, href: "/user/transactions" },
   {
     label: "Bank Transactions",
     icon: Banknote,
@@ -122,6 +124,9 @@ export default function Sidebar({
           {navMain.map((item) => {
             // Only show Withdraw if session?.plan === "2"
             if (item.label === "Withdraw" && session?.plan !== "2") {
+              return null;
+            }
+            if (item.label === "Withdraw Methods" && session?.plan !== "2") {
               return null;
             }
             if (item.label === "Stored Data" && session?.plan == "2") {
