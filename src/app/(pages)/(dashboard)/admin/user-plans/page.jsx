@@ -155,7 +155,6 @@ export default function UserPlans() {
       toast.error("Please fill all the fields");
       return;
     }
-    console.log(addEmail, addPlanType, addWebsiteQty, addBillingCycle);
     const planNumber = Number(addPlanType);
     if (planNumber === 1 && (!addWebsiteQty || !addBillingCycle)) return;
 

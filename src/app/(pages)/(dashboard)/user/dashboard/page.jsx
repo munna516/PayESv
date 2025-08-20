@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/select";
 import { useState } from "react";
 import { Label } from "@/components/ui/label";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 export default function Dashboard() {
   const { data: session } = useSession();
@@ -38,8 +39,7 @@ export default function Dashboard() {
   });
 
   if (isLoading) return <Loading />;
-  console.log(transactions);
-
+ 
   return (
     <div className="space-y-6 mb-14">
       <div className="flex justify-between items-center">
@@ -47,20 +47,29 @@ export default function Dashboard() {
           <h1 className="text-2xl font-bold">User Dashboard</h1>
         </div>
         <div className="">
-          <Label htmlFor="account">Select Currency</Label>
-          <Select value={currency} onValueChange={handleCurrencyChange}>
-            <SelectTrigger className="w-48">
-              <SelectValue placeholder="Currency" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="BDT" className="font-bold">
-                ৳ BDT
-              </SelectItem>
-              <SelectItem value="USD" className="font-bold">
-                $ USD
-              </SelectItem>
-            </SelectContent>
-          </Select>
+          <ToggleGroup
+            type="single"
+            value={currency}
+            onValueChange={(val) => setCurrency(val)}
+            className={`rounded-full p-1 gap-3 border-2  mb-3`}
+          >
+            <ToggleGroupItem
+              value="BDT"
+              className={`px-6 py-3 rounded-full ${
+                currency == "BDT" ? "bg-green-500 text-white font-bold" : ""
+              }`}
+            >
+              BDT
+            </ToggleGroupItem>
+            <ToggleGroupItem
+              value="USD"
+              className={`px-6 py-3 rounded-full ${
+                currency == "USD" ? "bg-green-500 text-white font-bold" : ""
+              }`}
+            >
+              USD
+            </ToggleGroupItem>
+          </ToggleGroup>
         </div>
       </div>
 
