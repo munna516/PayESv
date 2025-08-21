@@ -28,8 +28,8 @@ export async function GET(req) {
       userInfo.rows[0].merchant_email,
     ]);
 
-    const redirect_success_url = userInfo.rows[0].redirect_success_url;
-    const redirect_failed_url = userInfo.rows[0].redirect_failed_url;
+    const redirect_success_url = `${userInfo.rows[0].redirect_success_url}?paymentId=${paymentId}`;
+    const redirect_failed_url = `${userInfo.rows[0].redirect_failed_url}?paymentId=${paymentId}`;
 
     const wallet = walletInfo?.rows?.find((w) => w.wallet_provider === "bKash");
 
