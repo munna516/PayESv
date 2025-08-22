@@ -62,12 +62,13 @@ export default function WalletSettings() {
     return <Loading />;
   }
   const wallet = data || [];
+  console.log(wallet);
   // Filter wallet data by type
   const mobileData =
-    wallet?.filter((item) => item.wallet_provider === "bKash") || [];
+    wallet?.filter((item) => item.wallet_provider == "bKash") || [];
 
   const netBankingData =
-    wallet?.filter((item) => item.wallet_provider === "Binance") || [];
+    wallet?.filter((item) => item.wallet_provider == "Binance") || [];
 
   const resetForm = () => {
     setMerchantNumber("");
