@@ -3,21 +3,9 @@ import { query } from "@/lib/db";
 
 export async function GET(req) {
   try {
-    //   check the wallet table exist or not
-    const checkWalletTableQuery = `
-    SELECT EXISTS (
-      SELECT FROM information_schema.tables 
-      WHERE table_schema = 'public' 
-      AND table_name = 'ready_gateway_wallets'
-    );
-  `;
-    const tableExists = await query(checkWalletTableQuery);
-    if (!tableExists.rows[0].exists) {
-      const createWalletTableQuery = `CREATE TABLE ready_gateway_wallets (id SERIAL PRIMARY KEY,wallet_provider VARCHAR(255) NOT NULL,merchant_number VARCHAR(255),api_key VARCHAR(255),api_secret VARCHAR(255),username VARCHAR(255),password VARCHAR(255),binance_id VARCHAR(255),binance_api_key VARCHAR(255),binance_api_secret VARCHAR(255),binance_qr_code VARCHAR(255),created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);`;
-      await query(createWalletTableQuery);
-    }
     const wallet = await query(`SELECT * FROM ready_gateway_wallets`);
-    return NextResponse.json(wallet.rows, { status: 200 });
+    console.log(wallet.rows);
+    return NextResponse.json(wallet.rows || []);
   } catch (error) {
     return NextResponse.json(
       { error: "Failed to fetch wallet data" },
@@ -53,7 +41,7 @@ export async function POST(req) {
     );
     return NextResponse.json(
       { message: "Wallet info saved successfully" },
-      { status: 200 },
+      { status: 200 }
     );
   } else if (type === "netbank") {
     const result = await query(
@@ -68,8 +56,7 @@ export async function POST(req) {
     );
     return NextResponse.json(
       { message: "Wallet info saved successfully" },
-      { status: 200 },
-      
+      { status: 200 }
     );
   }
 }
