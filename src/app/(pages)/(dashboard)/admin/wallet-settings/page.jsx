@@ -53,7 +53,7 @@ export default function WalletSettings() {
   const [binanceQrCode, setBinanceQrCode] = useState("");
 
   const { data, isLoading, refetch } = useQuery({
-    queryKey: ["wallet"],
+    queryKey: ["wallet_of_admin"],
     queryFn: () => fetch(`/api/admin/wallet-setting`).then((res) => res.json()),
     enabled: !!session?.user?.email,
   });
@@ -170,7 +170,9 @@ export default function WalletSettings() {
       <CardContent className="p-6">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-semibold text-gray-900">Wallet</h1>
+            <h1 className="text-2xl font-semibold text-gray-900">
+              Wallet Settings
+            </h1>
             <p className="text-gray-600 mt-1">
               Manage your payment methods and wallet information
             </p>
@@ -419,7 +421,6 @@ export default function WalletSettings() {
                     <TableRow>
                       <TableHead>Provider</TableHead>
                       <TableHead>Binance ID</TableHead>
-
                       <TableHead>Binance QR Code Link</TableHead>
                       <TableHead>Actions</TableHead>
                     </TableRow>
