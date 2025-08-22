@@ -21,10 +21,23 @@ export async function GET(req) {
   const p = await query("SELECT * FROM payment_methods");
   const paymentMethods = p.rows;
 
-  // user wallet info
-  const wallet = await query("SELECT * FROM wallets WHERE email = $1", [
+  const userPlan = await query("SELECT * FROM user_plan WHERE email = $1", [
     url?.merchant_email,
   ]);
+
+  let wallet = [];
+
+  if (userPlan.rows[0]?.plan === "1") {
+    wallet = await query("SELECT * FROM wallets WHERE email = $1", [
+      url?.merchant_email,
+    ]);
+  } else {
+    wallet = await query("SELECT * FROM wallets WHERE email = $1", [
+      url?.merchant_email,
+    ]);
+  }
+
+  // user wallet info
 
   const walletInfo = wallet.rows.map((wallet) =>
     wallet.wallet_provider?.toLowerCase()
