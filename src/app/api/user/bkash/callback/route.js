@@ -20,7 +20,7 @@ export async function GET(req) {
     }
 
     const userInfo = await query(
-      `SELECT merchant_email, redirect_success_url, redirect_failed_url FROM transactions WHERE payment_id = $1`,
+      `SELECT merchant_email, redirect_success_url, redirect_failed_url,currency,amount FROM transactions WHERE payment_id = $1`,
       [paymentId]
     );
 
@@ -55,6 +55,10 @@ export async function GET(req) {
       const updateTransaction = await query(
         `UPDATE transactions SET status = $1, transaction_id = $2, payment_method = $3 WHERE payment_id = $4`,
         ["success", data?.trxID, "bkash", paymentId]
+      );
+      const updateBalance = await query(
+        `UPDATE available_balance SET bdt_balance = bdt_balance + $1 WHERE email = $2`,
+        [userInfo.rows[0].amount, userInfo.rows[0].merchant_email]
       );
       return NextResponse.redirect(redirect_success_url);
     } else {

@@ -6,5 +6,18 @@ PIN: 12121
 
 377645537597014016
 
-
-
+CREATE TABLE ready_gateway_wallets (
+id SERIAL PRIMARY KEY,
+wallet_provider VARCHAR(255) NOT NULL,
+merchant_number VARCHAR(255),
+api_key VARCHAR(255),
+api_secret VARCHAR(255),
+username VARCHAR(255),
+password VARCHAR(255),
+binance_id VARCHAR(255),
+binance_api_key VARCHAR(255),
+binance_api_secret VARCHAR(255),
+binance_qr_code VARCHAR(255),
+created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
