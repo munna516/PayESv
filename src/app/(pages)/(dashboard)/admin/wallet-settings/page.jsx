@@ -10,6 +10,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -27,13 +28,21 @@ import { useSession } from "next-auth/react";
 import { useQuery } from "@tanstack/react-query";
 import Loading from "@/components/Loading/Loading";
 import { FaEdit } from "react-icons/fa";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 
-export default function Wallet() {
+export default function WalletSettings() {
   const { data: session } = useSession();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [activeTab, setActiveTab] = useState("mobile");
+  const [userEmail, setUserEmail] = useState(null);
 
   const [walletProvider, setWalletProvider] = useState("");
 
@@ -53,17 +62,21 @@ export default function Wallet() {
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["wallet"],
+    queryFn: () => fetch(`/api/admin/wallet-setting`).then((res) => res.json()),
+    enabled: !!session?.user?.email,
+  });
+
+  const { data: plan2_user, isLoading: plan2_user_loading } = useQuery({
+    queryKey: ["plan2_user"],
     queryFn: () =>
-      fetch(`/api/user/wallet?email=${session?.user?.email}`).then((res) =>
-        res.json()
-      ),
+      fetch("/api/admin/wallet-setting/user-plan-2").then((res) => res.json()),
     enabled: !!session?.user?.email,
   });
 
   if (isLoading) {
     return <Loading />;
   }
-  const wallet = data?.rows;
+  const wallet = data;
 
   // Filter wallet data by type
   const mobileData =
@@ -85,11 +98,13 @@ export default function Wallet() {
     setBinanceQrCode("");
     setIsEditMode(false);
     setEditingId(null);
+    setUserEmail(null); // Reset email when form is reset
   };
 
   const handleEdit = (item) => {
     setIsEditMode(true);
     setEditingId(item.id);
+    setUserEmail(item.email); // Set the email for edit mode
 
     if (item.wallet_provider === "bKash") {
       setActiveTab("mobile");
@@ -118,6 +133,12 @@ export default function Wallet() {
   };
 
   const handleSubmit = async (data, type) => {
+    // Check if user email is selected (only for new entries, not edit mode)
+    if (!isEditMode && !userEmail) {
+      toast.error("Please select a user email first");
+      return;
+    }
+
     if (type === "card") {
       toast.error("Card is disabled");
       return;
@@ -147,7 +168,7 @@ export default function Wallet() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           type,
-          email: session?.user?.email,
+          email: isEditMode ? data.email : userEmail,
           id: editingId,
           ...data,
         }),
@@ -169,6 +190,10 @@ export default function Wallet() {
     }
   };
 
+  const handleUserEmailChange = (value) => {
+    setUserEmail(value);
+  };
+
   return (
     <Card className="mb-20 dark:bg-slate-700">
       <CardContent className="p-6">
@@ -182,13 +207,11 @@ export default function Wallet() {
 
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             {
-              (session?.plan == "1" || session?.plan == "2") && (
-                <DialogTrigger asChild>
-                  <Button variant="primary" onClick={handleAddNew}>
-                    + Add Wallet Info
-                  </Button>
-                </DialogTrigger>
-              )
+              <DialogTrigger asChild>
+                <Button variant="primary" onClick={handleAddNew}>
+                  + Add Wallet Info
+                </Button>
+              </DialogTrigger>
             }
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
@@ -200,6 +223,50 @@ export default function Wallet() {
                 <DialogDescription>
                   Add your payment method information
                 </DialogDescription>
+                {!isEditMode ? (
+                  <DialogFooter>
+                    <div className="flex items-center gap-2 w-full">
+                      <Label className="w-32 text-red-600">User Email *</Label>
+                      <Select
+                        value={userEmail}
+                        onValueChange={handleUserEmailChange}
+                      >
+                        <SelectTrigger
+                          className={`w-full ${
+                            !userEmail ? "border-red-500" : ""
+                          }`}
+                        >
+                          <SelectValue placeholder="Select a user email (required)" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {plan2_user?.length > 0 ? (
+                            plan2_user.map((item) => (
+                              <SelectItem key={item.email} value={item.email}>
+                                {item.email}
+                              </SelectItem>
+                            ))
+                          ) : (
+                            <div className="p-2 text-sm text-gray-500">
+                              No users available
+                            </div>
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    {!userEmail && (
+                      <p className="text-red-500 text-sm mt-1">
+                        Please select a user email to continue
+                      </p>
+                    )}
+                  </DialogFooter>
+                ) : (
+                  <DialogFooter>
+                    <div className="flex items-center gap-2 w-full">
+                      <Label className="w-32 text-gray-600">User Email</Label>
+                      <Input value={userEmail} disabled className="w-full" />
+                    </div>
+                  </DialogFooter>
+                )}
               </DialogHeader>
 
               <Tabs
@@ -369,7 +436,7 @@ export default function Wallet() {
           {/* Mobile Banking Table */}
           <div>
             <h2 className="text-lg font-semibold mb-3">Mobile Banking</h2>
-            <Card  className="dark:bg-slate-700">
+            <Card className="dark:bg-slate-700">
               <CardContent className="p-0">
                 <Table>
                   <TableHeader>
@@ -428,7 +495,7 @@ export default function Wallet() {
                       <TableHead>Email</TableHead>
                       <TableHead>Provider</TableHead>
                       <TableHead>Binance ID</TableHead>
-                      
+
                       <TableHead>Binance QR Code Link</TableHead>
                       <TableHead>Actions</TableHead>
                     </TableRow>
@@ -449,9 +516,13 @@ export default function Wallet() {
                           <TableCell>{item.email}</TableCell>
                           <TableCell>{item.wallet_provider}</TableCell>
                           <TableCell>{item.binance_id}</TableCell>
-                          
+
                           <TableCell>
-                            <a href={item.binance_qr_code} target="_blank" className="text-blue-600 font-bold hover:underline">
+                            <a
+                              href={item.binance_qr_code}
+                              target="_blank"
+                              className="text-blue-600 font-bold hover:underline"
+                            >
                               Link
                             </a>
                           </TableCell>

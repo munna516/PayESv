@@ -50,6 +50,11 @@ const navMain = [
     icon: UserRound,
     href: "/admin/staff",
   },
+  {
+    label: "Wallet Settings",
+    icon: Wallet,
+    href: "/admin/wallet-settings",
+  },
   { label: "Brand", icon: Building, href: "/admin/brand" },
   {
     label: "Blogs",
