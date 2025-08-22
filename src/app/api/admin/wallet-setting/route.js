@@ -54,7 +54,6 @@ export async function POST(req) {
     return NextResponse.json(
       { message: "Wallet info saved successfully" },
       { status: 200 },
-      result
     );
   } else if (type === "netbank") {
     const result = await query(
@@ -70,7 +69,7 @@ export async function POST(req) {
     return NextResponse.json(
       { message: "Wallet info saved successfully" },
       { status: 200 },
-      result
+      
     );
   }
 }
