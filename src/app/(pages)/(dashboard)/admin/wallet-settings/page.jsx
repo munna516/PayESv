@@ -28,13 +28,6 @@ import { useSession } from "next-auth/react";
 import { useQuery } from "@tanstack/react-query";
 import Loading from "@/components/Loading/Loading";
 import { FaEdit } from "react-icons/fa";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select";
 
 export default function WalletSettings() {
   const { data: session } = useSession();
@@ -42,7 +35,6 @@ export default function WalletSettings() {
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [activeTab, setActiveTab] = useState("mobile");
-  const [userEmail, setUserEmail] = useState(null);
 
   const [walletProvider, setWalletProvider] = useState("");
 
@@ -63,13 +55,6 @@ export default function WalletSettings() {
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["wallet"],
     queryFn: () => fetch(`/api/admin/wallet-setting`).then((res) => res.json()),
-    enabled: !!session?.user?.email,
-  });
-
-  const { data: plan2_user, isLoading: plan2_user_loading } = useQuery({
-    queryKey: ["plan2_user"],
-    queryFn: () =>
-      fetch("/api/admin/wallet-setting/user-plan-2").then((res) => res.json()),
     enabled: !!session?.user?.email,
   });
 
@@ -98,13 +83,11 @@ export default function WalletSettings() {
     setBinanceQrCode("");
     setIsEditMode(false);
     setEditingId(null);
-    setUserEmail(null); // Reset email when form is reset
   };
 
   const handleEdit = (item) => {
     setIsEditMode(true);
     setEditingId(item.id);
-    setUserEmail(item.email); // Set the email for edit mode
 
     if (item.wallet_provider === "bKash") {
       setActiveTab("mobile");
@@ -133,12 +116,6 @@ export default function WalletSettings() {
   };
 
   const handleSubmit = async (data, type) => {
-    // Check if user email is selected (only for new entries, not edit mode)
-    if (!isEditMode && !userEmail) {
-      toast.error("Please select a user email first");
-      return;
-    }
-
     if (type === "card") {
       toast.error("Card is disabled");
       return;
@@ -158,8 +135,8 @@ export default function WalletSettings() {
 
     try {
       const url = isEditMode
-        ? `/api/user/wallet?id=${editingId}`
-        : "/api/user/wallet";
+        ? `/api/admin/wallet-setting?id=${editingId}`
+        : "/api/admin/wallet-setting";
 
       const method = isEditMode ? "PUT" : "POST";
 
@@ -168,7 +145,6 @@ export default function WalletSettings() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           type,
-          email: isEditMode ? data.email : userEmail,
           id: editingId,
           ...data,
         }),
@@ -188,10 +164,6 @@ export default function WalletSettings() {
       resetForm();
       setIsDialogOpen(false);
     }
-  };
-
-  const handleUserEmailChange = (value) => {
-    setUserEmail(value);
   };
 
   return (
@@ -223,50 +195,6 @@ export default function WalletSettings() {
                 <DialogDescription>
                   Add your payment method information
                 </DialogDescription>
-                {!isEditMode ? (
-                  <DialogFooter>
-                    <div className="flex items-center gap-2 w-full">
-                      <Label className="w-32 text-red-600">User Email *</Label>
-                      <Select
-                        value={userEmail}
-                        onValueChange={handleUserEmailChange}
-                      >
-                        <SelectTrigger
-                          className={`w-full ${
-                            !userEmail ? "border-red-500" : ""
-                          }`}
-                        >
-                          <SelectValue placeholder="Select a user email (required)" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {plan2_user?.length > 0 ? (
-                            plan2_user.map((item) => (
-                              <SelectItem key={item.email} value={item.email}>
-                                {item.email}
-                              </SelectItem>
-                            ))
-                          ) : (
-                            <div className="p-2 text-sm text-gray-500">
-                              No users available
-                            </div>
-                          )}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    {!userEmail && (
-                      <p className="text-red-500 text-sm mt-1">
-                        Please select a user email to continue
-                      </p>
-                    )}
-                  </DialogFooter>
-                ) : (
-                  <DialogFooter>
-                    <div className="flex items-center gap-2 w-full">
-                      <Label className="w-32 text-gray-600">User Email</Label>
-                      <Input value={userEmail} disabled className="w-full" />
-                    </div>
-                  </DialogFooter>
-                )}
               </DialogHeader>
 
               <Tabs
@@ -441,7 +369,6 @@ export default function WalletSettings() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Email</TableHead>
                       <TableHead>Provider</TableHead>
                       <TableHead>Merchant Number</TableHead>
                       <TableHead>Bkash API Key</TableHead>
@@ -459,9 +386,8 @@ export default function WalletSettings() {
                         </TableCell>
                       </TableRow>
                     ) : (
-                      mobileData.map((item) => (
+                      mobileData?.map((item) => (
                         <TableRow key={item.id}>
-                          <TableCell>{item.email}</TableCell>
                           <TableCell>{item.wallet_provider}</TableCell>
                           <TableCell>{item.merchant_number}</TableCell>
                           <TableCell>{item.api_key}</TableCell>
@@ -492,7 +418,6 @@ export default function WalletSettings() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Email</TableHead>
                       <TableHead>Provider</TableHead>
                       <TableHead>Binance ID</TableHead>
 
@@ -511,12 +436,10 @@ export default function WalletSettings() {
                         </TableCell>
                       </TableRow>
                     ) : (
-                      netBankingData.map((item) => (
+                      netBankingData?.map((item) => (
                         <TableRow key={item.id}>
-                          <TableCell>{item.email}</TableCell>
                           <TableCell>{item.wallet_provider}</TableCell>
                           <TableCell>{item.binance_id}</TableCell>
-
                           <TableCell>
                             <a
                               href={item.binance_qr_code}
