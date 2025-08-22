@@ -61,8 +61,7 @@ export default function WalletSettings() {
   if (isLoading) {
     return <Loading />;
   }
-  const wallet = data;
-
+  const wallet = data || [];
   // Filter wallet data by type
   const mobileData =
     wallet?.filter((item) => item.wallet_provider === "bKash") || [];
@@ -105,7 +104,6 @@ export default function WalletSettings() {
       setBinanceApiSecret(item.binance_api_secret || "");
       setBinanceQrCode(item.binance_qr_code || "");
     }
-
     setIsDialogOpen(true);
   };
 
