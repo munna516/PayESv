@@ -62,7 +62,6 @@ export default function WalletSettings() {
     return <Loading />;
   }
   const wallet = data || [];
-  console.log(wallet);
   // Filter wallet data by type
   const mobileData =
     wallet?.filter((item) => item.wallet_provider == "bKash") || [];

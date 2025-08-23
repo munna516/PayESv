@@ -4,8 +4,6 @@ import { query } from "@/lib/db";
 export async function GET(req) {
   try {
     const wallet = await query(`SELECT * FROM ready_gateway_wallets`);
-    console.log(wallet)
-    console.log(wallet.rows);
     return NextResponse.json(wallet.rows || []);
   } catch (error) {
     return NextResponse.json(
