@@ -38,7 +38,7 @@ export async function GET(req) {
       walletInfo = await query(`SELECT * FROM ready_gateway_wallets`);
     }
 
-    console.log(walletInfo.rows[0]);
+
 
     const redirect_success_url = `${userInfo.rows[0].redirect_success_url}?paymentId=${paymentId}`;
     const redirect_failed_url = `${userInfo.rows[0].redirect_failed_url}?paymentId=${paymentId}`;
@@ -47,7 +47,7 @@ export async function GET(req) {
 
     const BKASH_BASE_URL = process.env.BKASH_BASE_URL;
     const BKASH_APP_KEY = wallet?.api_key;
-    console.log(BKASH_APP_KEY);
+
     const payment = await fetch(
       `${BKASH_BASE_URL}/tokenized/checkout/execute`,
       {
@@ -73,10 +73,6 @@ export async function GET(req) {
         `SELECT bdt_balance FROM available_balance WHERE email = $1`,
         [userInfo.rows[0].merchant_email]
       );
-
-      console.log("this is balance", balance.rows[0]);
-
-      console.log("this is userInfo", userInfo.rows[0]);
 
       if (balance.rows.length > 0) {
         const updateBalance = await query(
