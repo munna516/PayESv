@@ -24,9 +24,21 @@ export async function GET(req) {
       [paymentId]
     );
 
-    const walletInfo = await query(`SELECT * FROM wallets WHERE email = $1`, [
+    // select the user plan
+    const userPlan = await query(`SELECT plan FROM users WHERE email = $1`, [
       userInfo.rows[0].merchant_email,
     ]);
+
+    let walletInfo;
+    if (userPlan.rows[0].plan == "1") {
+      walletInfo = await query(`SELECT * FROM wallets WHERE email = $1`, [
+        userInfo.rows[0].merchant_email,
+      ]);
+    } else if (userPlan.rows[0].plan == "2") {
+      walletInfo = await query(`SELECT * FROM ready_gateway_wallets`);
+    }
+
+    console.log(walletInfo.rows[0]);
 
     const redirect_success_url = `${userInfo.rows[0].redirect_success_url}?paymentId=${paymentId}`;
     const redirect_failed_url = `${userInfo.rows[0].redirect_failed_url}?paymentId=${paymentId}`;
@@ -35,7 +47,7 @@ export async function GET(req) {
 
     const BKASH_BASE_URL = process.env.BKASH_BASE_URL;
     const BKASH_APP_KEY = wallet?.api_key;
-
+    console.log(BKASH_APP_KEY);
     const payment = await fetch(
       `${BKASH_BASE_URL}/tokenized/checkout/execute`,
       {
@@ -61,13 +73,25 @@ export async function GET(req) {
         `SELECT bdt_balance FROM available_balance WHERE email = $1`,
         [userInfo.rows[0].merchant_email]
       );
-      const updateBalance = await query(
-        `UPDATE available_balance SET bdt_balance =$1 WHERE email = $2`,
-        [
-          balance.rows[0].bdt_balance + userInfo.rows[0].amount,
-          userInfo.rows[0].merchant_email,
-        ]
-      );
+
+      console.log("this is balance", balance.rows[0]);
+
+      console.log("this is userInfo", userInfo.rows[0]);
+
+      if (balance.rows.length > 0) {
+        const updateBalance = await query(
+          `UPDATE available_balance SET bdt_balance =$1 WHERE email = $2`,
+          [
+            balance.rows[0].bdt_balance + userInfo.rows[0].amount,
+            userInfo.rows[0].merchant_email,
+          ]
+        );
+      } else {
+        const addBalance = await query(
+          `INSERT INTO available_balance (email, bdt_balance,usd_balance) VALUES ($1, $2, $3)`,
+          [userInfo.rows[0].merchant_email, userInfo.rows[0].amount, 0]
+        );
+      }
       return NextResponse.redirect(redirect_success_url);
     } else {
       const updateTransaction = await query(

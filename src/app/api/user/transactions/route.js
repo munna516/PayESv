@@ -21,7 +21,7 @@ export async function GET(req) {
         .reduce((total, transaction) => {
           const amountInBDT =
             transaction.currency === "BDT" ? Number(transaction.amount) : "";
-          return total + amountInBDT;
+          return Number(Number(total) + Number(amountInBDT));
         }, 0);
 
       const pendingAmountUSD = transactions
@@ -29,7 +29,7 @@ export async function GET(req) {
         .reduce((total, transaction) => {
           const amountInUSD =
             transaction.currency === "USD" ? Number(transaction.amount) : "";
-          return total + amountInUSD;
+          return Number(Number(total) + Number(amountInUSD));
         }, 0);
 
       const successAmountBDT = transactions
@@ -37,7 +37,7 @@ export async function GET(req) {
         .reduce((total, transaction) => {
           const amountInBDT =
             transaction.currency === "BDT" ? Number(transaction.amount) : "";
-          return total + amountInBDT;
+          return Number(Number(total) + Number(amountInBDT));
         }, 0);
 
       const successAmountUSD = transactions
@@ -45,7 +45,7 @@ export async function GET(req) {
         .reduce((total, transaction) => {
           const amountInUSD =
             transaction.currency === "USD" ? Number(transaction.amount) : "";
-          return total + amountInUSD;
+          return Number(Number(total) + Number(amountInUSD));
         }, 0);
 
       const allPaymentsBDT = Number(successAmountBDT) + Number(pendingAmountBDT);

@@ -5,6 +5,9 @@ import crypto from "crypto";
 export async function POST(req) {
   const { binanceWallet, info, binanceOrderId } = await req.json();
   try {
+    console.log("this is binanceWallet", binanceWallet);
+    console.log("this is info", info);
+    console.log("this is binanceOrderId", binanceOrderId);
     // Check PAYMENT HISTORY (not deposits)
     const queryParams = new URLSearchParams({
       startTime: String(Date.now() - 15 * 60 * 1000), // Last 15 minute
@@ -34,8 +37,7 @@ export async function POST(req) {
     if (!matchingPayment) {
       return NextResponse.json({
         verified: false,
-        message:
-          "Payment not found",
+        message: "Payment not found",
       });
     }
 
@@ -56,6 +58,26 @@ export async function POST(req) {
       [binanceOrderId, matchingPayment?.transactionId, info?.id]
     );
 
+    const userPlan = await query("SELECT * FROM users WHERE email = $1", [
+      info?.merchant_email,
+    ]);
+    if (userPlan.rows[0].plan == "2") {
+      const userExist = await query(
+        "SELECT * FROM available_balance WHERE email = $1",
+        [info?.merchant_email]
+      );
+      if (userExist.rows.length > 0) {
+        const updateBalance = await query(
+          "UPDATE available_balance SET usd_balance = $1 WHERE email = $2",
+          [info?.amount + userExist.rows[0].usd_balance, info?.merchant_email]
+        );
+      } else {
+        const addBalance = await query(
+          "INSERT INTO available_balance (email, usd_balance, bdt_balance) VALUES ($1, $2, $3)",
+          [info?.merchant_email, info?.amount, 0]
+        );
+      }
+    }
     if (updateTransaction.rowCount > 0) {
       return NextResponse.json({
         verified: true,
