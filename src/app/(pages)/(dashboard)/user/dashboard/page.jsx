@@ -39,7 +39,7 @@ export default function Dashboard() {
   });
 
   if (isLoading) return <Loading />;
- 
+
   return (
     <div className="space-y-6 mb-14">
       <div className="flex justify-between items-center">
@@ -240,7 +240,7 @@ export default function Dashboard() {
                   <TableHead>Amount</TableHead>
                   <TableHead> Time</TableHead>
                   <TableHead className="hidden md:table-cell">From</TableHead>
-                  <TableHead className="hidden md:table-cell">To</TableHead>
+
                   <TableHead>Currency</TableHead>
                   <TableHead>Reference</TableHead>
                   <TableHead>Status</TableHead>
@@ -263,13 +263,11 @@ export default function Dashboard() {
                     <TableCell className="hidden md:table-cell">
                       {transaction.customer_name}
                     </TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      {transaction.merchant_email}
-                    </TableCell>
+
+                    <TableCell className="">{transaction.currency}</TableCell>
                     <TableCell className="">
                       {transaction.transaction_id || "-----"}
                     </TableCell>
-                    <TableCell className="">{transaction.currency}</TableCell>
                     <TableCell
                       className={`${
                         transaction.status == "pending"
