@@ -36,6 +36,12 @@ const navMain = [
   { label: "Transactions", icon: CreditCard, href: "/admin/transactions" },
 
   {
+    label: "Withdrawal Request",
+    icon: Banknote,
+    href: "/admin/withdrawal-request",
+  },
+
+  {
     label: "Users",
     icon: Users,
     href: "/admin/users",

@@ -5,9 +5,7 @@ import crypto from "crypto";
 export async function POST(req) {
   const { binanceWallet, info, binanceOrderId } = await req.json();
   try {
-    console.log("this is binanceWallet", binanceWallet);
-    console.log("this is info", info);
-    console.log("this is binanceOrderId", binanceOrderId);
+
     // Check PAYMENT HISTORY (not deposits)
     const queryParams = new URLSearchParams({
       startTime: String(Date.now() - 15 * 60 * 1000), // Last 15 minute
@@ -82,14 +80,15 @@ export async function POST(req) {
       return NextResponse.json({
         verified: true,
         message: "Payment verified successfully",
-        redirect_success_url: info?.redirect_success_url,
-        redirect_failed_url: info?.redirect_failed_url,
+        redirect_success_url:
+          info?.redirect_success_url + "?paymentId=" + binanceOrderId,
       });
     } else {
       return NextResponse.json({
         verified: false,
         message: "Payment verification failed",
-        redirect_failed_url: info?.redirect_failed_url,
+        redirect_failed_url:
+          info?.redirect_failed_url + "?paymentId=" + binanceOrderId,
       });
     }
   } catch (error) {
