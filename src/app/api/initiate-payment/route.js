@@ -8,19 +8,9 @@ export async function POST(req) {
     const { amount, currency, customer, orderId, redirectUrl } =
       await req.json();
 
-    console.log("This is amount", amount);
-    console.log("This is currency", currency);
-    console.log("This is customer", customer);
-    console.log("This is orderId", orderId);
-    console.log("This is redirectUrl", redirectUrl);
-
     const apiKey = headers.get("x-api-key");
     const apiSecret = headers.get("x-api-secret");
     const brandKey = headers.get("x-brand-key");
-
-    console.log("This is apiKey", apiKey);
-    console.log("This is apiSecret", apiSecret);
-    console.log("This is brandKey", brandKey);
 
     if (!apiKey || !apiSecret || !brandKey) {
       return NextResponse.json(
@@ -35,7 +25,6 @@ export async function POST(req) {
         { status: 400 }
       );
     }
-
     // ✅ Validate merchant
     const merchant = await query(
       "SELECT * FROM brands WHERE api_key = $1 AND api_secret = $2 AND brand_key = $3",
@@ -51,7 +40,7 @@ export async function POST(req) {
     }
 
     const id = uuidv4();
-
+    console.log(id);
     //   check Transaction table exists or not
 
     const checkTableQuery = `
