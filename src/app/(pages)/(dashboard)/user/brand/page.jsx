@@ -41,6 +41,7 @@ export default function Transactions() {
   const [brandName, setBrandName] = useState("");
   const [brandUrl, setBrandUrl] = useState("");
   const [brandLogo, setBrandLogo] = useState("");
+  const [webhookUrl, setWebhookUrl] = useState("");
   const [status, setStatus] = useState("Active");
   const [editOpen, setEditOpen] = useState(false);
   const [editBrand, setEditBrand] = useState(null);
@@ -84,6 +85,7 @@ export default function Transactions() {
   // Handler to open edit modal with brand data
   const handleEdit = (brand) => {
     setEditBrand(brand);
+    setWebhookUrl(brand.webhook_url);
     setEditOpen(true);
   };
 
@@ -114,6 +116,7 @@ export default function Transactions() {
         brandName,
         brandUrl,
         brandLogo,
+        webhookUrl,
         email: session?.user?.email,
         status,
       }),
@@ -124,6 +127,7 @@ export default function Transactions() {
       setBrandName("");
       setBrandUrl("");
       setBrandLogo("");
+      setWebhookUrl("");
       setStatus("Active");
       refetch();
     } else {
@@ -136,6 +140,7 @@ export default function Transactions() {
   const handleEditBrand = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    console.log(editBrand.webhook_url)
     try {
       const res = await fetch("/api/user/brand", {
         method: "PUT",
@@ -144,10 +149,12 @@ export default function Transactions() {
           brandName: editBrand.brand_name,
           brandUrl: editBrand.brand_url,
           brandLogo: editBrand.brand_logo,
+          webhookUrl: editBrand.webhook_url,
           status: editBrand.status,
         }),
       });
       const data = await res.json();
+      console.log(data)
       if (data.rowCount > 0) {
         toast.success("Brand updated successfully");
         refetch();
@@ -228,7 +235,7 @@ export default function Transactions() {
 
                 <div className="space-y-2">
                   <Label htmlFor="brandLogo" className="font-semibold">
-                    Brand Logo
+                    Brand Logo URL
                   </Label>
                   <Input
                     id="brandLogo"
@@ -237,6 +244,20 @@ export default function Transactions() {
                     value={brandLogo}
                     onChange={(e) => setBrandLogo(e.target.value)}
                     placeholder="Upload brand logo"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="webhookUrl" className="font-semibold">
+                    Webhook URL
+                  </Label>
+                  <Input
+                    id="webhookUrl"
+                    name="webhookUrl"
+                    type="url"
+                    value={webhookUrl}
+                    onChange={(e) => setWebhookUrl(e.target.value)}
+                    placeholder="Enter webhook URL"
                     required
                   />
                 </div>
@@ -373,7 +394,7 @@ export default function Transactions() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="editBrandLogo" className="font-semibold">
-                Brand Logo
+                Brand Logo URL
               </Label>
               <Input
                 id="editBrandLogo"
@@ -387,6 +408,24 @@ export default function Transactions() {
                 required
               />
             </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="editWebhookUrl" className="font-semibold">
+                Webhook URL
+              </Label>
+              <Input
+                id="editWebhookUrl"
+                name="editWebhookUrl"
+                type="text"
+                value={editBrand?.webhook_url || ""}
+                onChange={(e) =>
+                  setEditBrand({ ...editBrand, webhook_url: e.target.value })
+                }
+                placeholder="Enter webhook URL"
+                required
+              />
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="editStatus" className="font-semibold">
                 Status
