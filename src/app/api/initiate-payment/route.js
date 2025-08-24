@@ -8,9 +8,20 @@ export async function POST(req) {
     const { amount, currency, customer, orderId, redirectUrl } =
       await req.json();
 
+    console.log("This is amount", amount);
+    console.log("This is currency", currency);
+    console.log("This is customer", customer);
+    console.log("This is orderId", orderId);
+    console.log("This is redirectUrl", redirectUrl);
+
     const apiKey = headers.get("x-api-key");
     const apiSecret = headers.get("x-api-secret");
     const brandKey = headers.get("x-brand-key");
+
+    console.log("This is apiKey", apiKey);
+    console.log("This is apiSecret", apiSecret);
+    console.log("This is brandKey", brandKey);
+
     if (!apiKey || !apiSecret || !brandKey) {
       return NextResponse.json(
         { error: "Missing required headers" },
@@ -101,9 +112,12 @@ export async function POST(req) {
       { status: 200 }
     );
   } catch (error) {
-    return NextResponse.json({
-      status: "error",
-      message: "Invalid API Key or API Secret or Brand Key",
-    },{status: 400});
+    return NextResponse.json(
+      {
+        status: "error",
+        message: "Invalid API Key or API Secret or Brand Key",
+      },
+      { status: 400 }
+    );
   }
 }
