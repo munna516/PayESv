@@ -3,9 +3,8 @@ import Link from "next/link";
 import { Button } from "../ui/button";
 
 export default function GetTouch() {
-
   return (
-    <div className="mt-10 md:mt-20 text-center">
+    <div className="mt-10 md:mt-10 text-center">
       <h1 className="text-2xl md:text-3xl lg:text-4xl dark:text-white font-bold mb-4">
         Have Question ? Get in touch!
       </h1>
