@@ -3,7 +3,9 @@ import { usePathname } from "next/navigation";
 
 const Footer = () => {
   const pathname = usePathname();
-  return pathname.includes("/user") || pathname.includes("/admin") || pathname.includes("/pay") ? (
+  return pathname.includes("/user") ||
+    pathname.includes("/admin") ||
+    pathname.includes("/pay") ? (
     ""
   ) : (
     <footer className="bg-green-500 dark:bg-gray-800 text-white py-12 px-4 sm:px-6 mt-10">
@@ -121,8 +123,17 @@ const Footer = () => {
         {/* Copyright */}
         <div className="border-t border-white mt-12 pt-8 text-center text-white text-base">
           <p>
-            Copyright © 2015 - {new Date().getFullYear()} | All Rights Reserved 
-            PayESv
+            Copyright © {new Date().getFullYear()} | All Rights Reserved PayESv
+          </p>
+          <p className="mt-2">
+            Developed By{" "}
+            <a
+              href="https://itesv.com"
+              target="_blank"
+              className="ml-2 text-white hover:underline"
+            >
+              IT ESV
+            </a>
           </p>
         </div>
       </div>
