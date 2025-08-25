@@ -55,6 +55,7 @@ const navMain = [
 const navOthers = [
   { label: "Affiliates", icon: Users, href: "/user/affiliates" },
   { label: "Plans", icon: Gift, href: "/user/plans" },
+  { label: "Tickets", icon: Ticket, href: "/user/tickets" },
   { label: "Android App", icon: Smartphone, href: "/user/android-app" },
   { label: "Developer Tools", icon: Package, href: "/resources" },
   { label: "Home", icon: Home, href: "/" },

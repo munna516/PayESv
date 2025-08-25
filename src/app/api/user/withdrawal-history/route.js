@@ -28,7 +28,15 @@ export async function GET(request) {
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);`;
     await query(createWithdrawalHistoryTableQuery);
   }
-
+  const deleteRejectedWithdrawalHistory = await query(
+    `
+    DELETE FROM withdrawal_history
+    WHERE status = 'Rejected'
+    AND created_at < NOW() - INTERVAL '3 day'
+    AND email = $1
+  `,
+    [email]
+  );
   const history = await query(
     `SELECT * FROM withdrawal_history WHERE email = $1`,
     [email]

@@ -71,10 +71,10 @@ export default function Transactions() {
             <TableHeader>
               <TableRow className="bg-slate-200 dark:bg-slate-700">
                 <TableHead>Date</TableHead>
+                <TableHead className="hidden md:table-cell">Email</TableHead>
+                <TableHead className="hidden md:table-cell">From</TableHead>
                 <TableHead>Amount</TableHead>
                 <TableHead> Time</TableHead>
-                <TableHead className="hidden md:table-cell">From</TableHead>
-                <TableHead className="hidden md:table-cell">To</TableHead>
                 <TableHead>Transaction ID</TableHead>
                 <TableHead>Status</TableHead>
               </TableRow>
@@ -86,16 +86,22 @@ export default function Transactions() {
                     <TableCell className="">
                       {transaction?.created_at.split("T")[0]}
                     </TableCell>
-                    <TableCell className=""> {transaction?.currency == "BDT" ? "৳" : "$"} {transaction?.amount}</TableCell>
-                    <TableCell className="">
-                      {transaction.created_at.split("T")[1].split(".")[0]}
+                    <TableCell className="hidden md:table-cell">
+                      {transaction?.customer_email}
                     </TableCell>
                     <TableCell className="hidden md:table-cell">
                       {transaction?.customer_name}
                     </TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      {transaction?.merchant_email}
+                    <TableCell className="">
+                      {" "}
+                      {transaction?.currency == "BDT" ? "৳" : "$"}{" "}
+                      {transaction?.amount}
                     </TableCell>
+                    <TableCell className="">
+                      {transaction.created_at.split("T")[1].split(".")[0]}
+                    </TableCell>
+                    
+                    
                     <TableCell className="">
                       {transaction.transaction_id || "-------------"}
                     </TableCell>
