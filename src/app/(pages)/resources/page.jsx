@@ -734,91 +734,521 @@ public class PaymentController {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="php" className="w-full">
-              <TabsList className="grid w-full grid-cols-5">
-                <TabsTrigger value="php">PHP</TabsTrigger>
-                <TabsTrigger value="nodejs">Node.js</TabsTrigger>
-                <TabsTrigger value="wordpress">WordPress</TabsTrigger>
-                <TabsTrigger value="python">Python</TabsTrigger>
-                <TabsTrigger value="java">Java</TabsTrigger>
+            <Tabs defaultValue="create-payment" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 mb-6">
+                <TabsTrigger value="create-payment">Create Payment</TabsTrigger>
+                <TabsTrigger value="verify-payment">Verify Payment</TabsTrigger>
               </TabsList>
 
-              {/* PHP Example */}
-              <TabsContent value="php" className="space-y-4">
+              {/* Create Payment Tab */}
+              <TabsContent value="create-payment" className="space-y-6">
                 <div>
-                  <h3 className="text-lg font-semibold mb-2">
-                    PHP Integration
+                  <h3 className="text-xl font-semibold mb-4">
+                    Create Payment Integration
                   </h3>
-                  <CodeBlock code={phpCode} className="text-green-400" />
+                  <Tabs defaultValue="php" className="w-full">
+                    <TabsList className="grid w-full grid-cols-5">
+                      <TabsTrigger value="php">PHP</TabsTrigger>
+                      <TabsTrigger value="nodejs">Node.js</TabsTrigger>
+                      <TabsTrigger value="wordpress">WordPress</TabsTrigger>
+                      <TabsTrigger value="python">Python</TabsTrigger>
+                      <TabsTrigger value="java">Java</TabsTrigger>
+                    </TabsList>
+
+                    {/* PHP Example */}
+                    <TabsContent value="php" className="space-y-4">
+                      <div>
+                        <h3 className="text-lg font-semibold mb-2">
+                          PHP Integration
+                        </h3>
+                        <CodeBlock code={phpCode} className="text-green-400" />
+                      </div>
+                    </TabsContent>
+
+                    {/* Node.js Example */}
+                    <TabsContent value="nodejs" className="space-y-4">
+                      <div>
+                        <h3 className="text-lg font-semibold mb-2">
+                          Node.js Integration
+                        </h3>
+                        <CodeBlock code={nodeCode} className="text-green-400" />
+                      </div>
+                    </TabsContent>
+
+                    {/* WordPress Example */}
+                    <TabsContent value="wordpress" className="space-y-4">
+                      <div>
+                        <h3 className="text-lg font-semibold mb-2">
+                          WordPress Integration
+                        </h3>
+                        <CodeBlock
+                          code={wordpressCode}
+                          className="text-green-400"
+                        />
+                      </div>
+                    </TabsContent>
+
+                    {/* Python Example */}
+                    <TabsContent value="python" className="space-y-4">
+                      <div>
+                        <h3 className="text-lg font-semibold mb-2">
+                          Python Integration
+                        </h3>
+                        <CodeBlock
+                          code={pythonCode}
+                          className="text-green-400"
+                        />
+                      </div>
+                    </TabsContent>
+
+                    {/* Java Example */}
+                    <TabsContent value="java" className="space-y-4">
+                      <div>
+                        <h3 className="text-lg font-semibold mb-2">
+                          Java Integration
+                        </h3>
+                        <CodeBlock code={javaCode} className="text-green-400" />
+                      </div>
+                    </TabsContent>
+                  </Tabs>
+                </div>
+
+                {/* Create Payment Additional Information */}
+                <div className="grid md:grid-cols-2 gap-6 mt-8">
+                  <Card className="dark:bg-slate-700">
+                    <CardHeader>
+                      <CardTitle>Success Response</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <CodeBlock
+                        code={successResponseCode}
+                        className="text-green-400"
+                      />
+                    </CardContent>
+                  </Card>
+
+                  <Card className="dark:bg-slate-700">
+                    <CardHeader>
+                      <CardTitle>Error Response</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <CodeBlock
+                        code={errorResponseCode}
+                        className="text-red-400"
+                      />
+                    </CardContent>
+                  </Card>
                 </div>
               </TabsContent>
 
-              {/* Node.js Example */}
-              <TabsContent value="nodejs" className="space-y-4">
-                <div>
-                  <h3 className="text-lg font-semibold mb-2">
-                    Node.js Integration
+              {/* Verify Payment Tab */}
+              <TabsContent value="verify-payment" className="w-full">
+                <div className="w-full">
+                  <h3 className="text-xl font-semibold mb-4">
+                    Verify Payment Integration
                   </h3>
-                  <CodeBlock code={nodeCode} className="text-green-400" />
-                </div>
-              </TabsContent>
+                  <p className="text-gray-600 mb-6">
+                    Verify payment status and transaction details using our
+                    verification API.
+                  </p>
 
-              {/* WordPress Example */}
-              <TabsContent value="wordpress" className="space-y-4">
-                <div>
-                  <h3 className="text-lg font-semibold mb-2">
-                    WordPress Integration
-                  </h3>
-                  <CodeBlock code={wordpressCode} className="text-green-400" />
-                </div>
-              </TabsContent>
+                  <Tabs defaultValue="php-verify" className="w-full">
+                    <TabsList className="grid w-full grid-cols-5">
+                      <TabsTrigger value="php-verify">PHP</TabsTrigger>
+                      <TabsTrigger value="nodejs-verify">Node.js</TabsTrigger>
+                      <TabsTrigger value="wordpress-verify">
+                        WordPress
+                      </TabsTrigger>
+                      <TabsTrigger value="python-verify">Python</TabsTrigger>
+                      <TabsTrigger value="java-verify">Java</TabsTrigger>
+                    </TabsList>
 
-              {/* Python Example */}
-              <TabsContent value="python" className="space-y-4">
-                <div>
-                  <h3 className="text-lg font-semibold mb-2">
-                    Python Integration
-                  </h3>
-                  <CodeBlock code={pythonCode} className="text-green-400" />
-                </div>
-              </TabsContent>
+                    {/* PHP Verify Example */}
+                    <TabsContent value="php-verify" className="w-full">
+                      <div className="w-full">
+                        <h3 className="text-lg font-semibold mb-2">
+                          PHP Verification Integration
+                        </h3>
+                        <CodeBlock
+                          code={`<?php
+// Payment Verification - PHP
+class PaymentVerification {
+    private $apiKey = 'YOUR_API_KEY';
+    private $brandKey = 'YOUR_BRAND_KEY';
+    private $apiSecret = 'YOUR_API_SECRET';
+    private $baseUrl = 'https://www.payesv.com/api/verify-payment';
 
-              {/* Java Example */}
-              <TabsContent value="java" className="space-y-4">
-                <div>
-                  <h3 className="text-lg font-semibold mb-2">
-                    Java Integration
-                  </h3>
-                  <CodeBlock code={javaCode} className="text-green-400" />
+    public function verifyPayment($transactionId) {
+        $data = [
+            'id' => $transactionId
+        ];
+
+        $headers = [
+            'x-api-key: ' . $this->apiKey
+        ];
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $this->baseUrl);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        $responseData = json_decode($response, true);
+        
+        if ($httpCode === 200) {
+            return [
+                'status' => 'success',
+                'data' => $responseData
+            ];
+        } else {
+            return [
+                'status' => 'error',
+                'message' => $responseData['message'] ?? 'Verification failed'
+            ];
+        }
+    }
+}
+
+// Usage Example
+$verification = new PaymentVerification();
+$result = $verification->verifyPayment('transaction_id_here');
+echo json_encode($result, JSON_PRETTY_PRINT);
+?>`}
+                          className="text-green-400"
+                        />
+                      </div>
+                    </TabsContent>
+
+                    {/* Node.js Verify Example */}
+                    <TabsContent value="nodejs-verify" className="w-full">
+                      <div className="w-full">
+                        <h3 className="text-lg font-semibold mb-2">
+                          Node.js Verification Integration
+                        </h3>
+                        <CodeBlock
+                          code={`// Payment Verification - Node.js
+const axios = require('axios');
+
+class PaymentVerification {
+    constructor() {
+        this.apiKey = 'YOUR_API_KEY';
+        this.brandKey = 'YOUR_BRAND_KEY';
+        this.apiSecret = 'YOUR_API_SECRET';
+        this.baseUrl = 'https://www.payesv.com/api/verify-payment';
+    }
+
+    async verifyPayment(transactionId) {
+        try {
+            const data = {
+                id: transactionId
+            };
+
+            const headers = {
+                'x-api-key': this.apiKey
+            };
+
+            const response = await axios.post(this.baseUrl, data, { headers });
+            return {
+                status: 'success',
+                data: response.data
+            };
+        } catch (error) {
+            return {
+                status: 'error',
+                message: error.response?.data?.message || error.message
+            };
+        }
+    }
+}
+
+// Usage Example
+const verification = new PaymentVerification();
+verification.verifyPayment('transaction_id_here')
+    .then(result => console.log(JSON.stringify(result, null, 2)))
+    .catch(error => console.error('Verification failed:', error));`}
+                          className="text-green-400"
+                        />
+                      </div>
+                    </TabsContent>
+
+                    {/* WordPress Verify Example */}
+                    <TabsContent value="wordpress-verify" className="w-full">
+                      <div className="w-full">
+                        <h3 className="text-lg font-semibold mb-2">
+                          WordPress Verification Integration
+                        </h3>
+                        <CodeBlock
+                          code={`<?php
+// WordPress Payment Verification
+class WordPressPaymentVerification {
+    private $api_key = 'YOUR_API_KEY';
+    private $brand_key = 'YOUR_BRAND_KEY';
+    private $api_secret = 'YOUR_API_SECRET';
+    private $base_url = 'https://www.payesv.com/api/verify-payment';
+
+    public function __construct() {
+        add_action('wp_ajax_verify_payment', array($this, 'verify_payment'));
+        add_action('wp_ajax_nopriv_verify_payment', array($this, 'verify_payment'));
+    }
+
+    public function verify_payment() {
+        if (!wp_verify_nonce($_POST['nonce'], 'verification_nonce')) {
+            wp_die('Security check failed');
+        }
+
+        $transaction_id = sanitize_text_field($_POST['transaction_id']);
+
+        $data = array(
+            'id' => $transaction_id
+        );
+
+        $headers = array(
+            'x-api-key: ' . $this->api_key
+        );
+
+        $response = wp_remote_post($this->base_url, array(
+            'headers' => $headers,
+            'body' => json_encode($data),
+            'timeout' => 30
+        ));
+
+        if (is_wp_error($response)) {
+            wp_send_json_error('Verification request failed');
+        } else {
+            $body = wp_remote_retrieve_body($response);
+            $result = json_decode($body, true);
+            
+            if (wp_remote_retrieve_response_code($response) === 200) {
+                wp_send_json_success($result);
+            } else {
+                wp_send_json_error($result['message'] ?? 'Verification failed');
+            }
+        }
+    }
+}
+
+// Initialize the verification
+new WordPressPaymentVerification();`}
+                          className="text-green-400"
+                        />
+                      </div>
+                    </TabsContent>
+
+                    {/* Python Verify Example */}
+                    <TabsContent value="python-verify" className="w-full">
+                      <div className="w-full">
+                        <h3 className="text-lg font-semibold mb-2">
+                          Python Verification Integration
+                        </h3>
+                        <CodeBlock
+                          code={`# Payment Verification - Python
+import requests
+import json
+
+class PaymentVerification:
+    def __init__(self):
+        self.api_key = 'YOUR_API_KEY'
+        self.brand_key = 'YOUR_BRAND_KEY'
+        self.api_secret = 'YOUR_API_SECRET'
+        self.base_url = 'https://www.payesv.com/api/verify-payment'
+
+    def verify_payment(self, transaction_id):
+        data = {
+            'id': transaction_id
+        }
+
+        headers = {
+            'x-api-key': self.api_key
+        }
+
+        try:
+            response = requests.post(
+                self.base_url,
+                json=data,
+                headers=headers,
+                timeout=30
+            )
+            
+            response_data = response.json()
+            return {
+                'status': 'success',
+                'data': response_data
+            }
+        except requests.exceptions.RequestException as e:
+            return {
+                'status': 'error',
+                'message': str(e)
+            }
+
+# Usage Example
+if __name__ == "__main__":
+    verification = PaymentVerification()
+    result = verification.verify_payment('transaction_id_here')
+    print(json.dumps(result, indent=2))`}
+                          className="text-green-400"
+                        />
+                      </div>
+                    </TabsContent>
+
+                    {/* Java Verify Example */}
+                    <TabsContent value="java-verify" className="w-full">
+                      <div className="w-full">
+                        <h3 className="text-lg font-semibold mb-2">
+                          Java Verification Integration
+                        </h3>
+                        <CodeBlock
+                          code={`// Payment Verification - Java
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Map;
+import java.util.HashMap;
+
+public class PaymentVerification {
+    private String apiKey = "YOUR_API_KEY";
+    private String baseUrl = "https://www.payesv.com/api/verify-payment";
+    private ObjectMapper objectMapper = new ObjectMapper();
+
+    public VerificationResponse verifyPayment(String transactionId) {
+        try {
+            // Create request data
+            Map<String, Object> requestData = new HashMap<>();
+            requestData.put("id", transactionId);
+
+            String jsonBody = objectMapper.writeValueAsString(requestData);
+
+            // Create HTTP request
+            HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(baseUrl))
+                .header("x-api-key", apiKey)
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
+                .build();
+
+            HttpClient client = HttpClient.newHttpClient();
+            HttpResponse<String> response = client.send(request, 
+                HttpResponse.BodyHandlers.ofString());
+
+            Map<String, Object> responseData = objectMapper.readValue(
+                response.body(), Map.class);
+            
+            VerificationResponse verificationResponse = new VerificationResponse();
+            
+            if (response.statusCode() == 200) {
+                verificationResponse.setStatus("success");
+                verificationResponse.setData(responseData);
+            } else {
+                verificationResponse.setStatus("error");
+                verificationResponse.setMessage((String) responseData.get("message"));
+            }
+
+            return verificationResponse;
+
+        } catch (IOException | InterruptedException e) {
+            VerificationResponse errorResponse = new VerificationResponse();
+            errorResponse.setStatus("error");
+            errorResponse.setMessage(e.getMessage());
+            return errorResponse;
+        }
+    }
+
+    public static class VerificationResponse {
+        private String status;
+        private String message;
+        private Map<String, Object> data;
+
+        // Getters and Setters
+        public String getStatus() { return status; }
+        public void setStatus(String status) { this.status = status; }
+        
+        public String getMessage() { return message; }
+        public void setMessage(String message) { this.message = message; }
+        
+        public Map<String, Object> getData() { return data; }
+        public void setData(Map<String, Object> data) { this.data = data; }
+    }
+}
+
+// Usage Example
+public class VerificationExample {
+    public static void main(String[] args) {
+        PaymentVerification verification = new PaymentVerification();
+        PaymentVerification.VerificationResponse response = 
+            verification.verifyPayment("transaction_id_here");
+        
+        System.out.println("Status: " + response.getStatus());
+        if (response.getStatus().equals("success")) {
+            System.out.println("Data: " + response.getData());
+        } else {
+            System.out.println("Error: " + response.getMessage());
+        }
+    }
+}`}
+                          className="text-green-400"
+                        />
+                      </div>
+                    </TabsContent>
+                  </Tabs>
+                </div>
+
+                {/* Verify Payment Additional Information */}
+                <div className="grid md:grid-cols-2 gap-6 mt-8">
+                  <Card className="dark:bg-slate-700">
+                    <CardHeader>
+                      <CardTitle>Verification Success Response</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <CodeBlock
+                        code={`{
+  "status": "success",
+  "data": {
+    "transactionId": "txn_123456789",
+    "amount": "100.00",
+    "currency": "BDT",
+    "status": "completed",
+    "customer": {
+      "name": "Anis Rahman",
+      "email": "anis@gmail.com",
+      "phone": "01826673690"
+    },
+    "orderId": "ord17238",
+    "createdAt": "2024-01-15T10:30:00Z",
+    "completedAt": "2024-01-15T10:32:15Z"
+  }
+}`}
+                        className="text-green-400"
+                      />
+                    </CardContent>
+                  </Card>
+
+                  <Card className="dark:bg-slate-700">
+                    <CardHeader>
+                      <CardTitle>Verification Error Response</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <CodeBlock
+                        code={`{
+  "status": "error",
+  "message": "Transaction not found or invalid transaction ID"
+}`}
+                        className="text-red-400"
+                      />
+                    </CardContent>
+                  </Card>
                 </div>
               </TabsContent>
             </Tabs>
           </CardContent>
         </Card>
-
-        {/* Additional Information */}
-        <div className="grid md:grid-cols-2 gap-6 mt-8 dark:bg-slate-700">
-          <Card className="dark:bg-slate-700">
-            <CardHeader>
-              <CardTitle>Success Response</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <CodeBlock
-                code={successResponseCode}
-                className="text-green-400"
-              />
-            </CardContent>
-          </Card>
-
-          <Card className="dark:bg-slate-700">
-            <CardHeader>
-              <CardTitle>Error Response</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <CodeBlock code={errorResponseCode} className="text-red-400" />
-            </CardContent>
-          </Card>
-        </div>
 
         {/* Security & Best Practices */}
         <Card className="mt-8 dark:bg-slate-700">
