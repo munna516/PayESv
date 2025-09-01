@@ -49,11 +49,13 @@ export async function GET(req) {
 
   // ✅ Extract base URL
   const urlObj = new URL(redirect_url);
-  const baseUrl = `${urlObj.protocol}//${urlObj.host}`;
+  const urlData = urlObj?.host.split(".");
 
-  const brands = await query("SELECT * FROM brands WHERE brand_url = $1", [
-    baseUrl,
-  ]);
+  const brands = await query(
+    `SELECT * FROM brands WHERE split_part(split_part(brand_url, '//', 2), '.', 2) = '${
+      urlData[urlData.length - 2]
+    }'`
+  );
 
   if (brands.rows.length === 0) {
     return NextResponse.json({ error: "Brand not found" }, { status: 404 });
