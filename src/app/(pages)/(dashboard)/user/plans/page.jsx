@@ -13,6 +13,11 @@ export default function Plans() {
   const { data: session } = useSession();
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [renew, setRenew] = useState(0);
+
+ const handleRenew = () => {
+  setRenew(1);
+ };
 
   const fetchPlan = async () => {
     setIsLoading(true);
@@ -94,9 +99,9 @@ export default function Plans() {
     </div>
   ) : session?.plan == 1 ? (
     <div className="mb-20">
-      <PlanTable data={data} />
+      <PlanTable data={data} renew={renew} handleRenew={handleRenew} />
       <h1 className="mb-8 mt-20 text-3xl font-bold text-center">
-        Upgrade Your Plan
+        {renew == 0 ? "Upgrade" : "Renew"} Your Plan
       </h1>
       <div className="text-center mb-8">
         <p className="text-muted-foreground  mb-6 md:w-1/2 w-full mx-auto">

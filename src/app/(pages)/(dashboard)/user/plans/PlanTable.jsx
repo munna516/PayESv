@@ -8,8 +8,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { format } from "date-fns";
+import Link from "next/link";
 
-export default function PlanTable({ data }) {
+export default function PlanTable({ data, renew, handleRenew }) {
   if (!data) {
     return (
       <Card className="dark:bg-slate-700">
@@ -65,7 +66,7 @@ export default function PlanTable({ data }) {
                 <TableCell>
                   {format(new Date(expires_at), "dd-MM-yyyy")}
                 </TableCell>
-                <TableCell>
+                <TableCell className="flex items-center gap-4">
                   <span
                     className={`px-2 py-1 rounded-full text-xs ${
                       status === "Active"
@@ -75,6 +76,16 @@ export default function PlanTable({ data }) {
                   >
                     {status}
                   </span>
+                  {new Date(expires_at) - new Date() <=
+                    7 * 24 * 60 * 60 * 1000 &&
+                    new Date(expires_at) > new Date() && (
+                      <button
+                        onClick={() => handleRenew()}
+                        className="bg-red-500 text-white px-3 py-1 rounded"
+                      >
+                        Renew
+                      </button>
+                    )}
                 </TableCell>
               </TableRow>
             </TableBody>
