@@ -781,6 +781,80 @@ public class PaymentController {
                         <h3 className="text-lg font-semibold mb-2">
                           WordPress Integration
                         </h3>
+
+                        {/* Download Plugin Button */}
+                        <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-1">
+                                🚀 Easy WordPress Plugin
+                              </h4>
+                              <p className="text-sm text-blue-700 dark:text-blue-300">
+                                Download our ready-to-use WordPress plugin for
+                                quick integration
+                              </p>
+                            </div>
+                            <a
+                              href="/assets/plugins/payesv-woocommerce-gateway.zip"
+                              download="payesv-woocommerce-gateway.zip"
+                              className="bg-blue-600 p-2 rounded-lg hover:bg-blue-700 text-white"
+                            >
+                              📥 Download Plugin
+                            </a>
+                          </div>
+                        </div>
+
+                        {/* Setup Instructions */}
+                        <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                          <h4 className="font-semibold text-green-900 dark:text-green-100 mb-3">
+                            📋 Setup Instructions
+                          </h4>
+                          <ol className="list-decimal list-inside space-y-2 text-sm text-green-800 dark:text-green-200">
+                            <li>
+                              Download the plugin zip file using the button
+                              above
+                            </li>
+                            <li>Go to your WordPress admin dashboard</li>
+                            <li>
+                              Navigate to{" "}
+                              <code className="bg-green-100 dark:bg-green-800 px-1 rounded">
+                                Plugins → Add New → Upload Plugin
+                              </code>
+                            </li>
+                            <li>
+                              Upload the downloaded zip file and activate the
+                              plugin
+                            </li>
+                            <li>
+                              Go to{" "}
+                              <code className="bg-green-100 dark:bg-green-800 px-1 rounded">
+                                WooCommerce → Settings → Payments → PayESV
+                              </code>{" "}
+                              in your admin menu
+                            </li>
+                            <li>
+                              Enter your API credentials (API Key, Brand Key,
+                              API Secret) and Enable Webhook Verification
+                            </li>
+                            <li>
+                              Copy your Webhook URL and paste it in the Webhook
+                              URL field in PayESV Dashboard
+                            </li>
+                            <li>Save Changes</li>
+                          </ol>
+                        </div>
+
+                        {/* Manual Integration Code */}
+                        <div className="mb-4">
+                          <h4 className="font-semibold mb-2 text-gray-700 dark:text-gray-300">
+                            Manual Integration (Alternative)
+                          </h4>
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                            If you prefer manual integration, use the code
+                            below:
+                          </p>
+                        </div>
+
                         <CodeBlock
                           code={wordpressCode}
                           className="text-green-400"
