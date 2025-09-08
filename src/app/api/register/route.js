@@ -113,6 +113,11 @@ export const POST = async (request) => {
       status,
     ];
 
+    // update affiliate table
+    const updateAffiliateQuery = `
+      UPDATE affiliate SET registrations = registrations + 1`;
+    await query(updateAffiliateQuery);
+
     const result = await query(insertUserQuery, values);
     const newUser = result.rows[0];
 
