@@ -24,21 +24,50 @@ import {
   Zap,
 } from "lucide-react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 
 export default function ReferralPage({ params }) {
   const [referrerName, setReferrerName] = useState("Your Friend");
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const { id } = useParams();
+  const [currentUrl, setCurrentUrl] = useState("");
 
   useEffect(() => {
-    // Simulate loading referral data
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
+    const fetchReferral = async () => {
+      const res = await fetch(`/api/user/referral`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id }),
+      });
+      const data = await res.json();
+    };
+    if (id) {
+      fetchReferral();
+    }
+  }, [id]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setCurrentUrl(window.location.href);
+    }
   }, []);
 
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(window.location.href);
+    const textToCopy = currentUrl;
+    if (!textToCopy) return;
+    if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(textToCopy);
+    } else if (typeof document !== "undefined") {
+      const tempInput = document.createElement("textarea");
+      tempInput.value = textToCopy;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      document.execCommand("copy");
+      document.body.removeChild(tempInput);
+    }
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -47,8 +76,7 @@ export default function ReferralPage({ params }) {
     {
       icon: <Gift className="h-6 w-6 text-green-500" />,
       title: "Welcome Bonus",
-      description:
-        "Purchase when you sign up through this referral",
+      description: "Purchase when you sign up through this referral",
     },
     {
       icon: <Users className="h-6 w-6 text-blue-500" />,
@@ -221,11 +249,7 @@ export default function ReferralPage({ params }) {
             </CardHeader>
             <CardContent>
               <div className="flex space-x-2">
-                <Input
-                  value={window.location.href}
-                  readOnly
-                  className="flex-1"
-                />
+                <Input value={currentUrl} readOnly className="flex-1" />
                 <Button onClick={handleCopyLink} variant="outline">
                   {copied ? (
                     <CheckCircle className="h-4 w-4" />
